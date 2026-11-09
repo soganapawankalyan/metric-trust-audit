@@ -21,3 +21,17 @@ SELECT COUNT(*) AS n_invoices, AVG(gross) AS mean,
        (SELECT AVG(gross) FROM t WHERE rn IN ((c + 1) / 2, (c + 2) / 2)) AS median,
        (SELECT SUM(gross) FROM t WHERE rn > 0.9 * c) * 1.0 / SUM(gross) AS top10_share
 FROM t;
+
+-- every revenue answer in the file is a combination of five yes/no rules. This table holds the money in each
+-- (month x rule class) cell, so the dashboard can recompute all 32 combinations exactly without row-level data.
+-- is_purchase = non-cancelled invoice, quantity > 0 and price > 0.  dup_kind: 0 = first or only copy, 1 = repeat on one sheet, 2 = copy on the other sheet.
+DROP TABLE IF EXISTS rule_cells;
+CREATE TABLE rule_cells AS
+SELECT month,
+       is_product,
+       CASE WHEN is_cancel = 0 AND qty > 0 AND price > 0 THEN 1 ELSE 0 END AS is_purchase,
+       CASE dup_kind WHEN 'repeat' THEN 1 WHEN 'cross_sheet' THEN 2 ELSE 0 END AS dup_kind,
+       CASE WHEN customer_id IS NULL THEN 0 ELSE 1 END AS has_customer,
+       SUM(line_value) AS value,
+       COUNT(*) AS n_lines
+FROM lines GROUP BY 1, 2, 3, 4, 5;

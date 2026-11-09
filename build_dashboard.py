@@ -105,7 +105,12 @@ pool = dict(returns=-tot.returns / tot.gross, dups=(tot.dup_repeat + tot.dup_cro
 cross_total = int(tests[tests.test_id == "U2"].rows_failing.iloc[0])
 qm = quality.sort_values("dup_pct", ascending=False).iloc[0]
 
+cells = R("rule_cells"); cells = cells[cells.month.isin(full)]
+rule_cells = {m: [[int(r.is_product), int(r.is_purchase), int(r.dup_kind), int(r.has_customer), round(float(r.value), 2)] for r in g.itertuples()]
+              for m, g in cells.groupby("month")}
+
 DATA = dict(
+    rule_cells=rule_cells,
     meta=dict(source=meta["source"], demo=demo, rows=meta["rows"], first=meta["first_day"], last=meta["last_day"], latest=latest, n_months=len(full), first_full=full[0]),
     months=full, labels=[mlabel(m) for m in full],
     defs=D, series=series, dec=dec, drift=dr, H=H, widest=widest,

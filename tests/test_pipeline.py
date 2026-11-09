@@ -36,6 +36,16 @@ raw = q("SELECT COUNT(*) n, SUM(Quantity*Price) s FROM raw").iloc[0]
 check("no rows lost between raw and lines", lines.n == raw.n)
 check("ledger total equals raw sum of quantity x price", abs(lines.s - raw.s) < 0.01 and abs(lines.s - r.r1) < 0.01)
 
+# the dashboard recomputes revenue from rule_cells with five on/off rules; the five named definitions must come out exactly
+rc = q("SELECT * FROM rule_cells")
+mr = q("SELECT month, r1, r2, r3, r4, r5 FROM m_revenue").set_index("month")
+def combo(a, b, c, d, e):
+    k = rc[((rc.is_product == 1) | (a == 1)) & ((rc.is_purchase == 1) | (b == 1)) & ~((rc.dup_kind == 1) & (c == 1)) & ~((rc.dup_kind == 2) & (d == 1)) & ~((rc.has_customer == 0) & (e == 1))]
+    return k.groupby("month").value.sum()
+for name, key in [("r1", (1, 1, 0, 0, 0)), ("r2", (0, 0, 0, 0, 0)), ("r3", (0, 1, 0, 0, 0)), ("r4", (0, 1, 1, 1, 0)), ("r5", (0, 1, 1, 1, 1))]:
+    got = combo(*key).reindex(mr.index).fillna(0)
+    check(f"rule switches {key} reproduce {name.upper()} in every month", (got - mr[name].fillna(0)).abs().max() < 0.01, (got - mr[name].fillna(0)).abs().max())
+
 print("2. cross-engine (pandas from the CSV)")
 df = pd.read_csv("data/raw/online_retail_ii.csv", dtype={"Invoice": str, "StockCode": str, "Customer ID": str}, keep_default_na=False)
 df["sc"] = df.StockCode.str.upper().str.strip()

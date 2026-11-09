@@ -4,93 +4,129 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>One metric, five answers: a metric trust audit</title>
-<meta name="description" content="The same sales question answered five reasonable ways from one public retail file. How far apart the answers land, whether they change decisions, and what a governed metric layer fixes.">
+<meta name="description" content="Revenue is five yes-or-no rules. Switch them on and off, see which of 32 answers you built, and check whether the choice changes a business decision. Built from one public retail file.">
 <style>
 :root{
   color-scheme:light;
-  --surface:#fcfcfb; --wash:#f3f3f0; --ink:#0b0b0b; --ink2:#52514e; --muted:#6b6a65;
-  --grid:#e1e0d9; --axis:#c3c2b7; --mark-mute:#898781; --ring:rgba(11,11,11,.10);
+  --surface:#f3f4ef; --paper:#fffefb; --wash:#e9ebe3; --ink:#101210; --ink2:#464a42; --muted:#62665b;
+  --grid:#dcdfd4; --axis:#b8bcae; --mark-mute:#7d8175; --ring:rgba(16,18,16,.12);
   --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
   --sev-high:#d03b3b; --sev-med:#ec835a; --sev-low:#fab219; --sev-pass:#0ca30c; --pos:#006300;
-  --shadow:0 6px 24px rgba(11,11,11,.14);
+  --shadow:0 6px 24px rgba(16,18,16,.14); --tape-shadow:rgba(16,18,16,.10);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --surface:#1a1a19; --wash:#242423; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a3a299;
-  --grid:#2c2c2a; --axis:#383835; --mark-mute:#898781; --ring:rgba(255,255,255,.10);
+  --surface:#141615; --paper:#1e211f; --wash:#1f2220; --ink:#eef0ea; --ink2:#c6c9bf; --muted:#a0a496;
+  --grid:#2a2d2a; --axis:#3a3e3a; --mark-mute:#8a8e82; --ring:rgba(255,255,255,.12);
   --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181;
-  --pos:#0ca30c; --shadow:0 6px 24px rgba(0,0,0,.5);
+  --pos:#0ca30c; --shadow:0 6px 24px rgba(0,0,0,.55); --tape-shadow:rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:24px}
 body{margin:0;background:var(--surface);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.015em;text-wrap:balance}
-h1{font-size:clamp(34px,6vw,56px);line-height:1.04;letter-spacing:-.03em}
-h2{font-size:clamp(22px,3vw,28px);line-height:1.22;max-width:30em}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;letter-spacing:-.03em}
+h2{font-size:clamp(22px,2.6vw,30px);line-height:1.2;max-width:26em}
 h3{font-size:16px;line-height:1.35}
 p{margin:0}
 a{color:var(--c1)}
 :focus-visible{outline:2px solid var(--c1);outline-offset:2px;border-radius:4px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:8px;z-index:20}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:8px;z-index:60}
 .skip:focus{top:12px}
-.muted{color:var(--muted)}
-.small{font-size:13.5px;line-height:1.5}
+.muted{color:var(--muted)} .small{font-size:13.5px;line-height:1.5}
+
+/* ---- shell: a control rail beside the work, not a header above it */
+.shell{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:224px minmax(0,1fr);column-gap:64px;padding:0 32px}
+.rail{position:sticky;top:0;align-self:start;height:100vh;display:flex;flex-direction:column;gap:28px;padding:32px 0 28px}
+.brand{display:flex;gap:12px;align-items:center;font-weight:650;line-height:1.2;font-size:15px}
+.brand svg{flex:none;width:44px;height:24px}
+.ctl .lbl{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.stepper{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:4px}
+.stepper button,.stepper select,.btn{font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--axis);border-radius:10px;min-height:44px;cursor:pointer}
+.stepper button{display:grid;place-items:center;padding:0}
+.stepper button svg{width:16px;height:16px}
+.stepper select{padding:0 10px;min-width:0;font-weight:550}
+.stepper button:hover,.stepper select:hover,.btn:hover{border-color:var(--ink2)}
+.stepper button:disabled{opacity:.35;cursor:default}
+.btn{padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.toc{flex:1;min-height:0;overflow:auto}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc a{display:block;padding:7px 0 7px 14px;border-left:2px solid var(--grid);color:var(--ink2);text-decoration:none;font-size:14.5px;line-height:1.35}
+.toc a:hover{color:var(--ink);border-left-color:var(--axis)}
+.toc a[aria-current="true"]{border-left-color:var(--ink);color:var(--ink);font-weight:600}
+.railfoot{display:grid;gap:10px}
+main{min-width:0;padding-bottom:40px}
 
 /* ---- masthead */
-header.top{padding:56px 0 36px}
-header.top .lede{margin-top:20px;font-size:19px;line-height:1.5;color:var(--ink2);max-width:36em}
-header.top .src{margin-top:16px;font-size:14px;color:var(--muted);max-width:52em}
-.demo{margin-top:24px;padding:12px 16px;border-left:4px solid var(--sev-low);background:var(--wash);border-radius:0 8px 8px 0;font-size:14.5px;max-width:52em}
-.demo b{font-weight:650}
-
-/* ---- sticky filter row */
-.bar{position:sticky;top:0;z-index:10;background:var(--surface);border-top:1px solid var(--grid);border-bottom:1px solid var(--grid)}
-.bar .wrap{display:flex;gap:16px 24px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
-.tabs{display:flex;gap:4px;background:var(--wash);padding:4px;border-radius:10px}
-.tabs button{appearance:none;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:550;font-size:15px;min-height:44px;padding:0 16px;border-radius:7px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
-.tabs button:hover:not([aria-selected="true"]){color:var(--ink)}
-.field{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
-select,.btn{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--axis);border-radius:8px;min-height:44px;padding:0 12px;cursor:pointer}
-select:hover,.btn:hover{border-color:var(--ink2)}
-.bar .push{margin-left:auto}
+.mast{padding:56px 0 8px}
+.mast .lede{margin-top:16px;font-size:18px;line-height:1.5;color:var(--ink2);max-width:44em}
+.mast .src{margin-top:14px;font-size:14px;color:var(--muted);max-width:52em}
+.demo{margin-top:20px;padding:12px 16px;border-left:4px solid var(--sev-low);background:var(--wash);border-radius:0 8px 8px 0;font-size:14.5px;max-width:52em}
 
 /* ---- sections */
-section{padding:56px 0;border-top:1px solid var(--grid)}
-section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
-.block{margin-top:32px}
-.row-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.row-head .btn{min-height:44px;font-size:14px;padding:0 14px}
+section{padding:84px 0 0}
+#lab{padding-top:44px}
+section>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
+.block{margin-top:36px}
+.row-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.row-head .btn{min-height:44px;font-size:14px}
+.note{margin-top:14px;max-width:46em;color:var(--ink2);font-size:14.5px}
+.seg{display:inline-flex;gap:2px;background:var(--wash);padding:3px;border-radius:12px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:550;font-size:14.5px;min-height:44px;padding:0 15px;border-radius:9px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.seg button:hover:not([aria-selected="true"]){color:var(--ink)}
+.controls{display:flex;gap:12px 20px;align-items:center;flex-wrap:wrap;margin-top:26px}
 
-/* ---- hero */
-.hero{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:40px;margin-top:32px;align-items:start}
-.fig{font-size:clamp(64px,9vw,104px);line-height:.95;font-weight:700;letter-spacing:-.04em}
-.fig-cap{margin-top:12px;color:var(--ink2);font-size:15px;max-width:15em}
-.dots{position:relative}
-.dotrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;align-items:center;min-height:52px;border-top:1px solid var(--grid);padding:4px 0;border-radius:6px}
-.dotrow:last-of-type{border-bottom:1px solid var(--grid)}
-.dotrow:hover,.dotrow:focus-visible{background:var(--wash)}
-.dotrow .nm{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:550;line-height:1.25}
+/* ---- the lab: a calculation tape you can strike through */
+.lab{display:grid;grid-template-columns:minmax(310px,390px) minmax(0,1fr);gap:56px;margin-top:40px;align-items:start}
+.tapewrap{filter:drop-shadow(0 1px 0 var(--tape-shadow)) drop-shadow(0 10px 18px var(--tape-shadow));padding-bottom:12px}
+.tape{position:relative;background:var(--paper);padding:20px 20px 22px}
+.tape::before,.tape::after{content:"";position:absolute;left:0;right:0;height:9px;background-size:16px 9px;background-repeat:repeat-x}
+.tape::before{top:-8px;background-image:linear-gradient(135deg,transparent 4.6px,var(--paper) 4.6px),linear-gradient(225deg,transparent 4.6px,var(--paper) 4.6px);background-size:16px 9px;background-position:0 0,8px 0;}
+.tape::after{bottom:-8px;background-image:linear-gradient(-45deg,transparent 4.6px,var(--paper) 4.6px),linear-gradient(45deg,transparent 4.6px,var(--paper) 4.6px);background-position:0 0,8px 0}
+.tape-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--ink);font-size:14px;color:var(--ink2)}
+.tape-h b{color:var(--ink);font-weight:650}
+.tape-h .btn{min-height:44px;font-size:13.5px;padding:0 12px;border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--axis)}
+.lines{list-style:none;margin:0;padding:0}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:10px;border-bottom:1px dotted var(--axis)}
+.ln .amt{font:500 14.5px/1.2 var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;min-width:6.2em}
+.ln.base{min-height:56px}
+.ln.base .rt{padding-left:52px}
+.rule{display:flex;gap:12px;align-items:center;min-height:60px;width:100%;text-align:left;background:none;border:0;padding:8px 0;cursor:pointer;color:inherit;font:inherit}
+.rule:focus-visible{outline-offset:-2px}
+.tog{flex:none;width:40px;height:24px;border-radius:12px;background:var(--mark-mute);position:relative;transition:background .15s}
+.tog i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--paper);transition:transform .15s}
+.rule[aria-checked="true"] .tog{background:var(--ink)}
+.rule[aria-checked="true"] .tog i{transform:translateX(16px)}
+.rt{display:block;line-height:1.3}
+.rt b{display:block;font-weight:600;font-size:15px}
+.rt small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.ln:not(.on):not(.base) .rt b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
+.ln:not(.on):not(.base) .amt{color:var(--muted);font-style:italic}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px;padding-top:12px;border-top:3px double var(--ink)}
+.total span{font-weight:650;font-size:15px}
+.total b{font:600 clamp(26px,3vw,34px)/1.1 var(--mono);letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.status{margin-top:14px;display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.45;min-height:3em}
+.status .sw{margin-top:4px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{display:inline-flex;gap:8px;align-items:center;min-height:44px;padding:0 13px 0 11px;border:1px solid var(--axis);border-radius:22px;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:550;cursor:pointer}
+.chip:hover{border-color:var(--ink2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip em{font-style:normal;color:inherit;opacity:.7;font-weight:500}
 .sw{flex:none;width:12px;height:12px;border-radius:50%;background:var(--sw)}
-.sw.ln{width:18px;height:3px;border-radius:2px}
-.dotrow .lane{position:relative;height:28px}
-.dotrow .dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--sw);box-shadow:0 0 0 2px var(--surface)}
-.dotrow .val{text-align:right;font-variant-numeric:tabular-nums;line-height:1.25}
-.dotrow .val b{font-size:17px;font-weight:650}
-.dotrow .val span{display:block;font-size:12.5px;color:var(--muted)}
-.guide{position:absolute;top:22px;bottom:30px;width:0;border-left:1.5px solid var(--c1);pointer-events:none}
-.guide-l{position:absolute;top:0;font-size:12.5px;font-weight:600;white-space:nowrap;transform:translateX(-50%)}
-.axisrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;height:26px}
-.axisrow .ax{position:relative;font-size:12px;color:var(--muted)}
-.axisrow .ax span{position:absolute;top:6px;transform:translateX(-50%);white-space:nowrap}
-.dotrow.na .lane::after{content:"needs 90 days of history";position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+.sw.ln2{width:18px;height:3px;border-radius:2px}
+.labright>.block:first-child{margin-top:0}
+.labright svg{display:block;max-width:100%;overflow:visible}
+.gdot{cursor:pointer}
+.gdot:focus-visible{outline:none}
+.gdot:focus-visible circle.vis{stroke:var(--ink);stroke-width:2.5}
 
 /* ---- tables */
 .tbl{width:100%;border-collapse:collapse;font-size:14.5px}
 .tbl th{text-align:left;font-weight:600;color:var(--ink2);font-size:13px;padding:10px 12px 10px 0;border-bottom:1px solid var(--axis);vertical-align:bottom}
-.tbl td{padding:14px 12px 14px 0;border-bottom:1px solid var(--grid);vertical-align:top}
+.tbl td{padding:13px 12px 13px 0;border-bottom:1px solid var(--grid);vertical-align:top}
 .tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tbl td.num{white-space:nowrap}
 .tbl tr.gov td{background:var(--wash)}
@@ -105,17 +141,17 @@ section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
 .scroll .tbl td{padding-left:12px;padding-top:8px;padding-bottom:8px}
 
 /* ---- charts */
-.chart{position:relative;margin-top:8px}
+.chart{position:relative;margin-top:6px}
 .chart svg{display:block;max-width:100%;overflow:visible}
-.legend{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:4px;font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:14px}
 .legend button{display:inline-flex;gap:8px;align-items:center;appearance:none;background:none;border:0;font:inherit;color:var(--ink);padding:6px 4px;min-height:44px;cursor:pointer;border-radius:6px}
 .legend button:hover{background:var(--wash)}
 .legend em{font-style:normal;color:var(--muted);font-size:12.5px}
-.ln{transition:opacity .15s}
+.ln-line{transition:opacity .15s}
 .dim{opacity:.18}
 .tick{font-size:12px;fill:var(--muted)}
 .cross{pointer-events:none}
-#tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);color:var(--ink);border-radius:10px;box-shadow:var(--shadow),0 0 0 1px var(--ring);padding:10px 12px;font-size:13.5px;line-height:1.4;max-width:300px;opacity:0;transition:opacity .08s}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--paper);color:var(--ink);border-radius:10px;box-shadow:var(--shadow),0 0 0 1px var(--ring);padding:10px 12px;font-size:13.5px;line-height:1.4;max-width:300px;opacity:0;transition:opacity .08s}
 #tip.on{opacity:1}
 #tip .th{color:var(--ink2);font-size:12.5px;margin-bottom:6px}
 #tip .tr{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;margin-top:3px}
@@ -123,36 +159,38 @@ section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
 #tip .tr .k{height:3px;border-radius:2px;background:var(--sw)}
 #tip p{margin-top:6px;color:var(--ink2);font-size:12.5px}
 
-/* ---- flip strip */
-.strip{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
-.cell{appearance:none;font:inherit;width:42px;height:48px;border:1.5px solid transparent;border-radius:8px;background:var(--wash);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;line-height:1.1;padding:0}
-.cell small{font-size:11px}
-.cell b{font-size:18px;font-weight:650}
+/* ---- verdicts */
+.verdict{margin-top:22px}
+.verdict .tbl td,.verdict .tbl th{padding-right:10px}
+
+/* ---- flip grid */
+.fwrap{overflow-x:auto;margin-top:22px;padding-bottom:6px}
+.fgrid{display:grid;grid-template-columns:150px repeat(var(--n),minmax(0,1fr));gap:3px}
+.fgrid .yr,.fgrid .mh{font-size:12px;color:var(--muted);text-align:center;white-space:nowrap}
+.fgrid .yr{text-align:left;height:18px}
+.fgrid .rl{position:sticky;left:0;background:var(--surface);z-index:1;display:flex;flex-direction:column;justify-content:center;font-weight:600;font-size:14.5px;line-height:1.25;padding-right:10px}
+.fgrid .rl span{font-weight:400;font-size:12.5px;color:var(--muted)}
+.cell{appearance:none;font:inherit;height:48px;border:1.5px solid transparent;border-radius:8px;background:var(--wash);color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0;font-size:18px;font-weight:650}
 .cell.flip{background:var(--ink);color:var(--surface)}
 .cell.mixed{background:var(--surface);border-color:var(--ink2);color:var(--ink)}
-.cell.nocmp{opacity:.45;cursor:default}
+.cell.nocmp{opacity:.4;cursor:default}
 .cell.sel{outline:2px solid var(--c1);outline-offset:2px}
 .key{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:14px;font-size:13.5px;color:var(--ink2)}
 .key span{display:inline-flex;gap:8px;align-items:center}
 .key i{width:22px;height:22px;border-radius:6px;display:inline-grid;place-items:center;font-style:normal;font-weight:700;font-size:13px}
 
-/* ---- why section bars */
+/* ---- bars */
 .hbars{display:grid;gap:0}
-.hb{display:grid;grid-template-columns:260px minmax(0,1fr) 120px;gap:16px;align-items:center;min-height:48px;border-top:1px solid var(--grid);padding:6px 0}
+.hb{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr) 110px;gap:14px;align-items:center;min-height:52px;border-top:1px solid var(--grid);padding:6px 0}
 .hb:last-child{border-bottom:1px solid var(--grid)}
-.hb.gap{margin-top:14px}
-.hb .nm{font-size:14.5px;line-height:1.3}
+.hb .nm{font-size:14px;line-height:1.3}
 .hb .nm b{display:block;font-weight:600}
 .hb .nm span{color:var(--muted);font-size:12.5px}
 .hb .track{position:relative;height:24px}
 .hb .bar-m{position:absolute;top:2px;height:20px;background:var(--sw);border-radius:4px;min-width:3px}
-.hb .bar-m.d{background:var(--mark-mute)}
 .hb .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:15px;line-height:1.2}
 .hb .val span{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
 .hb .zero{position:absolute;top:-6px;bottom:-6px;border-left:1px solid var(--axis)}
-.note{margin-top:16px;max-width:46em;color:var(--ink2);font-size:14.5px}
-
-/* ---- trust */
 .sev{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:13.5px;white-space:nowrap}
 .sev svg{width:14px;height:14px;flex:none}
 .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px}
@@ -160,26 +198,29 @@ section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
 .steps{display:grid;gap:20px;margin:0;padding:0;list-style:none}
 .steps li{max-width:34em}
 .steps b{display:block;margin-bottom:2px}
-pre{margin:0;padding:16px;background:var(--wash);border-radius:10px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:auto;color:var(--ink)}
-footer{border-top:1px solid var(--grid);padding:40px 0 72px;color:var(--ink2);font-size:14px}
-footer p+p{margin-top:10px}
-footer p{max-width:60em}
+pre{margin:0;padding:16px;background:var(--wash);border-radius:10px;font:13px/1.55 var(--mono);overflow:auto;color:var(--ink)}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+summary::before{content:"";flex:none;border:5px solid transparent;border-left-color:currentColor;margin-right:10px;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+footer{margin-top:84px;border-top:1px solid var(--grid);padding:36px 0 48px;color:var(--ink2);font-size:14px}
+footer p{max-width:60em} footer p+p{margin-top:10px}
 
-@media (max-width:860px){
-  .hero{grid-template-columns:1fr;gap:24px}
+@media (max-width:1100px){
+  .shell{grid-template-columns:minmax(0,1fr);padding:0 20px}
+  .rail{position:sticky;z-index:30;height:auto;flex-direction:row;align-items:center;gap:12px;padding:8px 0;background:var(--surface);border-bottom:1px solid var(--grid);margin:0 -20px;padding-left:20px;padding-right:20px;top:0}
+  .brand b{display:none}
+  .ctl{flex:1;min-width:0}.ctl .lbl{display:none}
+  .toc,.railfoot .src-link{display:none}
+  .stepper{max-width:340px}
+  .lab{grid-template-columns:minmax(0,1fr);gap:44px}
+  .tapewrap{max-width:460px}
   .cols{grid-template-columns:1fr;gap:32px}
+  section{padding-top:64px}
+  html{scroll-padding-top:72px}
 }
 @media (max-width:720px){
-  .wrap{padding:0 16px}
-  header.top{padding:36px 0 28px}
-  section{padding:40px 0}
-  .tabs button{padding:0 11px;font-size:14px}
-  .dotrow,.axisrow{grid-template-columns:minmax(0,1fr) auto}
-  .dotrow .nm{grid-column:1}.dotrow .val{grid-column:2;grid-row:1}
-  .dotrow .lane{grid-column:1/-1;grid-row:2;height:20px}
-  .dotrow{padding:8px 0 4px}
-  .axisrow .l,.axisrow .r{display:none}.axisrow{grid-template-columns:1fr}
-  .guide{top:22px}
+  .mast{padding:32px 0 0}
+  section{padding-top:52px}
   .hb{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}
   .hb .nm{grid-column:1}.hb .val{grid-column:2;grid-row:1}.hb .track{grid-column:1/-1;grid-row:2}
   table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
@@ -190,99 +231,106 @@ footer p{max-width:60em}
   table.stack td.first::before{content:none}
   table.stack tr.gov{padding-left:12px;box-shadow:inset 3px 0 0 var(--c1)}
   table.stack tr.gov td{background:none}table.stack tr.gov td:first-child{box-shadow:none;padding-left:0}
-  .cell{width:44px;height:48px}
+  .seg button{padding:0 11px;font-size:14px}
+  #theme .t{display:none}#theme{width:44px;padding:0}
+  .brand svg{width:34px}
+  .fgrid{grid-template-columns:120px repeat(var(--n),44px);min-width:calc(120px + var(--n)*47px)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-@media print{.bar,.btn{display:none}section{break-inside:avoid}}
+@media print{.rail{display:none}.shell{display:block}section{break-inside:avoid}.btn{display:none}}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to the audit</a>
-<header class="top">
-  <div class="wrap">
-    <h1>One metric, five answers</h1>
-    <p class="lede">Ask five analysts for monthly revenue, active customers or average order value and you will get five different numbers, all defensible. This audit puts a size on that gap, checks whether it changes decisions, and shows what a governed metric layer fixes.</p>
-    <p class="src" id="src"></p>
-    <div class="demo" id="demo" hidden><b>Demo data.</b> This page was built from synthetic sales generated to have the same columns and the same kinds of mess as the real file, with four traps planted on purpose. None of these numbers describe a real company. Running the pipeline on the real file replaces every figure and sentence.</div>
+<a class="skip" href="#lab">Skip to the audit</a>
+<div class="shell">
+<aside class="rail" aria-label="Month, chapters and display">
+  <div class="brand"><svg viewBox="0 0 44 24" aria-hidden="true"><circle cx="5" cy="12" r="4" fill="var(--c2)"/><circle cx="16" cy="12" r="4" fill="var(--c3)"/><circle cx="27" cy="12" r="4" fill="var(--c4)"/><circle cx="38" cy="12" r="4" fill="var(--c5)"/><circle cx="22" cy="12" r="0"/><rect x="0" y="21" width="44" height="2" rx="1" fill="var(--c1)"/></svg><b>Metric<br>trust audit</b></div>
+  <div class="ctl">
+    <span class="lbl" id="m-lbl">Month shown</span>
+    <div class="stepper" role="group" aria-labelledby="m-lbl">
+      <button id="m-prev" type="button" aria-label="Previous month"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <select id="month" aria-label="Month"></select>
+      <button id="m-next" type="button" aria-label="Next month"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
   </div>
-</header>
-
-<div class="bar" role="region" aria-label="Filters">
-  <div class="wrap">
-    <div class="tabs" role="tablist" aria-label="Metric" id="tabs"></div>
-    <label class="field">Month <select id="month" aria-label="Month shown in the charts below"></select></label>
-    <button class="btn push" id="theme" type="button">Dark mode</button>
-  </div>
-</div>
+  <nav class="toc" aria-label="Chapters"><ol id="toc"></ol></nav>
+  <div class="railfoot"><button class="btn" id="theme" type="button" aria-label="Switch between light and dark mode"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 2a6 6 0 0 1 0 12Z" fill="currentColor"/></svg><span class="t">Dark mode</span></button></div>
+</aside>
 
 <main id="main">
-<section id="s-hero" aria-labelledby="h-hero"><div class="wrap">
-  <h2 id="h-hero"></h2>
-  <div class="hero">
-    <div><div class="fig" id="fig"></div><p class="fig-cap" id="figcap"></p></div>
-    <div><div class="dots" id="dots"></div></div>
+<header class="mast">
+  <h1>One metric, five answers</h1>
+  <p class="lede">Ask five analysts for monthly revenue and you get five different numbers, each one defensible. Underneath, revenue is five yes-or-no rules. This audit lets you set them, and checks whether the choice changes a business decision.</p>
+  <p class="src" id="src"></p>
+  <div class="demo" id="demo" hidden><b>Demo data.</b> This page was built from synthetic sales with the same columns and the same kinds of mess as the real file, and four traps planted on purpose. None of these numbers describe a real company. Running the pipeline on the real file replaces every figure and sentence.</div>
+</header>
+
+<section id="lab" data-toc="The tape" aria-labelledby="h-lab">
+  <h2 id="h-lab"></h2>
+  <p class="intro" id="lab-intro"></p>
+  <div class="lab">
+    <div class="tapewrap"><div class="tape" id="tape"></div></div>
+    <div class="labright">
+      <div class="block"><h3 id="ways-h"></h3><div class="chart" id="ways"></div><p class="note small" id="ways-note"></p></div>
+      <div class="block"><h3 id="you-h"></h3><div class="row-head"><div class="legend" id="you-leg"></div></div><div class="chart" id="you"></div><div class="verdict" id="verdict"></div></div>
+    </div>
   </div>
-  <p class="note" id="hero-note"></p>
-</div></section>
+</section>
 
-<section id="s-defs" aria-labelledby="h-defs"><div class="wrap">
-  <h2 id="h-defs"></h2>
-  <p class="intro" id="defs-intro"></p>
-  <div class="block"><table class="tbl stack" id="deftbl"></table></div>
-</div></section>
-
-<section id="s-trend" aria-labelledby="h-trend"><div class="wrap">
-  <h2 id="h-trend"></h2>
-  <p class="intro" id="trend-intro"></p>
+<section id="ruler" data-toc="One ruler" aria-labelledby="h-ruler">
+  <h2 id="h-ruler"></h2>
+  <p class="intro" id="ruler-intro"></p>
   <div class="block">
-    <div class="row-head"><div class="legend" id="trend-leg"></div><button class="btn" id="trend-tb" type="button" aria-pressed="false">Show as table</button></div>
-    <div class="chart" id="trend"></div>
-    <div class="scroll" id="trend-table" hidden></div>
+    <div class="row-head"><span class="muted small">Every dot is a definition. The letter and number name it.</span><button class="btn" id="ruler-tb" type="button" aria-pressed="false">Show as table</button></div>
+    <div class="chart" id="ladder"></div>
+    <div class="scroll" id="ladder-table" hidden></div>
   </div>
-</div></section>
+</section>
 
-<section id="s-decide" aria-labelledby="h-decide"><div class="wrap">
+<section id="time" data-toc="Over time" aria-labelledby="h-time">
+  <h2 id="h-time"></h2>
+  <p class="intro" id="time-intro"></p>
+  <div class="controls"><div class="seg" role="tablist" aria-label="Metric" data-mt></div><div class="seg" role="tablist" aria-label="View" id="viewseg"></div><button class="btn" id="time-tb" type="button" aria-pressed="false" style="margin-left:auto">Show as table</button></div>
+  <div class="block" style="margin-top:14px">
+    <div class="row-head"><div class="legend" id="time-leg"></div></div>
+    <div class="chart" id="time-chart"></div>
+    <div class="scroll" id="time-table" hidden></div>
+  </div>
+</section>
+
+<section id="decide" data-toc="Decisions" aria-labelledby="h-decide">
   <h2 id="h-decide"></h2>
   <p class="intro" id="decide-intro"></p>
+  <div class="fwrap"><div class="fgrid" id="fgrid" role="group" aria-label="Months where the five definitions disagree on direction, for each metric"></div></div>
+  <div class="key" id="strip-key"></div>
   <div class="block">
-    <h3>Month by month: do the five answers move the same way?</h3>
-    <div class="strip" id="strip" role="group" aria-label="Months where the five definitions disagree on direction"></div>
-    <div class="key" id="strip-key"></div>
+    <div class="controls" style="margin-top:0"><div class="seg" role="tablist" aria-label="Metric" data-mt></div></div>
+    <h3 id="matrix-h" style="margin-top:20px"></h3>
+    <div style="margin-top:8px"><table class="tbl stack" id="matrix"></table></div>
   </div>
-  <div class="block">
-    <h3 id="matrix-h">The same questions, asked of each definition</h3>
-    <div style="margin-top:12px"><table class="tbl stack" id="matrix"></table></div>
-  </div>
-</div></section>
+</section>
 
-<section id="s-why" aria-labelledby="h-why"><div class="wrap">
-  <h2 id="h-why"></h2>
+<section id="why" data-toc="Why they differ" aria-labelledby="h-why">
+  <h2 id="h-why">Why customers and order value drift apart</h2>
   <p class="intro" id="why-intro"></p>
-  <div class="block" id="why"></div>
-</div></section>
-
-<section id="s-drift" aria-labelledby="h-drift"><div class="wrap">
-  <h2 id="h-drift"></h2>
-  <p class="intro" id="drift-intro"></p>
-  <div class="block">
-    <div class="row-head"><div class="legend" id="drift-leg"></div><button class="btn" id="drift-tb" type="button" aria-pressed="false">Show as table</button></div>
-    <div class="chart" id="drift"></div>
-    <div class="scroll" id="drift-table" hidden></div>
+  <div class="cols block">
+    <div><h3 id="h-whyc"></h3><p class="note small" id="whyc-intro" style="margin-top:6px"></p><div id="why-c" style="margin-top:14px"></div></div>
+    <div><h3 id="h-whya"></h3><p class="note small" id="whya-intro" style="margin-top:6px"></p><div id="why-a" style="margin-top:14px"></div></div>
   </div>
-</div></section>
+</section>
 
-<section id="s-trust" aria-labelledby="h-trust"><div class="wrap">
+<section id="trust" data-toc="Trust the file?" aria-labelledby="h-trust">
   <h2 id="h-trust"></h2>
   <p class="intro" id="trust-intro"></p>
-  <div class="block"><table class="tbl stack" id="tests"></table></div>
+  <div class="block"><table class="tbl stack" id="tests"></table><details id="passing" style="margin-top:14px"><summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600"></summary><table class="tbl stack" id="tests-pass" style="margin-top:6px"></table></details></div>
   <div class="block">
     <h3 id="q-h"></h3>
     <div class="chart" id="qchart"></div>
     <p class="note" id="q-note"></p>
   </div>
-</div></section>
+</section>
 
-<section id="s-gov" aria-labelledby="h-gov"><div class="wrap">
+<section id="gov" data-toc="What a team does" aria-labelledby="h-gov">
   <h2 id="h-gov">What a team does about it</h2>
   <div class="cols block">
     <ol class="steps" id="steps"></ol>
@@ -306,13 +354,19 @@ FROM months m JOIN m_customers c USING (month);</pre>
     </div>
   </div>
   <div class="block">
+    <h3>The dictionary</h3>
+    <div class="controls" style="margin-top:10px"><div class="seg" role="tablist" aria-label="Metric" data-mt></div></div>
+    <p class="note small" id="defs-intro" style="margin-top:12px"></p>
+    <div style="margin-top:10px"><table class="tbl stack" id="deftbl"></table></div>
+  </div>
+  <div class="block">
     <h3>What this audit cannot tell you</h3>
     <ul class="small" style="margin:10px 0 0;padding-left:20px;max-width:52em;color:var(--ink2)" id="limits"></ul>
   </div>
-</div></section>
+</section>
+<footer><div id="foot"></div></footer>
 </main>
-
-<footer><div class="wrap" id="foot"></div></footer>
+</div>
 <div id="tip" role="tooltip"></div>
 <div class="sr" aria-live="polite" id="live"></div>
 
@@ -320,6 +374,7 @@ FROM months m JOIN m_customers c USING (month);</pre>
 const DATA=/*DATA*/null;
 (()=>{
 "use strict";
+
 const D=DATA, MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const NAMES={revenue:"Revenue",customers:"Active customers",aov:"Average order value"};
 const TABS={revenue:"Revenue",customers:"Active customers",aov:"Order value"};
@@ -343,6 +398,7 @@ const gov=m=>defsOf(m).find(d=>d.governed);
 const sw=d=>"var(--c"+d.slot+")";
 function niceTicks(min,max,n){const span=(max-min)||1,s0=span/n,mag=Math.pow(10,Math.floor(Math.log10(s0))),nn=s0/mag,st=(nn<1.5?1:nn<3?2:nn<7?5:10)*mag;const out=[];for(let v=Math.floor(min/st)*st;;v+=st){out.push(+v.toFixed(10));if(v>=max-st*1e-6)break}return out}
 const mi=()=>D.months.indexOf(state.month);
+const col=x=>x.color||"var(--c"+x.slot+")";
 
 /* ---------- tooltip */
 const tipEl=$("#tip");
@@ -370,16 +426,16 @@ function lineChart(root,cfg){
   if(cfg.note){const x=X(cfg.note.index),right=x>W*.7;svg.append(s("line",{x1:x,x2:x,y1:m.t-8,y2:m.t,stroke:"var(--ink2)","stroke-width":1}),s("text",{x:x+(right?-5:5),y:m.t-12,"text-anchor":right?"end":"start",class:"tick",style:"fill:var(--ink2)",text:cfg.note.label}))}
   const order=[...cfg.series].sort((a,b)=>(a.governed?1:0)-(b.governed?1:0)),paths={};
   order.forEach(x=>{let d="",pen=false;x.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);pen=true});
-    const g=s("g",{class:"ln","data-id":x.id});g.append(s("path",{d,fill:"none",stroke:"var(--c"+x.slot+")","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round"}));
-    let last=-1;x.values.forEach((v,i)=>{if(v!=null)last=i});if(last>=0)g.append(s("circle",{cx:X(last),cy:Y(x.values[last]),r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2}));
+    const g=s("g",{class:"ln-line","data-id":x.id});g.append(s("path",{d,fill:"none",stroke:col(x),"stroke-width":2,"stroke-dasharray":x.dash||null,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    let last=-1;x.values.forEach((v,i)=>{if(v!=null)last=i});if(last>=0)g.append(s("circle",{cx:X(last),cy:Y(x.values[last]),r:5,fill:col(x),stroke:"var(--surface)","stroke-width":2}));
     svg.append(g);paths[x.id]=g});
   const cross=s("g",{class:"cross",style:"display:none"});const cl=s("line",{y1:m.t,y2:m.t+ph,stroke:"var(--ink2)","stroke-width":1});cross.append(cl);
-  const cd={};cfg.series.forEach(x=>{cd[x.id]=s("circle",{r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2});cross.append(cd[x.id])});svg.append(cross);
+  const cd={};cfg.series.forEach(x=>{cd[x.id]=s("circle",{r:5,fill:col(x),stroke:"var(--surface)","stroke-width":2});cross.append(cd[x.id])});svg.append(cross);
   const ov=s("rect",{x:m.l-6,y:m.t-4,width:pw+12,height:ph+8,fill:"transparent"});svg.append(ov);
   root.append(svg);
   let cur=null;
   function at(i,cx,cy){cur=i;cross.style.display="";cl.setAttribute("x1",X(i));cl.setAttribute("x2",X(i));
-    const rows=[];cfg.series.forEach(x=>{const v=x.values[i];if(v==null){cd[x.id].style.display="none";return}cd[x.id].style.display="";cd[x.id].setAttribute("cx",X(i));cd[x.id].setAttribute("cy",Y(v));rows.push({label:x.name+(x.governed?" (governed)":""),value:cfg.vfmt(v),color:"var(--c"+x.slot+")",v})});
+    const rows=[];cfg.series.forEach(x=>{const v=x.values[i];if(v==null){cd[x.id].style.display="none";return}cd[x.id].style.display="";cd[x.id].setAttribute("cx",X(i));cd[x.id].setAttribute("cy",Y(v));rows.push({label:x.name+(x.governed?" (governed)":""),value:cfg.vfmt(v),color:col(x),v})});
     rows.sort((a,b)=>b.v-a.v);tip.show(tipRows(mlab(cfg.keys[i]),rows),cx,cy);say(mlab(cfg.keys[i])+": "+rows.map(r=>r.label+" "+r.value).join(", "))}
   const idxOf=e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)*(W/r.width);return Math.max(0,Math.min(n-1,Math.round((x-m.l)/(pw/(n-1)))))};
   ov.addEventListener("pointermove",e=>at(idxOf(e),e.clientX,e.clientY));
@@ -392,137 +448,16 @@ function lineChart(root,cfg){
   svg.addEventListener("blur",()=>{cross.style.display="none";tip.hide();cur=null});
   return {focus(id){Object.entries(paths).forEach(([k,g])=>g.classList.toggle("dim",id!=null&&k!==id))}};
 }
-function legend(root,series,chartRef){root.replaceChildren();series.forEach(x=>{const b=h("button",{type:"button"},h("span",{class:"sw ln",style:"--sw:var(--c"+x.slot+")"}),x.name,x.governed?h("em",{text:"governed"}):null);
+function legend(root,series,chartRef){root.replaceChildren();series.forEach(x=>{const b=h("button",{type:"button"},h("span",{class:"sw ln2",style:"--sw:"+col(x)}),x.name,x.governed?h("em",{text:"governed"}):null);
   const on=()=>chartRef.c&&chartRef.c.focus(x.id),off=()=>chartRef.c&&chartRef.c.focus(null);
   b.addEventListener("pointerenter",on);b.addEventListener("pointerleave",off);b.addEventListener("focus",on);b.addEventListener("blur",off);root.append(b)})}
 function tableTwin(keys,series,vfmt){const t=h("table",{class:"tbl"},h("thead",null,h("tr",null,h("th",{text:"Month"}),series.map(x=>h("th",{class:"num",text:x.name})))),h("tbody",null,keys.map((k,i)=>h("tr",null,h("td",{text:mlab(k)}),series.map(x=>h("td",{class:"num",text:x.values[i]==null?"–":vfmt(x.values[i])}))))));return t}
 function toggle(btn,chartEl,tableEl,build){btn.onclick=()=>{const on=tableEl.hidden;tableEl.hidden=!on;chartEl.hidden=on;btn.setAttribute("aria-pressed",on);btn.textContent=on?"Show as chart":"Show as table";if(on)tableEl.replaceChildren(build())}}
-
-/* ---------- hero */
-function renderHero(){
-  const mt=state.metric,i=mi(),ds=defsOf(mt),g=gov(mt);
-  const rows=ds.map(d=>({d,v:D.series[mt][d.id][i]}));const have=rows.filter(r=>r.v!=null).sort((a,b)=>b.v-a.v);
-  const lo=have[have.length-1].v,hi=have[0].v,gv=rows.find(r=>r.d.id===g.id).v,spread=hi/lo-1;
-  const lead={revenue:"What was revenue in ",customers:"How many customers were active in ",aov:"What was the average order value in "}[mt];
-  $("#h-hero").textContent=lead+mlab(state.month)+"? Anywhere from "+fmt(mt,lo)+" to "+fmt(mt,hi)+", depending on who is counting";
-  $("#fig").textContent=(spread*100>=10?Math.round(spread*100):(spread*100).toFixed(1))+"%";
-  $("#figcap").textContent="between the lowest and highest answer to one question, for one month";
-  const dots=$("#dots");dots.replaceChildren();
-  const pad=(hi-lo)*.14||hi*.05,a=lo-pad,b=hi+pad,pos=v=>((v-a)/(b-a)*100);
-  const wrap=h("div",{style:"position:relative"});
-  const lane0=[];
-  have.concat(rows.filter(r=>r.v==null)).forEach(r=>{
-    const na=r.v==null,row=h("div",{class:"dotrow"+(na?" na":""),tabindex:0,"aria-label":r.d.name+": "+(na?"not enough history":fmt(mt,r.v))+(r.d.governed?", the governed definition":"")});
-    const lane=h("div",{class:"lane"});if(!na)lane.append(h("span",{class:"dot",style:"--sw:"+sw(r.d)+";left:"+pos(r.v)+"%"}));
-    const dlt=na?"":r.d.governed?"the governed answer":pct(r.v/gv-1)+" vs governed";
-    row.append(h("div",{class:"nm",style:"--sw:"+sw(r.d)},h("span",{class:"sw"}),h("span",null,r.d.name)),lane,h("div",{class:"val"},h("b",{text:na?"–":fmt(mt,r.v)}),h("span",{text:dlt})));
-    const show=e=>{const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(row,.5,.5);tip.show(h("div",null,h("div",{class:"th",text:r.d.name+(r.d.governed?" (governed)":"")}),h("p",{style:"margin:0;color:var(--ink)",text:r.d.rule}),h("p",{text:"Watch for: "+r.d.pitfall})),x,y)};
-    row.addEventListener("pointermove",show);row.addEventListener("focus",show);row.addEventListener("pointerleave",tip.hide);row.addEventListener("blur",tip.hide);
-    wrap.append(row);lane0.push(row)});
-  const gx=pos(gv);
-  const lanes=h("div",{style:"position:absolute;top:0;bottom:0;left:216px;right:166px;pointer-events:none"},h("div",{class:"guide-l",style:"left:"+gx+"%;top:-22px;color:var(--ink)",text:"governed"}),h("div",{class:"guide",style:"left:"+gx+"%;top:0;bottom:0"}));
-  lanes.dataset.lanes="1";wrap.append(lanes);
-  const ticks=niceTicks(a,b,3).filter(t=>t>=a&&t<=b);
-  const ax=h("div",{class:"axisrow"},h("div",{class:"l"}),h("div",{class:"ax"},ticks.map(t=>h("span",{style:"left:"+pos(t)+"%",text:(mt==="customers"?cnt(t):axMoney(t))}))),h("div",{class:"r"}));
-  dots.append(h("div",{style:"padding-top:24px;position:relative"},wrap,ax));
-  const small=matchMedia("(max-width:720px)").matches;if(small){lanes.style.left="0";lanes.style.right="0";lanes.style.display="none"}
-  const w=D.widest[mt];
-  $("#hero-note").textContent="The axis is zoomed to the range of the five answers so the gap is visible. Each dot is the same calendar month counted a different way. "+(spread<.02?"This month they sit close together; the widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".":"The widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".");
-}
-
-/* ---------- definitions table */
-function renderDefs(){
-  const mt=state.metric,i=mi();
-  $("#h-defs").textContent="Five defensible ways to count "+NAMES[mt].toLowerCase();
-  $("#defs-intro").textContent="Each row is a rule someone would write in good faith. The one marked governed is the definition this audit recommends, and why is in the last section. Colors stay fixed to a definition for the whole page, and blue always marks the governed one.";
-  const t=$("#deftbl");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),h("th",{text:"Who usually uses it"}),h("th",{text:"How it is counted"}),h("th",{text:"Where it goes wrong"}),h("th",{class:"num",text:mlab(state.month)}))),
-    h("tbody",null,defsOf(mt).map(d=>h("tr",{class:d.governed?"gov":""},
-      h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name,d.governed?h("span",{class:"tag"},tick(),"Governed"):null)),
-      h("td",{"data-l":"Used by",text:d.owner}),h("td",{"data-l":"Counted as",text:d.rule}),h("td",{"data-l":"Goes wrong",text:d.pitfall}),
-      h("td",{class:"num","data-l":mlab(state.month),text:fmt(mt,D.series[mt][d.id][i])})))));
-}
 function tick(){return s("svg",{viewBox:"0 0 12 12","aria-hidden":"true"},s("path",{d:"M2 6.5l2.6 2.6L10 3.2",fill:"none",stroke:"currentColor","stroke-width":1.8,"stroke-linecap":"round","stroke-linejoin":"round"}))}
-
-/* ---------- trend */
-const trendRef={},driftRef={};
-function renderTrend(){
-  const mt=state.metric,ds=defsOf(mt),keys=D.months;
-  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,governed:d.governed,values:D.series[mt][d.id]}));
-  const wd=D.widest[mt];
-  $("#h-trend").textContent="The gap is not a fixed offset: "+NAMES[mt].toLowerCase()+" under five definitions tells five different stories over time";
-  $("#trend-intro").textContent="The widest gap is "+pctp(wd.spread)+" in "+mlab(wd.month)+". Hover or use the arrow keys to read every definition for a month, and click a month to make it the one shown in the rest of the page. The latest month in the file is partial and left out.";
-  legend($("#trend-leg"),series,trendRef);
-  const cfg={keys,series,zero:true,axfmt:axfmt(mt),vfmt:v=>fmt(mt,v),aria:NAMES[mt]+" by month under five definitions.",note:{index:keys.indexOf(wd.month),label:"Widest gap"},pick:k=>setMonth(k)};
-  const draw=()=>{if($("#trend").hidden)return;trendRef.c=lineChart($("#trend"),cfg)};draw();trendRef.draw=draw;
-  toggle($("#trend-tb"),$("#trend"),$("#trend-table"),()=>tableTwin(keys,series,v=>fmt(mt,v)));
-  $("#trend-table").hidden=true;$("#trend").hidden=false;$("#trend-tb").textContent="Show as table";$("#trend-tb").setAttribute("aria-pressed","false");
-}
-
-/* ---------- decisions */
-function renderDecide(){
-  const mt=state.metric,E=D.dec[mt],ds=defsOf(mt),g=gov(mt);
-  $("#h-decide").textContent=E.n_flip===0?"For "+NAMES[mt].toLowerCase()+", the five definitions never pulled in opposite directions by a full percent":"In "+E.n_flip+" of "+E.n_cmp+" months, one definition of "+NAMES[mt].toLowerCase()+" said up while another said down";
-  $("#decide-intro").textContent="A gap in level can be shrugged off with a scaling factor. A gap in direction cannot. Here a flip means one definition moved up by 1% or more month on month while another moved down by 1% or more. "+(E.n_disagree>E.n_flip?E.n_disagree+" months have at least a small disagreement in sign.":"");
-  const st=$("#strip");st.replaceChildren();const fl=Object.fromEntries(E.flips.map(f=>[f.month,f]));
-  D.months.forEach(k=>{const f=fl[k];const cls=!f?"nocmp":f.flip?"flip":f.disagree?"mixed":"";const glyph=!f?"–":f.flip?"≠":f.disagree?"~":"=";
-    const b=h("button",{type:"button",class:"cell "+cls+(k===state.month?" sel":""),"aria-label":mlab(k)+": "+(!f?"not comparable":f.flip?"definitions disagree on direction":f.disagree?"signs differ by less than one percent":"all agree on direction")},h("small",{text:MON[+k.slice(5,7)-1]+(k.slice(5,7)==="01"||k===D.months[0]?" ’"+k.slice(2,4):"")}),h("b",{text:glyph}));
-    const show=e=>{if(!f)return;const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(b);const mm=E.mom[k]||{};tip.show(tipRows(mlab(k)+", change on the month before",ds.map(d=>({label:d.name+(d.governed?" (governed)":""),value:mm[d.id]==null?"–":pct(mm[d.id]),color:"var(--c"+d.slot+")"}))),x,y)};
-    b.addEventListener("pointermove",show);b.addEventListener("focus",show);b.addEventListener("pointerleave",tip.hide);b.addEventListener("blur",tip.hide);b.addEventListener("click",()=>{if(f)setMonth(k)});st.append(b)});
-  $("#strip-key").replaceChildren(
-    h("span",null,h("i",{style:"background:var(--ink);color:var(--surface)",text:"≠"}),"opposite moves of 1% or more"),
-    h("span",null,h("i",{style:"border:1.5px solid var(--ink2)",text:"~"}),"signs differ, all moves under 1%"),
-    h("span",null,h("i",{style:"background:var(--wash);color:var(--muted)",text:"="}),"all five move the same way"));
-  /* matrix */
-  const cols=[["Best month on record",d=>mlab(E.best[d.id]),(d,gd)=>E.best[d.id]!==E.best[gd.id]],
-    ["Latest month vs the one before ("+mshort(D.months[D.months.length-1])+" vs "+mshort(D.months[D.months.length-2])+")",d=>E.latest_mom[d.id]==null?"–":pct(E.latest_mom[d.id]),(d,gd)=>E.latest_mom[d.id]!=null&&Math.sign(E.latest_mom[d.id])!==Math.sign(E.latest_mom[gd.id])],
-    ["Last 12 months vs the 12 before",d=>E.yoy[d.id]==null?"–":pct(E.yoy[d.id]),(d,gd)=>E.yoy[d.id]!=null&&Math.sign(E.yoy[d.id])!==Math.sign(E.yoy[gd.id])]];
-  if(mt==="revenue")cols.splice(3,0,["Second-largest market",d=>E.second_country[d.id]||"–",(d,gd)=>E.second_country[d.id]!==E.second_country[gd.id]]);
-  cols.push([mt==="revenue"?"Total, last 12 months":"Monthly average, last 12 months",d=>fmt(mt,E.ttm[d.id]),()=>false,(d)=>d.governed?"":pct(E.ttm[d.id]/E.ttm[g.id]-1)+" vs governed"]);
-  $("#matrix-h").textContent="The same questions, asked of each definition";
-  const t=$("#matrix");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),cols.map((c,j)=>h("th",{class:j===cols.length-1?"num":"",text:c[0]})))),
-    h("tbody",null,ds.map(d=>h("tr",{class:d.governed?"gov":""},h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name)),
-      cols.map((c,j)=>{const differs=!d.governed&&c[2](d,g);return h("td",{class:j===cols.length-1?"num":"","data-l":c[0]},differs?h("span",{class:"diff",title:"Gives a different answer from the governed definition","aria-label":"differs from governed"},"≠"):null,c[1](d),c[3]?h("span",{class:"cellsub",text:c[3](d)}):null)})))));
-  const nd=ds.filter(d=>!d.governed&&cols.slice(0,-1).some(c=>c[2](d,g))).length;
-}
-
-/* ---------- why they differ */
-function renderWhy(){
-  const mt=state.metric,root=$("#why");root.replaceChildren();
-  if(mt==="revenue")whyRevenue(root);else if(mt==="customers")whyCustomers(root);else whyAov(root);
-}
-function hb(label,sub,startPct,widthPct,color,valTxt,valSub,cls){
-  return h("div",{class:"hb "+(cls||""),tabindex:0,"aria-label":label+": "+valTxt+(valSub?", "+valSub:"")},
-    h("div",{class:"nm"},h("b",{text:label}),sub?h("span",{text:sub}):null),
-    h("div",{class:"track"},h("div",{class:"bar-m"+(color?"":" d"),style:"left:"+startPct+"%;width:"+widthPct+"%;"+(color?"--sw:"+color:"")})),
-    h("div",{class:"val"},valTxt,valSub?h("span",{text:valSub}):null));
-}
-function whyRevenue(root){
-  const B=D.bridge[state.month],ds=defsOf("revenue"),by=Object.fromEntries(ds.map(d=>[d.id,d])),S=D.series.revenue,i=mi();
-  const R2=S.R2[i],R3=S.R3[i],R4=S.R4[i],R5=S.R5[i],R1=S.R1[i];
-  $("#h-why").textContent="Where the money goes between the biggest and smallest revenue number in "+mlab(state.month);
-  const dupT=-(B.dup_repeat+B.dup_cross);
-  $("#why-intro").textContent="Reading down: start from gross sales and take away, one named cause at a time, what each stricter definition removes. The steps add up exactly to the next number. "+(B.dup_cross>0?"In this month "+money(B.dup_cross)+" of sales appears on both sheets of the source file, which only the cleaned definition removes.":"");
-  const max=Math.max(R1,R2,R3,R4,R5);
-  const pc=v=>v/max*100;
-  const rows=[
-    ["Gross sales","Product lines on non-cancelled invoices",0,pc(R2),sw(by.R2),money(R2),"",""],
-    ["Returns and credits","Cancellation invoices and negative lines",pc(R2+B.returns),pc(-B.returns),null,money(B.returns),pctp(B.returns/R2,1)+" of gross",""],
-    ["Net sales","What most quick finance totals show",0,pc(R3),sw(by.R3),money(R3),"",""],
-    ["Repeated lines","Identical line twice on one sheet",pc(R3-B.dup_repeat),pc(B.dup_repeat),null,money(-B.dup_repeat),pctp(B.dup_repeat/R3,1)+" of net",""],
-    ["Lines on both sheets","The same line loaded from two sheets",pc(R3-B.dup_repeat-B.dup_cross),pc(B.dup_cross),null,money(-B.dup_cross),pctp(B.dup_cross/R3,1)+" of net",""],
-    ["Net clean revenue","The governed number",0,pc(R4),sw(by.R4),money(R4),"",""],
-    ["Guest orders","Rows with no Customer ID",pc(R4-B.unidentified),pc(B.unidentified),null,money(-B.unidentified),pctp(B.unidentified/R4,1)+" of clean",""],
-    ["Identified-customer revenue","What a CRM would report",0,pc(R5),sw(by.R5),money(R5),"",""],
-    ["Raw ledger total","Net sales plus postage, fees, manual lines and adjustments",0,pc(R1),sw(by.R1),money(R1),(B.non_product>=0?"+":"−")+money(Math.abs(B.non_product)).replace("−","")+" vs net sales","gap"]];
-  const box=h("div",{class:"hbars",role:"list"},rows.map(r=>hb(...r)));root.append(box);
-  const P=D.pool;
-  root.append(h("p",{class:"note",text:"Across all "+D.meta.n_months+" full months, returns take "+pctp(P.returns,1)+" of gross sales, repeated or doubled lines take a further "+pctp(P.dups,1)+", and guest orders are "+pctp(P.guests,1)+" of gross. The raw ledger total moves by "+money(P.non_product)+" because it also sums postage, fees and adjustments."}));
-  if(D.nonprod.length)root.append(h("p",{class:"note small",text:"Largest non-product lines by value: "+D.nonprod.slice(0,4).map(x=>x.code+(x.desc?" ("+x.desc.toLowerCase()+")":"")+" "+money(x.net)).join(", ")+"."}));
-}
 function whyCustomers(root){
   const S=D.series.customers,i=mi(),by=Object.fromEntries(defsOf("customers").map(d=>[d.id,d]));
-  $("#h-why").textContent="Which customers each definition adds or drops relative to the governed count in "+mlab(state.month);
-  $("#why-intro").textContent="Every bar is a distance from the governed number, so you can see what kind of customer is being included or left out. The trailing 90-day count answers a different question, who has bought lately, which is why it is so much larger.";
+  $("#h-whyc").textContent="Which customers each definition adds or drops relative to the governed count in "+mlab(state.month);
+  $("#whyc-intro").textContent="Every bar is a distance from the governed number, so you can see what kind of customer is being included or left out. The trailing 90-day count answers a different question, who has bought lately, which is why it is so much larger.";
   const g=S.A2[i],rows=[["A1","Records but no purchase","Customers whose only rows this month are returns or fees"],["A3","Bought and returned","Customers who returned at least as much as they bought"],["A4","Guest checkouts","One buyer for every guest invoice, since guests have no ID"],["A5","Bought earlier in the window","Customers who bought in the last 90 days but not this month"]]
     .map(([id,nm,sub])=>({id,nm,sub,v:S[id][i]==null?null:S[id][i]-g}));
   const mx=Math.max(...rows.map(r=>Math.abs(r.v||0)),1);
@@ -531,13 +466,6 @@ function whyCustomers(root){
     const track=h("div",{class:"track"},h("div",{class:"zero",style:"left:50%"}),na?null:h("div",{class:"bar-m",style:"--sw:"+sw(d)+";width:"+w+"%;left:"+(r.v>=0?50:50-w)+"%"}));
     box.append(h("div",{class:"hb",tabindex:0,"aria-label":d.name+": "+(na?"not enough history":(r.v>=0?"plus ":"minus ")+cnt(Math.abs(r.v)))},h("div",{class:"nm"},h("b",{text:d.name}),h("span",{text:r.sub})),track,h("div",{class:"val"},na?"–":(r.v>=0?"+":"−")+cnt(Math.abs(r.v)),h("span",{text:na?"needs 90 days of history":cnt(S[r.id][i])+" in total"}))))});
   root.append(box,h("p",{class:"note",text:"The governed count is "+cnt(g)+" purchasing customers. Guest buyers are reported next to it, never inside it: "+cnt(D.cust_extra[state.month].guests)+" guest invoices this month."}));
-}
-function whyAov(root){
-  const hi=D.hist,st=D.istats;
-  $("#h-why").textContent="Most orders are small, most of the money is in large ones, so the mean and the median tell different stories";
-  $("#why-intro").textContent="Last 12 full months, invoices grouped by value. The mean order is "+money(st.mean)+" and the median is "+money(st.median)+". The largest tenth of invoices carries "+pctp(st.top10)+" of all order value, which is why a handful of wholesale orders can move the average.";
-  const box=h("div",{class:"chart",id:"hist"});root.append(box,h("p",{class:"note small",text:"Bins are uneven on purpose, so each bar is a count of invoices in a value band, not an area."}));
-  histChart(box);
 }
 function histChart(root){
   root.replaceChildren();const hi=D.hist,st=D.istats;
@@ -558,32 +486,19 @@ function histChart(root){
   [["Median",st.median,0],["Mean",st.mean,1]].forEach(([n,v,k])=>{const x=xAt(v);svg.append(s("line",{x1:x,x2:x,y1:m.t-6,y2:m.t+ph,stroke:"var(--ink)","stroke-width":1.5}),s("text",{x:x+(k?6:-6),y:m.t-12+(k?0:0),"text-anchor":k?"start":"end",style:"font-size:12.5px;font-weight:600;fill:var(--ink)",text:n+" "+money(v)}))});
   root.append(h("div",{class:"legend",style:"margin:0 0 6px"},h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--mark-mute);border-radius:3px"}),"Share of invoices"),h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--ink);border-radius:3px"}),"Share of order value")),svg);
 }
-
-/* ---------- drift */
-function renderDrift(){
-  const mt=state.metric,ds=defsOf(mt).filter(d=>!d.governed),g=gov(mt),keys=D.months;
-  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,values:D.drift[mt][d.id]}));
-  let best=null;series.forEach(x=>{const v=x.values.filter(z=>z!=null);const r=Math.max(...v)-Math.min(...v);if(!best||r>best.r)best={r,x,lo:Math.min(...v),hi:Math.max(...v)}});
-  $("#h-drift").textContent=best.x.name+" runs from "+best.lo.toFixed(2)+"× to "+best.hi.toFixed(2)+"× the governed number, so no single scaling factor reconciles them";
-  $("#drift-intro").textContent="Each line is a definition divided by the governed one, month by month. If the lines were flat you could translate one number into another and move on. Where they move, the definitions are measuring different things.";
-  legend($("#drift-leg"),series,driftRef);
-  const cfg={keys,series,zero:false,ref:{value:1,label:"Same as governed ("+g.name+")"},axfmt:v=>(Number.isInteger(v)?v.toFixed(1):+v.toFixed(2))+"×",vfmt:v=>v.toFixed(2)+"×",aria:"Each definition divided by the governed definition, by month.",pick:k=>setMonth(k)};
-  const draw=()=>{if($("#drift").hidden)return;driftRef.c=lineChart($("#drift"),cfg)};draw();driftRef.draw=draw;
-  toggle($("#drift-tb"),$("#drift"),$("#drift-table"),()=>tableTwin(keys,series,v=>v.toFixed(2)+"×"));
-  $("#drift-table").hidden=true;$("#drift").hidden=false;$("#drift-tb").textContent="Show as table";$("#drift-tb").setAttribute("aria-pressed","false");
-}
-
-/* ---------- trust */
 const SEV={high:["High","var(--sev-high)","M7 1.5L13 12.5H1Z"],medium:["Medium","var(--sev-med)","M7 1L13 7L7 13L1 7Z"],low:["Low","var(--sev-low)","M7 1.5a5.5 5.5 0 1 0 .01 0Z"],pass:["Pass","var(--sev-pass)","M2 7.5l3.2 3.2L12 3.5"]};
 function sevCell(k){const [t,c,p]=SEV[k];return h("span",{class:"sev"},s("svg",{viewBox:"0 0 14 14","aria-hidden":"true"},k==="pass"?s("path",{d:p,fill:"none",stroke:c,"stroke-width":2.2,"stroke-linecap":"round","stroke-linejoin":"round"}):s("path",{d:p,fill:c})),t)}
 function renderTrust(){
   const R=D.ready,nh=D.tests.filter(t=>t.sev==="high").length;
   $("#h-trust").textContent=pctp(R.pct,1)+" of the "+R.total.toLocaleString("en-GB")+" rows in the file pass every row-level rule, and "+nh+" of "+D.tests.length+" automated tests fail at high severity";
   $("#trust-intro").textContent="These are the checks a data-quality job would run on every load. Severity is a rule, not an opinion: high when a test touches 5% or more of rows or of the money, medium from 0.5%, low for anything else that fails. A fail does not mean the number is wrong; it means a definition has to decide what to do, and the last column says what the governed layer does.";
-  const t=$("#tests");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Severity"}),h("th",{text:"Test"}),h("th",{class:"num",text:"Rows failing"}),h("th",{class:"num",text:"Share of money"}),h("th",{text:"What the governed layer does"}))),
-    h("tbody",null,D.tests.map(x=>h("tr",null,h("td",{class:"first"},sevCell(x.sev)),h("td",{"data-l":x.dim,text:x.test}),
+  const cols=()=>h("thead",null,h("tr",null,h("th",{text:"Severity"}),h("th",{text:"Test"}),h("th",{class:"num",text:"Rows failing"}),h("th",{class:"num",text:"Share of money"}),h("th",{text:"What the governed layer does"})));
+  const rows=list=>h("tbody",null,list.map(x=>h("tr",null,h("td",{class:"first"},sevCell(x.sev)),h("td",{"data-l":x.dim,text:x.test}),
       h("td",{class:"num","data-l":"Rows failing"},x.failing.toLocaleString("en-GB"),h("span",{class:"cellsub",text:pctp(x.pr,x.pr<.01&&x.pr>0?2:1)+" of rows"})),
-      h("td",{class:"num","data-l":"Share of money",text:x.failing?pctp(x.pv,x.pv<.01&&x.pv>0?2:1):"0%"}),h("td",{"data-l":"Handling",text:x.handling})))));
+      h("td",{class:"num","data-l":"Share of money",text:x.failing?pctp(x.pv,x.pv<.01&&x.pv>0?2:1):"0%"}),h("td",{"data-l":"Handling",text:x.handling}))));
+  const bad=D.tests.filter(x=>x.sev!=="pass"),ok=D.tests.filter(x=>x.sev==="pass");
+  $("#tests").replaceChildren(cols(),rows(bad));
+  $("#passing").hidden=!ok.length;$("#passing summary").textContent="Show the "+ok.length+" tests that pass";$("#tests-pass").replaceChildren(cols(),rows(ok));
   const W=D.worst_dup;
   $("#q-h").textContent=W.pct<.01?"Duplicate lines arrive as a steady trickle: no month has more than "+pctp(W.pct,1)+" of its rows duplicated":"Duplicate lines cluster in "+mlab(W.month)+": "+pctp(W.pct,1)+" of that month’s rows"+(W.cross>.5*W.pct?", most of them present on both sheets":"");
   qChart($("#qchart"));
@@ -603,8 +518,6 @@ function qChart(root){
     hit.addEventListener("pointermove",show);hit.addEventListener("focus",show);hit.addEventListener("pointerleave",tip.hide);hit.addEventListener("blur",tip.hide);svg.append(hit)});
   root.append(svg);
 }
-
-/* ---------- governed section + footer (static text, filled once) */
 function renderStatic(){
   const g=m=>gov(m);
   const items=[["Pick one definition per metric and write it down","Revenue is "+g("revenue").name.toLowerCase()+", active customers is "+g("customers").name.toLowerCase()+", average order value is "+g("aov").name.toLowerCase()+". Each choice is a row in the metric dictionary with its rule, its usual owner and where it goes wrong."],
@@ -627,25 +540,251 @@ function renderStatic(){
     h("p",{text:"Independent portfolio project. It has no connection to the retailer, to the data publisher or to any employer, and every definition is an example, not a claim about how any real company counts."}));
 }
 
+/* ================================================================== new code */
+const gbp=v=>"£"+Math.round(Math.abs(v)).toLocaleString("en-GB");
+const sgbp=v=>Math.round(v)===0?"£0":(v<0?"−":"+")+gbp(v);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function inkOn(hex){let c=hex.replace("#","");if(c.length===3)c=c.split("").map(z=>z+z).join("");const l=[0,2,4].map(i=>parseInt(c.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));const L=.2126*l[0]+.7152*l[1]+.0722*l[2];return (L+.05)/.05>1.05/(L+.05)?"#0b0b0b":"#ffffff"}
+function dodge(items,gap){const order=[0,1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7],last={};items.slice().sort((a,b)=>a.x-b.x).forEach(it=>{for(const L of order){if(last[L]==null||it.x-it.r>=last[L]+gap){it.lane=L;last[L]=it.x+it.r;return}}it.lane=0})}
+const MET=["revenue","customers","aov"];
+
+/* ---------- revenue as five rules */
+const RULES=[
+  {k:"A",name:"Add postage, fees and adjustments",sub:"Rows that are not products: postage, bank charges, manual entries"},
+  {k:"B",name:"Net off returns and credits",sub:"Cancellation invoices and negative lines, in the month they were issued"},
+  {k:"C",name:"Drop lines repeated on one sheet",sub:"Same invoice, item, quantity, price, time and customer, twice"},
+  {k:"D",name:"Drop lines found on both sheets",sub:"The same line loaded from two sheets of the workbook"},
+  {k:"E",name:"Drop guest orders",sub:"Rows with no Customer ID"}];
+const NAMEDKEY={R1:"11000",R2:"00000",R3:"01000",R4:"01110",R5:"01111"};
+const keyOf=r=>RULES.map(x=>r[x.k]?1:0).join("");
+const rulesOf=k=>Object.fromEntries(RULES.map((x,i)=>[x.k,+k[i]]));
+const govKey=()=>NAMEDKEY[gov("revenue").id];
+state.rules=rulesOf(NAMEDKEY.R4);state.view="levels";
+const memo={};
+function V(month,r){const key=month+keyOf(r);if(key in memo)return memo[key];let t=0;for(const c of D.rule_cells[month]){if(!c[0]&&!r.A)continue;if(!c[1]&&!r.B)continue;if(c[2]===1&&r.C)continue;if(c[2]===2&&r.D)continue;if(!c[3]&&r.E)continue;t+=c[4]}return memo[key]=t}
+const seriesOf=r=>D.months.map(m=>V(m,r));
+const idOfKey=k=>Object.keys(NAMEDKEY).find(i=>NAMEDKEY[i]===k);
+const defById=id=>D.defs.find(d=>d.id===id);
+
+const T={};  /* tape refs */
+function buildTape(){
+  const root=$("#tape");root.replaceChildren();
+  T.head=h("div",{class:"tape-h"},h("span",null,h("b",{text:"Revenue"})," ",h("span",{id:"tape-m"})),h("button",{class:"btn",type:"button",onclick:()=>{state.rules=rulesOf(govKey());renderLab()}},"Reset to governed"));
+  T.base=h("li",{class:"ln base on"},h("span",{class:"rt"},h("b",{text:"Gross sales"}),h("small",{text:"Product lines on purchase invoices. Always counted."})),h("span",{class:"amt"}));
+  T.lines=RULES.map(x=>{
+    const btn=h("button",{type:"button",role:"switch","aria-checked":"false",class:"rule","data-k":x.k},h("span",{class:"tog"},h("i")),h("span",{class:"rt"},h("b",{text:x.name}),h("small",{text:x.sub})));
+    btn.addEventListener("click",()=>{state.rules[x.k]=state.rules[x.k]?0:1;renderLab()});
+    const amt=h("span",{class:"amt"});return {x,btn,amt,li:h("li",{class:"ln"},btn,amt)}});
+  T.total=h("b",{id:"tape-total"});T.status=h("div",{class:"status",id:"tape-status"});
+  T.presets=h("div",{class:"presets",role:"group","aria-label":"Load a named definition"});
+  defsOf("revenue").forEach(d=>{const b=h("button",{type:"button",class:"chip","aria-pressed":"false","data-id":d.id},h("span",{class:"sw",style:"--sw:"+sw(d)}),d.id," ",h("em",{text:d.name}));
+    b.addEventListener("click",()=>{state.rules=rulesOf(NAMEDKEY[d.id]);renderLab()});T.presets.append(b)});
+  root.append(T.head,h("ol",{class:"lines"},T.base,T.lines.map(l=>l.li)),h("div",{class:"total"},h("span",{text:"Your revenue"}),T.total),T.status,T.presets);
+}
+function renderTape(){
+  const m=state.month,r=state.rules;$("#tape-m").textContent=mlab(m);
+  let prefix={A:0,B:0,C:0,D:0,E:0};T.base.querySelector(".amt").textContent=gbp(V(m,prefix));
+  T.lines.forEach(l=>{const before=V(m,prefix),test={...prefix,[l.x.k]:1},d=V(m,test)-before,on=!!r[l.x.k];if(on)prefix=test;
+    l.btn.setAttribute("aria-checked",on);l.li.classList.toggle("on",on);l.amt.textContent=sgbp(d);
+    l.btn.setAttribute("aria-label",l.x.name+(on?", applied, changes revenue by ":", not applied, would change revenue by ")+sgbp(d))});
+  const total=V(m,r);T.total.textContent=gbp(total);
+  const gv=V(m,rulesOf(govKey())),k=keyOf(r),id=idOfKey(k),d=id&&defById(id);
+  T.status.replaceChildren();
+  if(d){T.status.append(h("span",{class:"sw",style:"--sw:"+sw(d)}),h("span",null,h("b",{text:d.id+" "+d.name}),d.governed?" is the governed definition.":" is used by "+d.owner.charAt(0).toLowerCase()+d.owner.slice(1)+". It is "+pct(total/gv-1)+" against the governed number."))}
+  else T.status.append(h("span",{class:"sw",style:"--sw:var(--mark-mute)"}),h("span",null,h("b",{text:"No team has written this one down. "}),"It is "+pct(total/gv-1)+" against the governed number, and a dashboard could still be using it by accident."));
+  [...T.presets.children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===id));
+  say("Your revenue for "+mlab(m)+" is "+gbp(total)+(d?", "+d.name:", an unnamed combination"));
+}
+
+function renderWays(){
+  const root=$("#ways");root.replaceChildren();
+  const m=state.month,W=Math.max(300,root.clientWidth),pad=22,mine=keyOf(state.rules);
+  const pts=Array.from({length:32},(_,n)=>{const k=n.toString(2).padStart(5,"0");return {k,v:V(m,rulesOf(k)),id:idOfKey(k)}});
+  const vs=pts.map(p=>p.v),lo=Math.min(...vs),hi=Math.max(...vs),span=(hi-lo)||hi*.05||1,a=lo-span*.06,b=hi+span*.06,X=v=>pad+(v-a)/(b-a)*(W-2*pad);
+  pts.forEach(p=>{p.x=X(p.v);p.r=p.id?12:6});dodge(pts,2);
+  const step=27,maxL=Math.max(...pts.map(p=>Math.abs(p.lane))),top=26,cy=top+maxL*step+step/2,H=top+(2*maxL+1)*step+36;
+  const gvv=V(m,rulesOf(govKey())),gx=X(gvv);
+  $("#ways-h").textContent="All 32 ways to count revenue in "+mlab(m);
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"The 32 combinations of five rules, placed by the revenue each gives for "+mlab(m)+". Activate a dot to load it onto the tape."});
+  const ay=H-26;svg.append(s("line",{x1:pad,x2:W-pad,y1:ay,y2:ay,stroke:"var(--axis)"}));
+  niceTicks(a,b,4).filter(t=>t>=a&&t<=b).forEach(t=>svg.append(s("line",{x1:X(t),x2:X(t),y1:ay,y2:ay+4,stroke:"var(--axis)"}),s("text",{x:X(t),y:ay+18,"text-anchor":"middle",class:"tick",text:axMoney(t)})));
+  const anchor=gx<70?"start":gx>W-70?"end":"middle";
+  svg.append(s("line",{x1:gx,x2:gx,y1:18,y2:ay,stroke:"var(--c1)","stroke-width":1.5}),s("text",{x:gx,y:12,"text-anchor":anchor,style:"font-size:12.5px;font-weight:600;fill:var(--ink)",text:"governed "+money(gvv)}));
+  const dotEl=p=>{const y=cy+p.lane*step,g=s("g",{class:"gdot",tabindex:0,role:"button","aria-label":(p.id?p.id+" "+defById(p.id).name+", ":"Unnamed combination, ")+money(p.v)+(p.k===mine?", currently on the tape":"")});
+    if(p.id){const c=cssv("--c"+defById(p.id).slot);g.append(s("circle",{class:"vis",cx:p.x,cy:y,r:p.r,fill:"var(--c"+defById(p.id).slot+")",stroke:"var(--surface)","stroke-width":2}),s("text",{x:p.x,y:y+4,"text-anchor":"middle",style:"font-size:10.5px;font-weight:700;pointer-events:none",fill:inkOn(c),text:p.id}))}
+    else g.append(s("circle",{class:"vis",cx:p.x,cy:y,r:p.r,fill:"var(--mark-mute)",stroke:"var(--surface)","stroke-width":1.5}));
+    g.append(s("circle",{cx:p.x,cy:y,r:Math.max(p.r,13),fill:"transparent"}));
+    const show=e=>{const [x,yy]=e.clientX?[e.clientX,e.clientY]:anchorOf(g);tip.show(tipRows((p.id?p.id+" "+defById(p.id).name:"Unnamed combination")+": "+money(p.v),RULES.map((r,i)=>({label:r.name,value:p.k[i]==="1"?"on":"off"})),"Click to load these rules onto the tape."),x,yy)};
+    g.addEventListener("pointermove",show);g.addEventListener("focus",show);g.addEventListener("pointerleave",tip.hide);g.addEventListener("blur",tip.hide);
+    const load=()=>{state.rules=rulesOf(p.k);renderLab()};g.addEventListener("click",load);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();load()}});return g};
+  pts.filter(p=>!p.id).forEach(p=>svg.append(dotEl(p)));pts.filter(p=>p.id).forEach(p=>svg.append(dotEl(p)));
+  const me=pts.find(p=>p.k===mine);if(me)svg.append(s("circle",{cx:me.x,cy:cy+me.lane*step,r:me.r+6,fill:"none",stroke:"var(--ink)","stroke-width":2,"pointer-events":"none"}));
+  root.append(svg);
+  const spread=hi/lo-1;
+  $("#ways-note").textContent="Five of the 32 have a name and an owner. The other 27 are what you get when two teams quietly disagree about one rule. The ringed dot is the one on your tape. The full range is "+money(lo)+" to "+money(hi)+", a gap of "+pctp(spread)+".";
+}
+
+function verdictRows(ys,gs){
+  const n=ys.length,best=a=>a.indexOf(Math.max(...a)),mom=(a,i)=>a[i]/a[i-1]-1,sum=(a,x,y)=>a.slice(x,y).reduce((p,q)=>p+q,0);
+  const yoy=a=>n<24?null:sum(a,n-12,n)/sum(a,n-24,n-12)-1;
+  let flips=0;for(let i=1;i<n;i++){const y=mom(ys,i),g=mom(gs,i);if((y>=.01&&g<=-.01)||(y<=-.01&&g>=.01))flips++}
+  const rows=[["Best month on record",mlab(D.months[best(ys)]),mlab(D.months[best(gs)]),best(ys)!==best(gs)],
+    ["Latest month against the one before",pct(mom(ys,n-1)),pct(mom(gs,n-1)),Math.sign(mom(ys,n-1))!==Math.sign(mom(gs,n-1))]];
+  const y1=yoy(ys),g1=yoy(gs);if(y1!=null)rows.push(["Last 12 months against the 12 before",pct(y1),pct(g1),Math.sign(y1)!==Math.sign(g1)]);
+  rows.push(["Months it calls the opposite way (1% or more each)",flips+" of "+(n-1),"–",flips>0]);return rows}
+function renderYou(){
+  const gk=govKey(),same=keyOf(state.rules)===gk,gs=seriesOf(rulesOf(gk)),ys=seriesOf(state.rules);
+  const series=[{id:"gov",name:gov("revenue").id+" "+gov("revenue").name,slot:1,governed:1,values:gs}];
+  if(!same)series.unshift({id:"you",name:"Your rules",color:"var(--ink)",slot:0,dash:"6 4",values:ys});
+  $("#you-h").textContent=same?"The governed rules, month by month":"Your rules against the governed number, month by month";
+  legend($("#you-leg"),series,youRef);
+  youRef.draw=()=>{youRef.c=lineChart($("#you"),{keys:D.months,series,zero:true,axfmt:axMoney,vfmt:money,aria:"Revenue by month under your rules and under the governed rules.",pick:k=>setMonth(k)})};youRef.draw();
+  const v=$("#verdict");v.replaceChildren();
+  if(same){v.append(h("p",{class:"note small",text:"These are the governed rules, so every verdict matches by definition. Switch one rule and see which decisions change."}));return}
+  const rows=verdictRows(ys,gs),nd=rows.filter(r=>r[3]).length;
+  v.append(h("h3",{text:nd?"Your rules change "+nd+" of "+rows.length+" answers a manager would read off this chart":"Different number, same four answers"}),
+    h("table",{class:"tbl",style:"margin-top:8px"},h("thead",null,h("tr",null,h("th",{text:"Question"}),h("th",{class:"num",text:"Your rules"}),h("th",{class:"num",text:"Governed"}))),
+      h("tbody",null,rows.map(r=>h("tr",null,h("td",null,r[3]?h("span",{class:"diff","aria-label":"differs"},"≠"):null,r[0]),h("td",{class:"num",text:r[1]}),h("td",{class:"num",text:r[2]}))))));
+}
+const youRef={};
+function renderLab(){
+  const m=state.month,gv=V(m,rulesOf(govKey())),yv=V(m,state.rules),same=keyOf(state.rules)===govKey();
+  $("#h-lab").textContent=same?"Revenue in "+mlab(m)+" is "+money(gv)+". Strike a rule and watch it move":"Revenue in "+mlab(m)+": "+money(gv)+" governed, "+money(yv)+" by your rules, "+pct(yv/gv-1);
+  $("#lab-intro").textContent="Every revenue figure in this file is the sum of five yes-or-no choices. The tape starts on the governed rules. Switch one off, load a named definition, or click any dot on the right.";
+  renderTape();renderWays();renderYou();
+}
+
+/* ---------- one ruler across three metrics */
+function renderLadder(){
+  const root=$("#ladder");root.replaceChildren();
+  const i=mi(),W=Math.max(300,root.clientWidth),small=W<640,ml=small?12:210,mr=16;
+  const rows=MET.map(mt=>{const g=gov(mt),gv=D.series[mt][g.id][i];const pts=defsOf(mt).map(d=>({d,v:D.series[mt][d.id][i]})).filter(p=>p.v!=null).map(p=>({...p,ratio:p.v/gv}));
+    const xs=pts.map(p=>p.ratio);return {mt,g,gv,pts,lo:Math.min(...xs),hi:Math.max(...xs)}});
+  const all=rows.flatMap(r=>r.pts.map(p=>p.ratio)),a0=Math.min(...all,1),b0=Math.max(...all,1),pd=(b0-a0)*.07||.05,a=a0-pd,b=b0+pd,pw=W-ml-mr,X=r=>ml+(r-a)/(b-a)*pw;
+  rows.forEach(r=>{r.pts.forEach(p=>{p.x=X(p.ratio);p.r=13});dodge(r.pts,2);r.ml=Math.max(...r.pts.map(p=>Math.abs(p.lane)))});
+  const step=30,gap=small?30:14;let y=small?8:14;const top=y;
+  rows.forEach(r=>{r.cy=y+(small?26:0)+r.ml*step+step/2;r.h=(small?26:0)+(2*r.ml+1)*step;r.y0=y;y+=r.h+gap});
+  const H=y+34,ay=y-gap+6;
+  $("#h-ruler").textContent="In "+mlab(state.month)+", the lowest and highest answers sit this far apart: revenue "+pctp(rows[0].hi/rows[0].lo-1)+", active customers "+pctp(rows[1].hi/rows[1].lo-1)+", average order value "+pctp(rows[2].hi/rows[2].lo-1);
+  $("#ruler-intro").textContent="Each row is one metric, drawn on the same ruler: how many times the governed answer each definition gives (blue line, 1.0×). Revenue clusters. Customers and order value do not, which is where the arguments start.";
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"Each definition of three metrics for "+mlab(state.month)+", as a multiple of the governed definition."});
+  const g1=X(1);
+  niceTicks(a,b,6).filter(t=>t>=a&&t<=b).forEach(t=>{svg.append(s("line",{x1:X(t),x2:X(t),y1:top-6,y2:ay,stroke:"var(--grid)"}),s("text",{x:X(t),y:ay+18,"text-anchor":"middle",class:"tick",text:(+t.toFixed(2))+"×"}))});
+  svg.append(s("line",{x1:g1,x2:g1,y1:top-6,y2:ay,stroke:"var(--c1)","stroke-width":1.5}));
+  rows.forEach((r,k)=>{
+    if(k>0)svg.append(s("line",{x1:small?0:12,x2:W,y1:r.y0-gap/2,y2:r.y0-gap/2,stroke:"var(--axis)","stroke-width":1}));
+    const lx=small?0:0,ly=small?r.y0+14:r.cy-6;
+    const halo="paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round;";svg.append(s("text",{x:lx,y:ly,style:halo+"font-size:15px;font-weight:650;fill:var(--ink)",text:NAMES[r.mt]}),s("text",{x:lx,y:ly+(small?0:18),dx:small?NAMES[r.mt].length*8.6+10:0,style:halo+"font-size:12.5px;fill:var(--muted)",text:"gap "+pctp(r.hi/r.lo-1)+"  ·  governed "+fmt(r.mt,r.gv)}));
+    r.pts.forEach(p=>{const yy=r.cy+p.lane*step,c=cssv("--c"+p.d.slot),g=s("g",{class:"gdot",tabindex:0,role:"img","aria-label":p.d.id+" "+p.d.name+": "+fmt(r.mt,p.v)+(p.d.governed?", the governed definition":", "+(p.ratio).toFixed(2)+" times the governed")});
+      g.append(s("circle",{class:"vis",cx:p.x,cy:yy,r:p.r,fill:"var(--c"+p.d.slot+")",stroke:p.d.governed?"var(--ink)":"var(--surface)","stroke-width":p.d.governed?2.5:2}),s("text",{x:p.x,y:yy+4,"text-anchor":"middle",style:"font-size:10.5px;font-weight:700;pointer-events:none",fill:inkOn(c),text:p.d.id}));
+      const show=e=>{const [x,y2]=e.clientX?[e.clientX,e.clientY]:anchorOf(g);tip.show(h("div",null,h("div",{class:"th",text:p.d.id+" "+p.d.name+(p.d.governed?" (governed)":"")}),h("p",{style:"margin:0;color:var(--ink);font-weight:650",text:fmt(r.mt,p.v)+(p.d.governed?"":"  ·  "+p.ratio.toFixed(2)+"× governed")}),h("p",{text:p.d.rule}),h("p",{text:"Watch for: "+p.d.pitfall})),x,y2)};
+      g.addEventListener("pointermove",show);g.addEventListener("focus",show);g.addEventListener("pointerleave",tip.hide);g.addEventListener("blur",tip.hide);svg.append(g)})});
+  svg.append(s("text",{x:g1,y:H-4,"text-anchor":"middle",style:"font-size:12px;font-weight:600;fill:var(--ink)",text:"governed = 1.0×"}));
+  root.append(svg);
+}
+function ladderTable(){const i=mi();return h("table",{class:"tbl"},h("thead",null,h("tr",null,h("th",{text:"Metric"}),h("th",{text:"Definition"}),h("th",{class:"num",text:mlab(state.month)}),h("th",{class:"num",text:"× governed"}))),
+  h("tbody",null,MET.flatMap(mt=>{const g=gov(mt),gv=D.series[mt][g.id][i];return defsOf(mt).map(d=>{const v=D.series[mt][d.id][i];return h("tr",{class:d.governed?"gov":""},h("td",{text:NAMES[mt]}),h("td",{text:d.id+" "+d.name}),h("td",{class:"num",text:fmt(mt,v)}),h("td",{class:"num",text:v==null?"–":(v/gv).toFixed(2)+"×"}))})})))}
+
+/* ---------- over time */
+const timeRef={};
+function renderTime(){
+  const mt=state.metric,ds=defsOf(mt),g=gov(mt),keys=D.months,rel=state.view==="relative";
+  const levels=ds.map(d=>({id:d.id,name:d.id+" "+d.name,slot:d.slot,governed:d.governed,values:D.series[mt][d.id]}));
+  const ratio=ds.filter(d=>!d.governed).map(d=>({id:d.id,name:d.id+" "+d.name,slot:d.slot,values:D.drift[mt][d.id]}));
+  const series=rel?ratio:levels;
+  if(rel){let best=null;ratio.forEach(x=>{const v=x.values.filter(z=>z!=null);const r=Math.max(...v)-Math.min(...v);if(!best||r>best.r)best={r,x,lo:Math.min(...v),hi:Math.max(...v)}});
+    $("#h-time").textContent=best.x.name+" runs from "+best.lo.toFixed(2)+"× to "+best.hi.toFixed(2)+"× the governed number, so no single scaling factor reconciles them";
+    $("#time-intro").textContent="Each line is a definition divided by the governed one, month by month. If the lines were flat you could translate one number into another and move on. Where they move, the definitions are measuring different things."}
+  else{const wd=D.widest[mt];$("#h-time").textContent="The gap is not a fixed offset: "+NAMES[mt].toLowerCase()+" under five definitions tells five different stories over time";
+    $("#time-intro").textContent="The widest gap is "+pctp(wd.spread)+" in "+mlab(wd.month)+". Hover or use the arrow keys to read every definition for a month, and click a month to make it the one shown across the page. The latest month in the file is partial and left out."}
+  legend($("#time-leg"),series,timeRef);
+  const cfg=rel?{keys,series,zero:false,ref:{value:1,label:"Same as governed ("+g.id+")"},axfmt:v=>(Number.isInteger(v)?v.toFixed(1):+v.toFixed(2))+"×",vfmt:v=>v.toFixed(2)+"×",aria:"Each definition divided by the governed definition, by month.",pick:k=>setMonth(k)}
+    :{keys,series,zero:true,axfmt:axfmt(mt),vfmt:v=>fmt(mt,v),aria:NAMES[mt]+" by month under five definitions.",note:{index:keys.indexOf(D.widest[mt].month),label:"Widest gap"},pick:k=>setMonth(k)};
+  const draw=()=>{if($("#time-chart").hidden)return;timeRef.c=lineChart($("#time-chart"),cfg)};draw();timeRef.draw=draw;
+  const tb=$("#time-tb");const build=()=>tableTwin(keys,series,v=>rel?v.toFixed(2)+"×":fmt(mt,v));
+  tb.onclick=()=>{const on=$("#time-table").hidden;$("#time-table").hidden=!on;$("#time-chart").hidden=on;tb.setAttribute("aria-pressed",on);tb.textContent=on?"Show as chart":"Show as table";if(on)$("#time-table").replaceChildren(build());else draw()};
+  if(!$("#time-table").hidden)$("#time-table").replaceChildren(build());
+}
+
+/* ---------- decisions */
+function renderFlips(){
+  const root=$("#fgrid");root.replaceChildren();const n=D.months.length;root.style.setProperty("--n",n);
+  root.append(h("span"),...D.months.map(k=>h("span",{class:"yr",text:(k.slice(5,7)==="01"||k===D.months[0])?k.slice(0,4):""})));
+  root.append(h("span"),...D.months.map(k=>h("span",{class:"mh",text:MON[+k.slice(5,7)-1].slice(0,1)})));
+  MET.forEach(mt=>{const E=D.dec[mt],fl=Object.fromEntries(E.flips.map(f=>[f.month,f])),ds=defsOf(mt);
+    root.append(h("div",{class:"rl"},TABS[mt],h("span",{text:E.n_flip+" of "+E.n_cmp+" months"})));
+    D.months.forEach(k=>{const f=fl[k],cls=!f?"nocmp":f.flip?"flip":f.disagree?"mixed":"",glyph=!f?"–":f.flip?"≠":f.disagree?"~":"=";
+      const b=h("button",{type:"button",class:"cell "+cls+(k===state.month?" sel":""),"aria-label":NAMES[mt]+", "+mlab(k)+": "+(!f?"not comparable":f.flip?"definitions disagree on direction":f.disagree?"signs differ by less than one percent":"all agree on direction"),text:glyph});
+      const show=e=>{if(!f)return;const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(b);const mm=E.mom[k]||{};tip.show(tipRows(NAMES[mt]+", "+mlab(k)+", change on the month before",ds.map(d=>({label:d.id+" "+d.name+(d.governed?" (governed)":""),value:mm[d.id]==null?"–":pct(mm[d.id]),color:"var(--c"+d.slot+")"}))),x,y)};
+      b.addEventListener("pointermove",show);b.addEventListener("focus",show);b.addEventListener("pointerleave",tip.hide);b.addEventListener("blur",tip.hide);b.addEventListener("click",()=>{if(f)setMonth(k)});root.append(b)})});
+  const parts=MET.map(mt=>NAMES[mt]+": "+D.dec[mt].n_flip+" of "+D.dec[mt].n_cmp);
+  $("#h-decide").textContent="In how many months does one definition say up while another says down? "+parts.join(". ")+".";
+  $("#decide-intro").textContent="A gap in level can be shrugged off with a scaling factor. A gap in direction cannot. A flip is a month where one definition moved up by 1% or more on the month before while another moved down by 1% or more. Click any month to make it the one shown across the page.";
+  $("#strip-key").replaceChildren(
+    h("span",null,h("i",{style:"background:var(--ink);color:var(--surface)",text:"≠"}),"opposite moves of 1% or more"),
+    h("span",null,h("i",{style:"border:1.5px solid var(--ink2)",text:"~"}),"signs differ, all moves under 1%"),
+    h("span",null,h("i",{style:"background:var(--wash);color:var(--muted)",text:"="}),"all five move the same way"));
+}
+function renderMatrix(){
+  const mt=state.metric,E=D.dec[mt],ds=defsOf(mt),g=gov(mt);
+  const cols=[["Best month on record",d=>mlab(E.best[d.id]),(d,gd)=>E.best[d.id]!==E.best[gd.id]],
+    ["Latest month vs the one before ("+mshort(D.months[D.months.length-1])+" vs "+mshort(D.months[D.months.length-2])+")",d=>E.latest_mom[d.id]==null?"–":pct(E.latest_mom[d.id]),(d,gd)=>E.latest_mom[d.id]!=null&&Math.sign(E.latest_mom[d.id])!==Math.sign(E.latest_mom[gd.id])],
+    ["Last 12 months vs the 12 before",d=>E.yoy[d.id]==null?"–":pct(E.yoy[d.id]),(d,gd)=>E.yoy[d.id]!=null&&Math.sign(E.yoy[d.id])!==Math.sign(E.yoy[gd.id])]];
+  if(mt==="revenue")cols.splice(3,0,["Second-largest market",d=>E.second_country[d.id]||"–",(d,gd)=>E.second_country[d.id]!==E.second_country[gd.id]]);
+  cols.push([mt==="revenue"?"Total, last 12 months":"Monthly average, last 12 months",d=>fmt(mt,E.ttm[d.id]),()=>false,(d)=>d.governed?"":pct(E.ttm[d.id]/E.ttm[g.id]-1)+" vs governed"]);
+  $("#matrix-h").textContent="The same questions about "+NAMES[mt].toLowerCase()+", asked of each definition";
+  $("#matrix").replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),cols.map((c,j)=>h("th",{class:j===cols.length-1?"num":"",text:c[0]})))),
+    h("tbody",null,ds.map(d=>h("tr",{class:d.governed?"gov":""},h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.id+" "+d.name)),
+      cols.map((c,j)=>{const differs=!d.governed&&c[2](d,g);return h("td",{class:j===cols.length-1?"num":"","data-l":c[0]},differs?h("span",{class:"diff",title:"Gives a different answer from the governed definition","aria-label":"differs from governed"},"≠"):null,c[1](d),c[3]?h("span",{class:"cellsub",text:c[3](d)}):null)})))));
+}
+
+/* ---------- why they differ (customers and order value; revenue is explained by the tape) */
+function renderWhy(){
+  const P=D.pool;
+  $("#why-intro").textContent="Revenue is explained by the tape: across all "+D.meta.n_months+" full months returns take "+pctp(P.returns,1)+" of gross sales, repeated or doubled lines a further "+pctp(P.dups,1)+", and guest orders are "+pctp(P.guests,1)+" of gross. The other two metrics fail differently.";
+  const c=$("#why-c");c.replaceChildren();whyCustomers(c);
+  const a=$("#why-a");a.replaceChildren();
+  const st=D.istats;$("#h-whya").textContent="Order value: most orders are small, most of the money is in large ones";
+  $("#whya-intro").textContent="Last 12 full months, invoices grouped by value. The mean order is "+money(st.mean)+" and the median is "+money(st.median)+". The largest tenth of invoices carries "+pctp(st.top10)+" of all order value, so a handful of wholesale orders can move the average.";
+  a.append(h("div",{class:"chart",id:"hist"}));histChart($("#hist"));
+}
+
+/* ---------- dictionary */
+function renderDefs(){
+  const mt=state.metric,i=mi();
+  $("#defs-intro").textContent="Each row is a rule someone would write in good faith. The one marked governed is the definition this audit recommends. Colours stay fixed to a definition for the whole page, and blue always marks the governed one.";
+  $("#deftbl").replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),h("th",{text:"Who usually uses it"}),h("th",{text:"How it is counted"}),h("th",{text:"Where it goes wrong"}),h("th",{class:"num",text:mlab(state.month)}))),
+    h("tbody",null,defsOf(mt).map(d=>h("tr",{class:d.governed?"gov":""},
+      h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.id+" "+d.name,d.governed?h("span",{class:"tag"},tick(),"Governed"):null)),
+      h("td",{"data-l":"Used by",text:d.owner}),h("td",{"data-l":"Counted as",text:d.rule}),h("td",{"data-l":"Goes wrong",text:d.pitfall}),
+      h("td",{class:"num","data-l":mlab(state.month),text:fmt(mt,D.series[mt][d.id][i])})))));
+}
+
 /* ---------- wiring */
-function setMonth(k){if(!D.months.includes(k))return;state.month=k;$("#month").value=k;renderAll()}
-function setMetric(m){state.metric=m;[...$("#tabs").children].forEach(b=>b.setAttribute("aria-selected",b.dataset.m===m));renderAll()}
-function renderAll(){renderHero();renderDefs();renderTrend();renderDecide();renderWhy();renderDrift()}
+function setMonth(k){if(!D.months.includes(k))return;state.month=k;$("#month").value=k;$("#m-prev").disabled=k===D.months[0];$("#m-next").disabled=k===D.months[D.months.length-1];renderMonthDependent()}
+function setMetric(m){state.metric=m;document.querySelectorAll("[data-mt]").forEach(el=>[...el.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.m===m)));renderTime();renderMatrix();renderDefs()}
+function setView(v){state.view=v;[...$("#viewseg").children].forEach(b=>b.setAttribute("aria-selected",b.dataset.m===v));renderTime()}
+function renderMonthDependent(){renderLab();renderLadder();renderFlips();renderWhy();renderDefs();renderTime()}
+function segKeys(el,vals,set){el.addEventListener("keydown",e=>{if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;const cur=[...el.children].findIndex(b=>b.getAttribute("aria-selected")==="true"),j=(cur+(e.key==="ArrowRight"?1:vals.length-1))%vals.length;set(vals[j]);el.children[j].focus()})}
 function init(){
-  const tabs=$("#tabs");Object.keys(TABS).forEach(m=>tabs.append(h("button",{type:"button",role:"tab","data-m":m,"aria-selected":m===state.metric,onclick:()=>setMetric(m)},TABS[m])));
-  tabs.addEventListener("keydown",e=>{const ks=Object.keys(TABS),i=ks.indexOf(state.metric);if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const j=(i+(e.key==="ArrowRight"?1:ks.length-1))%ks.length;setMetric(ks[j]);tabs.children[j].focus()}});
+  document.querySelectorAll("[data-mt]").forEach(el=>{MET.forEach(m=>el.append(h("button",{type:"button",role:"tab","data-m":m,"aria-selected":m===state.metric,onclick:()=>setMetric(m)},TABS[m])));segKeys(el,MET,setMetric)});
+  const vs=$("#viewseg");[["levels","Levels"],["relative","Relative to governed"]].forEach(([k,t])=>vs.append(h("button",{type:"button",role:"tab","data-m":k,"aria-selected":k===state.view,onclick:()=>setView(k)},t)));segKeys(vs,["levels","relative"],setView);
   const sel=$("#month");[...D.months].reverse().forEach(k=>sel.append(h("option",{value:k,text:mlab(k)})));sel.value=state.month;sel.onchange=()=>setMonth(sel.value);
+  $("#m-prev").onclick=()=>setMonth(D.months[Math.max(0,mi()-1)]);$("#m-next").onclick=()=>setMonth(D.months[Math.min(D.months.length-1,mi()+1)]);
+  const toc=$("#toc");document.querySelectorAll("main section[data-toc]").forEach(sec=>toc.append(h("li",null,h("a",{href:"#"+sec.id,"data-s":sec.id},sec.dataset.toc))));
+  if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)toc.querySelectorAll("a").forEach(a=>a.setAttribute("aria-current",a.dataset.s===e.target.id))})},{rootMargin:"-20% 0px -65% 0px"});document.querySelectorAll("main section[data-toc]").forEach(s2=>io.observe(s2))}
   const root=document.documentElement,btn=$("#theme");
-  const apply=t=>{root.dataset.theme=t;btn.textContent=t==="dark"?"Light mode":"Dark mode";rerender()};
+  const paint=t=>{root.dataset.theme=t;$("#theme .t").textContent=t==="dark"?"Light mode":"Dark mode"};
   let saved=null;try{saved=localStorage.getItem("mta-theme")}catch(e){}
-  btn.onclick=()=>{const t=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("mta-theme",t)}catch(e){}apply(t)};
-  renderStatic();renderTrust();
-  const t0=saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");root.dataset.theme=t0;btn.textContent=t0==="dark"?"Light mode":"Dark mode";
-  setMetric("revenue");
-  let raf=0;new ResizeObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(rerender)}).observe(document.body);
+  btn.onclick=()=>{const t=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("mta-theme",t)}catch(e){}paint(t);rerender(true)};
+  paint(saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+
+$("#ruler-tb").onclick=()=>{const t=$("#ladder-table"),on=t.hidden;t.hidden=!on;$("#ladder").hidden=on;$("#ruler-tb").setAttribute("aria-pressed",on);$("#ruler-tb").textContent=on?"Show as chart":"Show as table";if(on)t.replaceChildren(ladderTable())};
+  buildTape();renderStatic();renderTrust();setMonth(state.month);setMetric(state.metric);
+  let raf=0;new ResizeObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>rerender(false))}).observe(document.body);
 }
 let lastW=0;
-function rerender(){const w=document.body.clientWidth;trendRef.draw&&trendRef.draw();driftRef.draw&&driftRef.draw();if(w!==lastW){lastW=w;renderHero();renderWhy();qChart($("#qchart"))}}
+function rerender(force){const w=document.body.clientWidth;if(!force&&w===lastW)return;lastW=w;renderWays();youRef.draw&&youRef.draw();renderLadder();timeRef.draw&&timeRef.draw();const hs=$("#hist");if(hs)histChart(hs);qChart($("#qchart"));renderFlips()}
 init();
 })();
 </script>

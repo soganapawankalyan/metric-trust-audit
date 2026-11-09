@@ -4,7 +4,7 @@
 
 > Independent portfolio project on public data. It has no connection to the retailer in the data, the data publisher or any employer. The definitions are examples, not claims about how any real company counts.
 
-**Live dashboard:** _add the GitHub Pages link here after publishing_
+**Live dashboard:** https://soganapawankalyan.github.io/metric-trust-audit/dashboard/
 
 ## The question
 
@@ -17,14 +17,13 @@ Companies that run on dashboards keep hitting the same problem: two reports that
 
 ## What is in the dashboard
 
-- A five-dot comparison of the same month under five definitions
-- Trend by definition, with a table view of every chart
-- A month-by-month flip calendar: when does one definition say up while another says down?
-- A decision matrix: best month, latest change, year-on-year, second-largest market, 12-month level
-- Why they differ: a revenue waterfall, a customer-count ladder, an order-value distribution
-- Drift: the ratio of each definition to the governed one over time
-- A data-trust scorecard and the month the duplicates arrived
-- The governed metric layer and its dictionary
+- **The tape.** Revenue is five yes-or-no rules (add postage and fees, net off returns, drop repeated lines, drop lines on both sheets, drop guest orders). Switch them on and off on a calculation tape and the total recomputes, exactly, from the data. Five of the 32 combinations are named definitions; the page tells you which one you built and how far it is from the governed number.
+- **All 32 ways to count revenue** for the month, on one axis. Click any dot to load its rules.
+- **Your rules against the governed number** over time, and which business answers change (best month, latest change, year-on-year, months called the opposite way).
+- **One ruler.** All three metrics on the same scale, each definition as a multiple of the governed one.
+- **Over time**, by definition or relative to the governed one, with a table view of every chart.
+- **Decisions.** A flip grid for all three metrics (when does one definition say up while another says down?) and a matrix of the same questions asked of each definition.
+- **Why they differ** for customers and order value, a data-trust scorecard with the month the duplicates arrived, and the governed metric layer with its dictionary.
 
 ## Data
 
@@ -92,7 +91,22 @@ tests/                  reconciliation and cross-engine checks
 
 ## Findings
 
-_Run the pipeline on the real file, then paste docs/findings.md here._
+Measured on the real file (UCI Online Retail II, 24 full months, Dec 2009 to Nov 2011; the partial Dec 2011 is excluded).
+
+| Metric | Nov 2011, lowest to highest answer | Governed | Months where definitions moved in opposite directions (1% or more) | Year on year, across definitions |
+|---|---|---|---|---|
+| Revenue | £1.11M to £1.46M (31% spread) | £1.43M | 1 of 23 | -2.1% to +6.7% |
+| Active customers | 1,653 to 2,833 (71%) | 1,660 | 4 of 21 | -2.5% to -0.5% |
+| Average order value | £298 to £582 (96%) | £528 | 10 of 23 | +0.6% to +17.4% |
+
+What stands out:
+- **The damage depends on the metric.** Revenue definitions mostly agree on direction (1 flip in 23 months) but differ in level and in the sign of year-on-year growth: identified-customer revenue says -2.1%, gross sales says +6.7%. Average order value is the worst case: 10 flips, and four different "best months" depending on the definition.
+- **Customers look dramatic for a structural reason.** The 71% spread is mostly the trailing 90-day count, which answers a different question (who bought lately) from the monthly count. The monthly definitions sit within about 1% of each other (1,653 to 1,660) before guest checkouts are added.
+- **The source file contains a data-quality trap.** Duplicate lines peak in Dec 2010 at 35.4% of that month's rows, and 34.6% are present on both sheets of the workbook. Every definition that does not remove exact duplicates counts those lines twice, which is why the widest gaps in all three metrics fall in Dec 2010.
+- **4 of 14 automated tests fail at high severity**, and 95.7% of the 1,067,371 rows pass every row-level rule.
+
+Per-month detail, the 32-way comparison and the full test list are in the dashboard.
+
 
 ## Limits
 
