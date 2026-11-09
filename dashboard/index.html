@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One metric, five answers: a metric trust audit</title>
+<meta name="description" content="The same sales question answered five reasonable ways from one public retail file. How far apart the answers land, whether they change decisions, and what a governed metric layer fixes.">
+<style>
+:root{
+  color-scheme:light;
+  --surface:#fcfcfb; --wash:#f3f3f0; --ink:#0b0b0b; --ink2:#52514e; --muted:#6b6a65;
+  --grid:#e1e0d9; --axis:#c3c2b7; --mark-mute:#898781; --ring:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
+  --sev-high:#d03b3b; --sev-med:#ec835a; --sev-low:#fab219; --sev-pass:#0ca30c; --pos:#006300;
+  --shadow:0 6px 24px rgba(11,11,11,.14);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --surface:#1a1a19; --wash:#242423; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a3a299;
+  --grid:#2c2c2a; --axis:#383835; --mark-mute:#898781; --ring:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181;
+  --pos:#0ca30c; --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(34px,6vw,56px);line-height:1.04;letter-spacing:-.03em}
+h2{font-size:clamp(22px,3vw,28px);line-height:1.22;max-width:30em}
+h3{font-size:16px;line-height:1.35}
+p{margin:0}
+a{color:var(--c1)}
+:focus-visible{outline:2px solid var(--c1);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:8px;z-index:20}
+.skip:focus{top:12px}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;line-height:1.5}
+
+/* ---- masthead */
+header.top{padding:56px 0 36px}
+header.top .lede{margin-top:20px;font-size:19px;line-height:1.5;color:var(--ink2);max-width:36em}
+header.top .src{margin-top:16px;font-size:14px;color:var(--muted);max-width:52em}
+.demo{margin-top:24px;padding:12px 16px;border-left:4px solid var(--sev-low);background:var(--wash);border-radius:0 8px 8px 0;font-size:14.5px;max-width:52em}
+.demo b{font-weight:650}
+
+/* ---- sticky filter row */
+.bar{position:sticky;top:0;z-index:10;background:var(--surface);border-top:1px solid var(--grid);border-bottom:1px solid var(--grid)}
+.bar .wrap{display:flex;gap:16px 24px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.tabs{display:flex;gap:4px;background:var(--wash);padding:4px;border-radius:10px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:550;font-size:15px;min-height:44px;padding:0 16px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.tabs button:hover:not([aria-selected="true"]){color:var(--ink)}
+.field{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
+select,.btn{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--axis);border-radius:8px;min-height:44px;padding:0 12px;cursor:pointer}
+select:hover,.btn:hover{border-color:var(--ink2)}
+.bar .push{margin-left:auto}
+
+/* ---- sections */
+section{padding:56px 0;border-top:1px solid var(--grid)}
+section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
+.block{margin-top:32px}
+.row-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.row-head .btn{min-height:44px;font-size:14px;padding:0 14px}
+
+/* ---- hero */
+.hero{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:40px;margin-top:32px;align-items:start}
+.fig{font-size:clamp(64px,9vw,104px);line-height:.95;font-weight:700;letter-spacing:-.04em}
+.fig-cap{margin-top:12px;color:var(--ink2);font-size:15px;max-width:15em}
+.dots{position:relative}
+.dotrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;align-items:center;min-height:52px;border-top:1px solid var(--grid);padding:4px 0;border-radius:6px}
+.dotrow:last-of-type{border-bottom:1px solid var(--grid)}
+.dotrow:hover,.dotrow:focus-visible{background:var(--wash)}
+.dotrow .nm{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:550;line-height:1.25}
+.sw{flex:none;width:12px;height:12px;border-radius:50%;background:var(--sw)}
+.sw.ln{width:18px;height:3px;border-radius:2px}
+.dotrow .lane{position:relative;height:28px}
+.dotrow .dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--sw);box-shadow:0 0 0 2px var(--surface)}
+.dotrow .val{text-align:right;font-variant-numeric:tabular-nums;line-height:1.25}
+.dotrow .val b{font-size:17px;font-weight:650}
+.dotrow .val span{display:block;font-size:12.5px;color:var(--muted)}
+.guide{position:absolute;top:22px;bottom:30px;width:0;border-left:1.5px solid var(--c1);pointer-events:none}
+.guide-l{position:absolute;top:0;font-size:12.5px;font-weight:600;white-space:nowrap;transform:translateX(-50%)}
+.axisrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;height:26px}
+.axisrow .ax{position:relative;font-size:12px;color:var(--muted)}
+.axisrow .ax span{position:absolute;top:6px;transform:translateX(-50%);white-space:nowrap}
+.dotrow.na .lane::after{content:"needs 90 days of history";position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+
+/* ---- tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl th{text-align:left;font-weight:600;color:var(--ink2);font-size:13px;padding:10px 12px 10px 0;border-bottom:1px solid var(--axis);vertical-align:bottom}
+.tbl td{padding:14px 12px 14px 0;border-bottom:1px solid var(--grid);vertical-align:top}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl td.num{white-space:nowrap}
+.tbl tr.gov td{background:var(--wash)}
+.tbl tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--c1);padding-left:12px}
+.tbl .nm{display:flex;gap:10px;align-items:center;font-weight:600;white-space:nowrap}
+.tag{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:600;color:var(--ink);padding:2px 8px 2px 6px;border-radius:99px;border:1px solid var(--axis);margin-left:2px}
+.tag svg{width:12px;height:12px}
+.diff{display:inline-block;font-weight:700;margin-right:5px;color:var(--ink)}
+.cellsub{display:block;font-size:12.5px;color:var(--muted)}
+.scroll{max-height:380px;overflow:auto;border:1px solid var(--grid);border-radius:8px}
+.scroll .tbl th{position:sticky;top:0;background:var(--surface);padding-left:12px}
+.scroll .tbl td{padding-left:12px;padding-top:8px;padding-bottom:8px}
+
+/* ---- charts */
+.chart{position:relative;margin-top:8px}
+.chart svg{display:block;max-width:100%;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:4px;font-size:14px}
+.legend button{display:inline-flex;gap:8px;align-items:center;appearance:none;background:none;border:0;font:inherit;color:var(--ink);padding:6px 4px;min-height:44px;cursor:pointer;border-radius:6px}
+.legend button:hover{background:var(--wash)}
+.legend em{font-style:normal;color:var(--muted);font-size:12.5px}
+.ln{transition:opacity .15s}
+.dim{opacity:.18}
+.tick{font-size:12px;fill:var(--muted)}
+.cross{pointer-events:none}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);color:var(--ink);border-radius:10px;box-shadow:var(--shadow),0 0 0 1px var(--ring);padding:10px 12px;font-size:13.5px;line-height:1.4;max-width:300px;opacity:0;transition:opacity .08s}
+#tip.on{opacity:1}
+#tip .th{color:var(--ink2);font-size:12.5px;margin-bottom:6px}
+#tip .tr{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;margin-top:3px}
+#tip .tr b{font-weight:650;font-variant-numeric:tabular-nums}
+#tip .tr .k{height:3px;border-radius:2px;background:var(--sw)}
+#tip p{margin-top:6px;color:var(--ink2);font-size:12.5px}
+
+/* ---- flip strip */
+.strip{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.cell{appearance:none;font:inherit;width:42px;height:48px;border:1.5px solid transparent;border-radius:8px;background:var(--wash);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;line-height:1.1;padding:0}
+.cell small{font-size:11px}
+.cell b{font-size:18px;font-weight:650}
+.cell.flip{background:var(--ink);color:var(--surface)}
+.cell.mixed{background:var(--surface);border-color:var(--ink2);color:var(--ink)}
+.cell.nocmp{opacity:.45;cursor:default}
+.cell.sel{outline:2px solid var(--c1);outline-offset:2px}
+.key{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:14px;font-size:13.5px;color:var(--ink2)}
+.key span{display:inline-flex;gap:8px;align-items:center}
+.key i{width:22px;height:22px;border-radius:6px;display:inline-grid;place-items:center;font-style:normal;font-weight:700;font-size:13px}
+
+/* ---- why section bars */
+.hbars{display:grid;gap:0}
+.hb{display:grid;grid-template-columns:260px minmax(0,1fr) 120px;gap:16px;align-items:center;min-height:48px;border-top:1px solid var(--grid);padding:6px 0}
+.hb:last-child{border-bottom:1px solid var(--grid)}
+.hb.gap{margin-top:14px}
+.hb .nm{font-size:14.5px;line-height:1.3}
+.hb .nm b{display:block;font-weight:600}
+.hb .nm span{color:var(--muted);font-size:12.5px}
+.hb .track{position:relative;height:24px}
+.hb .bar-m{position:absolute;top:2px;height:20px;background:var(--sw);border-radius:4px;min-width:3px}
+.hb .bar-m.d{background:var(--mark-mute)}
+.hb .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:15px;line-height:1.2}
+.hb .val span{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.hb .zero{position:absolute;top:-6px;bottom:-6px;border-left:1px solid var(--axis)}
+.note{margin-top:16px;max-width:46em;color:var(--ink2);font-size:14.5px}
+
+/* ---- trust */
+.sev{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:13.5px;white-space:nowrap}
+.sev svg{width:14px;height:14px;flex:none}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px}
+.cols>*{min-width:0}
+.steps{display:grid;gap:20px;margin:0;padding:0;list-style:none}
+.steps li{max-width:34em}
+.steps b{display:block;margin-bottom:2px}
+pre{margin:0;padding:16px;background:var(--wash);border-radius:10px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:auto;color:var(--ink)}
+footer{border-top:1px solid var(--grid);padding:40px 0 72px;color:var(--ink2);font-size:14px}
+footer p+p{margin-top:10px}
+footer p{max-width:60em}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:24px}
+  .cols{grid-template-columns:1fr;gap:32px}
+}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  header.top{padding:36px 0 28px}
+  section{padding:40px 0}
+  .tabs button{padding:0 11px;font-size:14px}
+  .dotrow,.axisrow{grid-template-columns:minmax(0,1fr) auto}
+  .dotrow .nm{grid-column:1}.dotrow .val{grid-column:2;grid-row:1}
+  .dotrow .lane{grid-column:1/-1;grid-row:2;height:20px}
+  .dotrow{padding:8px 0 4px}
+  .axisrow .l,.axisrow .r{display:none}.axisrow{grid-template-columns:1fr}
+  .guide{top:22px}
+  .hb{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}
+  .hb .nm{grid-column:1}.hb .val{grid-column:2;grid-row:1}.hb .track{grid-column:1/-1;grid-row:2}
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
+  table.stack thead{position:absolute;left:-9999px}
+  table.stack tr{padding:14px 0;border-bottom:1px solid var(--grid)}
+  table.stack td{border:0;padding:3px 0;text-align:left!important}
+  table.stack td[data-l]::before{content:attr(data-l) ": ";color:var(--muted);font-size:12.5px}
+  table.stack td.first::before{content:none}
+  table.stack tr.gov{padding-left:12px;box-shadow:inset 3px 0 0 var(--c1)}
+  table.stack tr.gov td{background:none}table.stack tr.gov td:first-child{box-shadow:none;padding-left:0}
+  .cell{width:44px;height:48px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.bar,.btn{display:none}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the audit</a>
+<header class="top">
+  <div class="wrap">
+    <h1>One metric, five answers</h1>
+    <p class="lede">Ask five analysts for monthly revenue, active customers or average order value and you will get five different numbers, all defensible. This audit puts a size on that gap, checks whether it changes decisions, and shows what a governed metric layer fixes.</p>
+    <p class="src" id="src"></p>
+    <div class="demo" id="demo" hidden><b>Demo data.</b> This page was built from synthetic sales generated to have the same columns and the same kinds of mess as the real file, with four traps planted on purpose. None of these numbers describe a real company. Running the pipeline on the real file replaces every figure and sentence.</div>
+  </div>
+</header>
+
+<div class="bar" role="region" aria-label="Filters">
+  <div class="wrap">
+    <div class="tabs" role="tablist" aria-label="Metric" id="tabs"></div>
+    <label class="field">Month <select id="month" aria-label="Month shown in the charts below"></select></label>
+    <button class="btn push" id="theme" type="button">Dark mode</button>
+  </div>
+</div>
+
+<main id="main">
+<section id="s-hero" aria-labelledby="h-hero"><div class="wrap">
+  <h2 id="h-hero"></h2>
+  <div class="hero">
+    <div><div class="fig" id="fig"></div><p class="fig-cap" id="figcap"></p></div>
+    <div><div class="dots" id="dots"></div></div>
+  </div>
+  <p class="note" id="hero-note"></p>
+</div></section>
+
+<section id="s-defs" aria-labelledby="h-defs"><div class="wrap">
+  <h2 id="h-defs"></h2>
+  <p class="intro" id="defs-intro"></p>
+  <div class="block"><table class="tbl stack" id="deftbl"></table></div>
+</div></section>
+
+<section id="s-trend" aria-labelledby="h-trend"><div class="wrap">
+  <h2 id="h-trend"></h2>
+  <p class="intro" id="trend-intro"></p>
+  <div class="block">
+    <div class="row-head"><div class="legend" id="trend-leg"></div><button class="btn" id="trend-tb" type="button" aria-pressed="false">Show as table</button></div>
+    <div class="chart" id="trend"></div>
+    <div class="scroll" id="trend-table" hidden></div>
+  </div>
+</div></section>
+
+<section id="s-decide" aria-labelledby="h-decide"><div class="wrap">
+  <h2 id="h-decide"></h2>
+  <p class="intro" id="decide-intro"></p>
+  <div class="block">
+    <h3>Month by month: do the five answers move the same way?</h3>
+    <div class="strip" id="strip" role="group" aria-label="Months where the five definitions disagree on direction"></div>
+    <div class="key" id="strip-key"></div>
+  </div>
+  <div class="block">
+    <h3 id="matrix-h">The same questions, asked of each definition</h3>
+    <div style="margin-top:12px"><table class="tbl stack" id="matrix"></table></div>
+  </div>
+</div></section>
+
+<section id="s-why" aria-labelledby="h-why"><div class="wrap">
+  <h2 id="h-why"></h2>
+  <p class="intro" id="why-intro"></p>
+  <div class="block" id="why"></div>
+</div></section>
+
+<section id="s-drift" aria-labelledby="h-drift"><div class="wrap">
+  <h2 id="h-drift"></h2>
+  <p class="intro" id="drift-intro"></p>
+  <div class="block">
+    <div class="row-head"><div class="legend" id="drift-leg"></div><button class="btn" id="drift-tb" type="button" aria-pressed="false">Show as table</button></div>
+    <div class="chart" id="drift"></div>
+    <div class="scroll" id="drift-table" hidden></div>
+  </div>
+</div></section>
+
+<section id="s-trust" aria-labelledby="h-trust"><div class="wrap">
+  <h2 id="h-trust"></h2>
+  <p class="intro" id="trust-intro"></p>
+  <div class="block"><table class="tbl stack" id="tests"></table></div>
+  <div class="block">
+    <h3 id="q-h"></h3>
+    <div class="chart" id="qchart"></div>
+    <p class="note" id="q-note"></p>
+  </div>
+</div></section>
+
+<section id="s-gov" aria-labelledby="h-gov"><div class="wrap">
+  <h2 id="h-gov">What a team does about it</h2>
+  <div class="cols block">
+    <ol class="steps" id="steps"></ol>
+    <div>
+      <h3 style="margin-bottom:10px">One table feeds every dashboard</h3>
+<pre>-- sql/06_governed_layer.sql
+CREATE TABLE gov_monthly AS
+SELECT m.month,
+  (SELECT value FROM metric_long
+    WHERE metric = 'revenue' AND governed = 1
+      AND month = m.month) AS revenue_net_clean,
+  (SELECT value FROM metric_long
+    WHERE metric = 'customers' AND governed = 1
+      AND month = m.month) AS active_customers,
+  (SELECT value FROM metric_long
+    WHERE metric = 'aov' AND governed = 1
+      AND month = m.month) AS aov,
+  c.guest_invoices AS guest_buyers
+FROM months m JOIN m_customers c USING (month);</pre>
+      <p class="note small">The definition lives in one place. A chart that needs a different number has to say which definition id it uses.</p>
+    </div>
+  </div>
+  <div class="block">
+    <h3>What this audit cannot tell you</h3>
+    <ul class="small" style="margin:10px 0 0;padding-left:20px;max-width:52em;color:var(--ink2)" id="limits"></ul>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap" id="foot"></div></footer>
+<div id="tip" role="tooltip"></div>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script>
+const DATA={"meta":{"source":"real","demo":false,"rows":1067371,"first":"2009-12-01","last":"2011-12-09","latest":"2011-11","n_months":24,"first_full":"2009-12"},"months":["2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11"],"labels":["Dec 2009","Jan 2010","Feb 2010","Mar 2010","Apr 2010","May 2010","Jun 2010","Jul 2010","Aug 2010","Sep 2010","Oct 2010","Nov 2010","Dec 2010","Jan 2011","Feb 2011","Mar 2011","Apr 2011","May 2011","Jun 2011","Jul 2011","Aug 2011","Sep 2011","Oct 2011","Nov 2011"],"defs":[{"metric":"revenue","id":"R1","name":"Ledger total","owner":"Whoever sums the table first","rule":"SUM(quantity x price) over every row in the file.","pitfall":"Mixes product sales with postage, bank charges, manual entries, bad-debt adjustments and test items.","governed":0,"slot":2},{"metric":"revenue","id":"R2","name":"Gross sales","owner":"Sales and marketing","rule":"Product lines on non-cancelled invoices, positive quantity and price. Duplicates kept.","pitfall":"Ignores returns, so it only ever looks better than the cash that stays.","governed":0,"slot":3},{"metric":"revenue","id":"R3","name":"Net sales","owner":"Finance, quick version","rule":"All product lines including cancellation credits, dated when the credit was issued. Duplicates kept.","pitfall":"Duplicate lines (including the sheet overlap) still inflate it; returns hit the month they are credited, not the month of the sale.","governed":0,"slot":4},{"metric":"revenue","id":"R4","name":"Net clean revenue","owner":"Governed definition","rule":"R3 after removing exact duplicate lines (same invoice, item, quantity, price, timestamp, customer).","pitfall":"A true repeat scan on one invoice is indistinguishable from a duplicate, so this can undercount slightly.","governed":1,"slot":1},{"metric":"revenue","id":"R5","name":"Identified-customer revenue","owner":"CRM and lifecycle marketing","rule":"R4 restricted to rows with a Customer ID.","pitfall":"Silently drops guest checkouts, so it shrinks whenever guest share grows.","governed":0,"slot":5},{"metric":"customers","id":"A1","name":"Any record","owner":"Data warehouse default","rule":"Distinct Customer IDs on any row in the month, including returns and fees.","pitfall":"A customer who only returned something, or only paid a fee, counts as active.","governed":0,"slot":2},{"metric":"customers","id":"A2","name":"Purchasing customers","owner":"Governed definition","rule":"Distinct Customer IDs with at least one purchase line (product, non-cancelled, positive quantity and price) in the month.","pitfall":"Guest checkouts have no ID and are not counted here; the dictionary reports them next to it.","governed":1,"slot":1},{"metric":"customers","id":"A3","name":"Net-positive customers","owner":"Finance","rule":"Distinct Customer IDs whose net clean spend in the month is above zero.","pitfall":"A customer who buys and returns the same value in a month disappears.","governed":0,"slot":3},{"metric":"customers","id":"A4","name":"Buyers incl. guests","owner":"E-commerce operations","rule":"A2 plus one buyer for every distinct guest invoice.","pitfall":"A guest who orders three times is three buyers, so the count drifts up as guest checkout grows.","governed":0,"slot":4},{"metric":"customers","id":"A5","name":"Trailing 90-day active","owner":"Retention and CRM","rule":"Distinct Customer IDs with a purchase in the 90 days up to month end. Needs 90 days of history, so the first months are blank.","pitfall":"Smooth by construction: it reacts to a change about three months late.","governed":0,"slot":5},{"metric":"aov","id":"V1","name":"Ledger per invoice","owner":"Whoever divides the table first","rule":"R1 divided by every distinct invoice number, including cancellations and fee-only invoices.","pitfall":"Cancellation invoices lower the numerator and add to the denominator at the same time.","governed":0,"slot":2},{"metric":"aov","id":"V2","name":"Clean gross per invoice","owner":"Governed definition","rule":"Gross product value of purchase invoices (duplicates removed) divided by the count of those invoices.","pitfall":"One invoice is one order, so a customer who splits a basket looks like two smaller orders.","governed":1,"slot":1},{"metric":"aov","id":"V3","name":"Net per invoice","owner":"Finance, quick version","rule":"R4 (net of returns) divided by the count of purchase invoices.","pitfall":"Numerator subtracts returns, denominator ignores the matching invoices, so the ratio is biased down.","governed":0,"slot":3},{"metric":"aov","id":"V4","name":"Median invoice value","owner":"Analysts who distrust outliers","rule":"Median gross product value of purchase invoices.","pitfall":"Hides wholesale orders, which is where most of the money is.","governed":0,"slot":4},{"metric":"aov","id":"V5","name":"Value per consolidated order","owner":"Customer analytics","rule":"Clean gross value divided by orders, where one order is one customer on one day (one invoice for guests).","pitfall":"Merges real separate orders placed on the same day.","governed":0,"slot":5}],"series":{"revenue":{"R1":[799847.11,624032.892,533091.426,765848.761,590580.432,615322.83,679786.61,575236.36,656776.34,853650.431,1045168.35,1422654.642,1126445.47,560000.26,498062.65,683267.08,493207.121,723333.51,691123.12,681300.111,682680.51,1019687.622,1070704.67,1461756.25],"R2":[801102.97,613850.81,539744.68,764333.85,648993.82,645645.39,699316.02,634896.99,676060.72,871878.34,1098002.92,1435680.12,1187158.33,671933.1900000001,508886.2,691257.61,516218.12,741192.41,738751.87,689364.41,725513.5,1030475.36,1106669.82,1457745.53],"R3":[781541.6900000001,606385.18,527160.29,754676.65,638968.56,608351.25,672972.01,617764.26,663642.07,844100.37,1072452.9,1400559.24,1162687.42,580406.89,500510.33,680582.31,482901.21,732244.18,724991.03,677955.2,702583.98,1013430.68,1062677.66,1432734.99],"R4":[778343.08,604831.79,525334.23,752102.13,636315.67,606299.14,670246.33,615861.59,661640.12,841556.7,1068970.16,1394601.8,758090.5,578855.19,499464.35,679329.21,482061.93,730989.92,723845.14,676812.08,701289.93,1011339.74,1061701.22,1426587.54],"R5":[658581.66,526390.16,485910.02,656463.02,575168.78,555748.88,602544.85,564482.59,582257.88,778184.59,986324.63,1121080.55,547893.92,471430.34,434018.17,573138.05,421127.77,650299.39,640629.21,580214.73,612605.13,921808.74,961042.49,1112565.12]},"customers":{"A1":[1045.0,786.0,807.0,1111.0,998.0,1062.0,1095.0,988.0,964.0,1202.0,1577.0,1683.0,948.0,783.0,798.0,1020.0,899.0,1079.0,1051.0,993.0,980.0,1302.0,1425.0,1711.0],"A2":[951.0,701.0,771.0,1051.0,939.0,965.0,1034.0,924.0,910.0,1136.0,1492.0,1606.0,884.0,739.0,757.0,973.0,853.0,1054.0,990.0,946.0,933.0,1259.0,1361.0,1660.0],"A3":[942.0,699.0,764.0,1047.0,935.0,957.0,1029.0,917.0,907.0,1128.0,1489.0,1599.0,880.0,734.0,752.0,968.0,849.0,1052.0,986.0,941.0,928.0,1253.0,1352.0,1653.0],"A4":[1120.0,791.0,867.0,1189.0,1059.0,1084.0,1167.0,1069.0,1036.0,1266.0,1628.0,1755.0,1040.0,837.0,858.0,1101.0,949.0,1178.0,1125.0,1077.0,1005.0,1338.0,1463.0,1769.0],"A5":[null,null,1694.0,1783.0,1954.0,2017.0,2016.0,1996.0,1928.0,2026.0,2486.0,2866.0,2645.0,2181.0,1680.0,1774.0,1889.0,1957.0,1966.0,2019.0,1919.0,2145.0,2454.0,2833.0]},"aov":{"V1":[343.28202145922745,382.13894182486223,270.74221736922294,323.5524972539079,312.1461057082453,254.47594292803967,306.7629106498195,285.19403073872087,349.90748002131056,359.4317604210526,352.50197301854973,387.7499705641864,556.2693679012345,379.4039701897019,357.5467695620962,344.56231971759956,282.8022482798165,334.5668408880666,343.50055666003976,353.5548059159315,393.0227461139896,438.1983764503653,406.0313500189609,422.22884170999424],"V2":[478.93226890756307,583.6963012392755,452.4051051303617,462.48086217364903,450.4117979094077,433.61996630727765,432.1235669975186,420.0360451227604,480.76870185449354,485.8821240916713,487.709995543672,525.818602427363,500.41184516129033,620.1482331174838,464.5927447392498,479.0510486111111,417.3101133603239,443.6080035971223,483.64523278688523,473.980261707989,540.8637042569081,565.6327722772277,550.281421446384,527.6550272628135],"V3":[467.192725090036,576.5793994280267,441.82862068965517,456.64974499089254,443.4255540069687,408.557371967655,415.785564516129,408.66727936297275,471.92590584878747,470.4062045835662,476.3681639928698,512.9098197866863,489.0906451612903,535.481211840888,456.9664684354986,471.75639583333333,390.3335465587044,438.2433573141487,474.6525508196721,466.1240220385675,523.7415459297983,556.2924862486249,529.5267930174564,518.570534351145],"V4":[294.56,308.01,288.3,292.95,305.2,287.885,286.7,282.45,301.78999999999996,303.24,310.14,299.5,254.395,305.07,303.0,292.78499999999997,300.12,304.41999999999996,283.95,301.23,305.34000000000003,323.42,311.76,297.65000000000003],"V5":[524.589848783695,627.3539139344263,499.45187558031574,513.6250708024274,506.5367789968652,480.9357473841555,480.40219999999994,460.3595054545454,534.5263441712926,556.8501729660474,542.3296481665014,592.0086045548654,570.3223235294117,646.4611764705883,487.3319289827255,512.5063224368499,446.9887163920208,506.8069520547945,532.1493362193362,519.0191101055807,578.910071942446,622.0933938294011,613.6341768631813,582.4955778491171]}},"dec":{"revenue":{"best":{"R1":"2011-11","R2":"2011-11","R3":"2011-11","R4":"2011-11","R5":"2010-11"},"latest_mom":{"R1":0.3652282379603333,"R2":0.3172361834173809,"R3":0.3482310242599813,"R4":0.34368079561969433,"R5":0.15766486037469596},"yoy":{"R1":0.05780096164248727,"R2":0.06741176871095744,"R3":0.0615037089643351,"R4":0.01903255292655226,"R5":-0.02055624876493356},"ttm":{"R1":9691568.374,"R2":10065166.35,"R3":9753705.88,"R4":9330366.75,"R5":7926773.0600000005},"second_country":{"R1":"EIRE","R2":"EIRE","R3":"EIRE","R4":"EIRE","R5":"EIRE"},"flips":[{"month":"2010-01","flip":0,"disagree":0,"range":0.033021433669774725},{"month":"2010-02","flip":0,"disagree":0,"range":0.06883044757164902},{"month":"2010-03","flip":0,"disagree":0,"range":0.08562095891842292},{"month":"2010-04","flip":0,"disagree":0,"range":0.10501827460242175},{"month":"2010-05","flip":1,"disagree":1,"range":0.08981182289503109},{"month":"2010-06","flip":0,"disagree":0,"range":0.023095676665062514},{"month":"2010-07","flip":0,"disagree":0,"range":0.09062945779861542},{"month":"2010-08","flip":0,"disagree":0,"range":0.11026086540259517},{"month":"2010-09","flip":0,"disagree":0,"range":0.06457360562291758},{"month":"2010-10","flip":0,"disagree":0,"range":0.04617600552508727},{"month":"2010-11","flip":0,"disagree":0,"range":0.2245484083756153},{"month":"2010-12","flip":0,"disagree":0,"range":0.34143990640648814},{"month":"2011-01","flip":0,"disagree":0,"range":0.3633016508839251},{"month":"2011-02","flip":0,"disagree":0,"range":0.16329472316750326},{"month":"2011-03","flip":0,"disagree":0,"range":0.05131036681996726},{"month":"2011-04","flip":0,"disagree":0,"range":0.0372398713950397},{"month":"2011-05","flip":0,"disagree":0,"range":0.10837302318400566},{"month":"2011-06","flip":0,"disagree":0,"range":0.04123776095975673},{"month":"2011-07","flip":0,"disagree":0,"range":0.08009179990780146},{"month":"2011-08","flip":0,"disagree":0,"range":0.053798724809647425},{"month":"2011-09","flip":0,"disagree":0,"range":0.08439625510687421},{"month":"2011-10","flip":0,"disagree":0,"range":0.031379375797690345},{"month":"2011-11","flip":0,"disagree":0,"range":0.20756337758563737}],"n_flip":1,"n_cmp":23,"n_disagree":1,"mom":{"2010-01":{"R1":-0.21980978089675163,"R2":-0.2337429356927736,"R3":-0.2241166558881843,"R4":-0.2229239193595708,"R5":-0.20072150202299888},"2010-02":{"R1":-0.1457318470962906,"R2":-0.12072335621744967,"R3":-0.13065109869604663,"R4":-0.13143746958141878,"R5":-0.07690139952464159},"2010-03":{"R1":0.4366180426994901,"R2":0.4161026098487899,"R3":0.4315885781153963,"R4":0.43166404747697484,"R5":0.3509970837810672},"2010-04":{"R1":-0.2288550141037572,"R2":-0.15090268473651924,"R3":-0.15332141255463516,"R4":-0.15395044819245485,"R5":-0.12383673950133545},"2010-05":{"R1":0.04189505215438616,"R2":-0.005159417388596932,"R3":-0.04791677074064493,"R4":-0.047172388509621355,"R5":-0.033763828419199005},"2010-06":{"R1":0.10476416095271501,"R2":0.08312710170516358,"R3":0.10622277837022609,"R4":0.10547135197981627,"R5":0.08420344454855222},"2010-07":{"R1":-0.15379863101451796,"R2":-0.09211719474122737,"R3":-0.08203572983666885,"R4":-0.0811414215427334,"R5":-0.06316917321590254},"2010-08":{"R1":0.14175039282982738,"R2":0.06483528926479876,"R3":0.07426426708466427,"R4":0.07433249733921543,"R5":0.03148952742723221},"2010-09":{"R1":0.2997581962224767,"R2":0.28964501886753613,"R3":0.27192112760422216,"R4":0.2719251365833135,"R5":0.33649473322713974},"2010-10":{"R1":0.2243516925021034,"R2":0.2593533634520615,"R3":0.2705276980271907,"R4":0.2702295163237367,"R5":0.26746872486899287},"2010-11":{"R1":0.36117271633799475,"R2":0.3075376156558858,"R3":0.3059400930334564,"R4":0.30462182405540683,"R5":0.13662430796237945},"2010-12":{"R1":-0.20820876919473763,"R2":-0.1731038735843191,"R3":-0.16984059881679836,"R4":-0.45641078335048757,"R5":-0.5112805052232865},"2011-01":{"R1":-0.5028607465570437,"R2":-0.4339986731171739,"R3":-0.5008057367645725,"R4":-0.23642996449632336,"R5":-0.13955909567311864},"2011-02":{"R1":-0.11060282364868901,"R2":-0.24265357393642073,"R3":-0.13765611914083242,"R4":-0.13715146961021452,"R5":-0.07935885076891747},"2011-03":{"R1":0.3718496659004644,"R2":0.35837365996562687,"R3":0.35977675026207767,"R4":0.36011551174773526,"R5":0.32053929908049716},"2011-04":{"R1":-0.278163495012814,"R2":-0.2532188976552461,"R3":-0.2904587690502858,"R4":-0.2903853935560934,"R5":-0.26522454755882985},"2011-05":{"R1":0.4665917810217506,"R2":0.4358124623754007,"R3":0.5163436430403643,"R4":0.5163817644757802,"R5":0.5441854855594064},"2011-06":{"R1":-0.04453048221144906,"R2":-0.003292721251692332,"R3":-0.00990537063742869,"R4":-0.009774115626655977,"R5":-0.014870350716460035},"2011-07":{"R1":-0.014213110104028925,"R2":-0.06685256850855748,"R3":-0.06487780959165812,"R4":-0.06497668824577596,"R5":-0.09430491001183039},"2011-08":{"R1":0.0020261247249377945,"R2":0.052438288770956465,"R3":0.03632803465479739,"R4":0.03616639052896353,"R5":0.05582484953458522},"2011-09":{"R1":0.4936527512701365,"R2":0.4203393320730764,"R3":0.4424335152076768,"R4":0.44211359202035005,"R5":0.5047355871799506},"2011-10":{"R1":0.05003203618372454,"R2":0.07394107899872537,"R3":0.04859432516884121,"R4":0.04979679726616881,"R5":0.04256170320103503},"2011-11":{"R1":0.3652282379603333,"R2":0.3172361834173809,"R3":0.3482310242599813,"R4":0.34368079561969433,"R5":0.15766486037469596}}},"customers":{"best":{"A1":"2011-11","A2":"2011-11","A3":"2011-11","A4":"2011-11","A5":"2010-11"},"latest_mom":{"A1":0.20070175438596483,"A2":0.2196914033798678,"A3":0.2226331360946745,"A4":0.20915926179084066,"A5":0.154441727791361},"yoy":{"A1":-0.024703408920258352,"A2":-0.005689102564102599,"A3":-0.005236445661806144,"A4":-0.020739790463972674,"A5":-0.006260233073292931},"ttm":{"A1":1082.4166666666667,"A2":1034.0833333333333,"A3":1029.0,"A4":1145.0,"A5":2121.8333333333335},"second_country":{},"flips":[{"month":"2010-03","flip":0,"disagree":0,"range":0.3241654706676673},{"month":"2010-04","flip":1,"disagree":1,"range":0.2052413528950886},{"month":"2010-05","flip":0,"disagree":0,"range":0.04059884474832032},{"month":"2010-06","flip":0,"disagree":1,"range":0.0770640515031823},{"month":"2010-07","flip":0,"disagree":0,"range":0.09892290249433111},{"month":"2010-08","flip":0,"disagree":0,"range":0.02316301086360295},{"month":"2010-09","flip":0,"disagree":0,"range":0.19752177283297612},{"month":"2010-10","flip":0,"disagree":0,"range":0.09298708981817927},{"month":"2010-11","flip":0,"disagree":0,"range":0.0856397602094876},{"month":"2010-12","flip":0,"disagree":0,"range":0.3725450789856012},{"month":"2011-01","flip":0,"disagree":0,"range":0.031165158371040724},{"month":"2011-02","flip":1,"disagree":1,"range":0.25480074741289627},{"month":"2011-03","flip":0,"disagree":0,"range":0.23128166160081043},{"month":"2011-04","flip":1,"disagree":1,"range":0.2028815661072696},{"month":"2011-05","flip":0,"disagree":0,"range":0.20530875608941113},{"month":"2011-06","flip":0,"disagree":1,"range":0.06733651841590393},{"month":"2011-07","flip":1,"disagree":1,"range":0.08214382852933755},{"month":"2011-08","flip":0,"disagree":0,"range":0.053760726197589204},{"month":"2011-09","flip":0,"disagree":0,"range":0.2324458455373668},{"month":"2011-10","flip":0,"disagree":0,"range":0.06504556895618352},{"month":"2011-11","flip":0,"disagree":0,"range":0.0681914083033135}],"n_flip":4,"n_cmp":21,"n_disagree":6,"mom":{"2010-03":{"A1":0.3767038413878563,"A2":0.3631647211413749,"A3":0.3704188481675392,"A4":0.3713956170703576,"A5":0.052538370720188965},"2010-04":{"A1":-0.10171017101710167,"A2":-0.10656517602283544,"A3":-0.10697230181470874,"A4":-0.10933557611438183,"A5":0.09590577678070678},"2010-05":{"A1":0.06412825651302612,"A2":0.027689030883919052,"A3":0.0235294117647058,"A4":0.023607176581680767,"A5":0.032241555783009135},"2010-06":{"A1":0.031073446327683607,"A2":0.07150259067357512,"A3":0.07523510971786829,"A4":0.07656826568265673,"A5":-0.0004957858205255627},"2010-07":{"A1":-0.09771689497716896,"A2":-0.1063829787234043,"A3":-0.108843537414966,"A4":-0.08397600685518425,"A5":-0.009920634920634885},"2010-08":{"A1":-0.02429149797570851,"A2":-0.015151515151515138,"A3":-0.010905125408942173,"A4":-0.030869971936389184,"A5":-0.034068136272545124},"2010-09":{"A1":0.24688796680497926,"A2":0.24835164835164836,"A3":0.24366041896361623,"A4":0.2220077220077219,"A5":0.05082987551867224},"2010-10":{"A1":0.31198003327787016,"A2":0.31338028169014076,"A3":0.3200354609929077,"A4":0.2859399684044235,"A5":0.22704837117472843},"2010-11":{"A1":0.06721623335447058,"A2":0.07640750670241281,"A3":0.07387508394895903,"A4":0.07800982800982803,"A5":0.15285599356395818},"2010-12":{"A1":-0.4367201426024956,"A2":-0.44956413449564137,"A3":-0.44965603502188867,"A4":-0.40740740740740744,"A5":-0.07711095603628748},"2011-01":{"A1":-0.17405063291139244,"A2":-0.16402714932126694,"A3":-0.1659090909090909,"A4":-0.19519230769230766,"A5":-0.1754253308128545},"2011-02":{"A1":0.019157088122605304,"A2":0.02435723951285529,"A3":0.02452316076294281,"A4":0.02508960573476693,"A5":-0.22971114167812934},"2011-03":{"A1":0.27819548872180455,"A2":0.285336856010568,"A3":0.2872340425531914,"A4":0.2832167832167831,"A5":0.055952380952380976},"2011-04":{"A1":-0.11862745098039218,"A2":-0.12332990750256934,"A3":-0.12293388429752061,"A4":-0.13805631244323346,"A5":0.06482525366403613},"2011-05":{"A1":0.20022246941045596,"A2":0.23563892145369292,"A3":0.2391048292108362,"A4":0.24130663856691248,"A5":0.03599788247750135},"2011-06":{"A1":-0.025949953660797,"A2":-0.06072106261859578,"A3":-0.06273764258555137,"A4":-0.044991511035653686,"A5":0.004598875830352567},"2011-07":{"A1":-0.05518553758325406,"A2":-0.0444444444444444,"A3":-0.045638945233265726,"A4":-0.04266666666666663,"A5":0.026958290946083485},"2011-08":{"A1":-0.01309164149043307,"A2":-0.01374207188160681,"A3":-0.01381509032943673,"A4":-0.06685236768802227,"A5":-0.049529470034670675},"2011-09":{"A1":0.3285714285714285,"A2":0.34941050375133975,"A3":0.3502155172413792,"A4":0.33134328358208953,"A5":0.11776967170401242},"2011-10":{"A1":0.09447004608294929,"A2":0.0810166799046863,"A3":0.07901037509976061,"A4":0.09342301943198805,"A5":0.14405594405594413},"2011-11":{"A1":0.20070175438596483,"A2":0.2196914033798678,"A3":0.2226331360946745,"A4":0.20915926179084066,"A5":0.154441727791361}}},"aov":{"best":{"V1":"2010-12","V2":"2011-01","V3":"2010-01","V4":"2011-09","V5":"2011-01"},"latest_mom":{"V1":0.03989221938226439,"V2":-0.04111785952013114,"V3":-0.0206906596810299,"V4":-0.045259173723376844,"V5":-0.05074456441334585},"yoy":{"V1":0.17408915819433335,"V2":0.0655606933542916,"V3":0.05413822688116876,"V4":0.006295066313742215,"V5":0.0474364318234084},"ttm":{"V1":384.3073494506497,"V2":505.5983673603991,"V3":487.56496312909394,"V4":298.59499999999997,"V5":551.5599238896211},"second_country":{},"flips":[{"month":"2010-01","flip":0,"disagree":0,"range":0.1884747569469407},{"month":"2010-02","flip":0,"disagree":0,"range":0.22751700502953698},{"month":"2010-03","flip":0,"disagree":0,"range":0.17892839320678378},{"month":"2010-04","flip":1,"disagree":1,"range":0.07706961335477014},{"month":"2010-05","flip":0,"disagree":0,"range":0.1474726822515099},{"month":"2010-06","flip":0,"disagree":1,"range":0.20958542425067594},{"month":"2010-07","flip":0,"disagree":0,"range":0.05548737995314479},{"month":"2010-08","flip":0,"disagree":0,"range":0.15843795566346186},{"month":"2010-09","flip":0,"disagree":1,"range":0.044983969412076164},{"month":"2010-10","flip":1,"disagree":1,"range":0.04883043307972246},{"month":"2010-11","flip":1,"disagree":1,"range":0.13430084671370124},{"month":"2010-12","flip":1,"disagree":1,"range":0.5852094094840208},{"month":"2011-01","flip":1,"disagree":1,"range":0.557224881816258},{"month":"2011-02","flip":0,"disagree":0,"range":0.244050649751},{"month":"2011-03","flip":1,"disagree":1,"range":0.08797297947283189},{"month":"2011-04","flip":1,"disagree":1,"range":0.20429460617602768},{"month":"2011-05","flip":0,"disagree":0,"range":0.16871405640413006},{"month":"2011-06","flip":1,"disagree":1,"range":0.1574962475838777},{"month":"2011-07","flip":1,"disagree":1,"range":0.08552973446786849},{"month":"2011-08","flip":0,"disagree":0,"range":0.12746612592387274},{"month":"2011-09","flip":0,"disagree":0,"range":0.0691486636463643},{"month":"2011-10","flip":0,"disagree":0,"range":0.0598094668045952},{"month":"2011-11","flip":1,"disagree":1,"range":0.09063678379561024}],"n_flip":10,"n_cmp":23,"n_disagree":12,"mom":{"2010-01":{"V1":0.1131924130499502,"V2":0.2187449857381243,"V3":0.23413608231358918,"V4":0.045661325366648464,"V5":0.1958941168781636},"2010-02":{"V1":-0.29150843387924963,"V2":-0.2249306631379414,"V3":-0.23370723767107504,"V4":-0.06399142884971265,"V5":-0.20387541308537904},"2010-03":{"V1":0.19505742546484828,"V2":0.02227153701190887,"V3":0.03354496202193258,"V4":0.016129032258064502,"V5":0.02837749924483468},"2010-04":{"V1":-0.035253603796825184,"V2":-0.026096353928067417,"V3":-0.028959155521235624,"V4":0.041816009557944955,"V5":-0.01380051755356937},"2010-05":{"V1":-0.1847537474457822,"V2":-0.03728106519427232,"V3":-0.078633677568266,"V4":-0.05673328964613367,"V5":-0.05054130849769578},"2010-06":{"V1":0.2054691972850473,"V2":-0.00345094651084088,"V3":0.017691989043453704,"V4":-0.004116226965628633,"V5":-0.001109394315264689},"2010-07":{"V1":-0.07031123764411096,"V2":-0.02797237364012506,"V3":-0.017120087277296858,"V4":-0.014823857690966169,"V5":-0.041720655204023904},"2010-08":{"V1":0.2269102516450514,"V2":0.14458915475690493,"V3":0.15479249179044086,"V4":0.06847229598158955,"V5":0.1611063480562156},"2010-09":{"V1":0.02721942497245844,"V2":0.010635929954369905,"V3":-0.003220211576408394,"V4":0.00480466549587466,"V5":0.04176375783566777},"2010-10":{"V1":-0.01927984158769125,"V2":0.0037619648086824053,"V3":0.012674066267007511,"V4":0.022754254056193135,"V5":-0.026076179023529322},"2010-11":{"V1":0.09999375959175638,"V2":0.07813784263578527,"V3":0.07670885368897862,"V4":-0.03430708712194486,"V5":0.09160287761570429},"2010-12":{"V1":0.4346084078145718,"V2":-0.048318483120958766,"V3":-0.0464393031806295,"V4":-0.150601001669449,"V5":-0.036631699030387765},"2011-01":{"V1":-0.31794919497155383,"V2":0.23927568684470413,"V3":0.09485065220231159,"V4":0.19919809744688366,"V5":0.1335014426052885},"2011-02":{"V1":-0.057609309192724334,"V2":-0.25083597770851795,"V3":-0.14662464652208784,"V4":-0.0067853279575179615,"V5":-0.24615437597759993},"2011-03":{"V1":-0.03631538850259863,"V2":0.031120382389905776,"V3":0.03236545440296856,"V4":-0.033712871287128854,"V5":0.05165759097023326},"2011-04":{"V1":-0.17924209323991402,"V2":-0.1288817453375578,"V3":-0.17259511475366363,"V4":0.025052512936113658,"V5":-0.12783765424260118},"2011-05":{"V1":0.1830416586965462,"V2":0.06301762021782498,"V3":0.12274069492061668,"V4":0.014327602292416142,"V5":0.13382493443148014},"2011-06":{"V1":0.026702334721096843,"V2":0.09025362226359657,"V3":0.08307985254736905,"V4":-0.06724262532028114,"V5":0.05000401841725677},"2011-07":{"V1":0.029269964956250005,"V2":-0.01998359628855284,"V3":-0.01796794047851802,"V4":0.060855784469096674,"V5":-0.024673949998771816},"2011-08":{"V1":0.11163174573687673,"V2":0.14111018528051056,"V3":0.12360985739212449,"V4":0.013644059356637817,"V5":0.11539259474411678},"2011-09":{"V1":0.11494406057422757,"V2":0.045795396927863274,"V3":0.062150769920378934,"V4":0.059212680945830876,"V5":0.07459417961421866},"2011-10":{"V1":-0.07340745233237522,"V2":-0.02714013682241112,"V3":-0.04811442522199738,"V4":-0.036052192195906274,"V5":-0.013597985527780021},"2011-11":{"V1":0.03989221938226439,"V2":-0.04111785952013114,"V3":-0.0206906596810299,"V4":-0.045259173723376844,"V5":-0.05074456441334585}}}},"drift":{"revenue":{"R1":[1.027627958097861,1.0317461851666228,1.014766210836861,1.0182776121110042,0.9281249226504197,1.0148832307431608,1.0142339906583302,0.9340351295491574,0.9926489040598082,1.0143706668843586,0.9777338873519164,1.020115306032159,1.4858984118650742,0.9674272074851744,0.9971935934967131,1.00579670348637,1.0231198323418735,0.9895259704812345,0.9547941704768509,1.0066311331204374,0.9734640136640775,1.0082542806040629,1.0084802106566289,1.0246523322361276],"R2":[1.0292414625180455,1.0149116169968513,1.0274310128239694,1.016263376358208,1.019924308951876,1.0648957707576494,1.043371651136083,1.0309085682709975,1.0217952321270964,1.0360304183901097,1.0271595607495723,1.029455232310757,1.565984971451298,1.1607966925199378,1.0188639089056106,1.0175590859695258,1.0708543609739105,1.0139570871237185,1.0205938109911188,1.0185462558528804,1.0345414484990536,1.0189210600979648,1.0423552305986803,1.0218409239716197],"R3":[1.0041095117078707,1.0025683008493982,1.0034759966050566,1.0034230989347153,1.0041691413948677,1.0033846493663177,1.004066683960806,1.0030894441720257,1.0030257385238368,1.0030225770883887,1.0032580329464014,1.0042717856810452,1.533705302994827,1.0026806358944456,1.0020942035202314,1.0018446137477293,1.001741021117349,1.001715837613739,1.0015830596030526,1.001688976946156,1.0018452425233026,1.0020674951426314,1.0009196937722271,1.0043091992798423],"R5":[0.8461328647002297,0.8703083546584084,0.9249540430670204,0.8728376025208172,0.9039047867546621,0.916624885860798,0.8989901518744609,0.9165737873017864,0.8800220276847782,0.9246965653057008,0.9226867754662114,0.8038714348425479,0.7227289090154804,0.8144184385735577,0.8689672646305988,0.8436823289256178,0.87359682188552,0.8896147158910207,0.8850362799976801,0.8572759664691564,0.8735404627869103,0.9114728745851518,0.9051910950992408,0.7798786185949725]},"customers":{"A1":[1.0988433228180863,1.1212553495007134,1.046692607003891,1.0570884871550903,1.06283280085197,1.100518134715026,1.0589941972920696,1.0692640692640694,1.0593406593406594,1.0580985915492958,1.056970509383378,1.047945205479452,1.0723981900452488,1.0595399188092016,1.0541611624834875,1.0483042137718397,1.0539273153575615,1.023719165085389,1.0616161616161617,1.0496828752642706,1.0503751339764202,1.034154090548054,1.0470242468772961,1.030722891566265],"A3":[0.9905362776025236,0.9971469329529244,0.9909208819714657,0.9961941008563273,0.9957401490947817,0.9917098445595854,0.995164410058027,0.9924242424242424,0.9967032967032967,0.9929577464788732,0.9979892761394102,0.9956413449564134,0.995475113122172,0.993234100135318,0.9933949801849405,0.9948612538540597,0.9953106682297772,0.9981024667931688,0.9959595959595959,0.9947145877378436,0.9946409431939979,0.9952343129467831,0.9933872152828802,0.9957831325301205],"A4":[1.177707676130389,1.1283880171184022,1.1245136186770428,1.131303520456708,1.1277955271565496,1.1233160621761658,1.1286266924564796,1.156926406926407,1.1384615384615384,1.1144366197183098,1.0911528150134049,1.0927770859277708,1.1764705882352942,1.1326116373477673,1.1334214002642007,1.131551901336074,1.112543962485346,1.1176470588235294,1.1363636363636365,1.1384778012684988,1.0771704180064308,1.062748212867355,1.0749448934606907,1.0656626506024096],"A5":[null,null,2.197146562905318,1.6964795432921027,2.080937167199148,2.0901554404145077,1.9497098646034816,2.16017316017316,2.1186813186813187,1.783450704225352,1.6662198391420913,1.784557907845579,2.992081447963801,2.9512855209742894,2.2192866578599735,1.8232271325796505,2.2145369284876906,1.8567362428842504,1.9858585858585858,2.134249471458774,2.0568060021436225,1.7037331215250198,1.8030859662013226,1.7066265060240964]},"aov":{"V1":[0.7167652792371838,0.6546879618964921,0.5984508448268016,0.6996019159219236,0.6930238221047396,0.5868639885177923,0.7098962752281017,0.6789751357061978,0.7278083591373454,0.7397509449292657,0.7227696299839008,0.7374215533155286,1.1116231026104917,0.6117956158359736,0.7695918061802007,0.7192601304528441,0.6776788753155202,0.7541947804709017,0.7102324873145205,0.7459272768910165,0.7266576459479066,0.7747047164296833,0.7378612727860776,0.800198652328373],"V3":[0.9754880917831976,0.987807183639611,0.9766216509920708,0.9873916573426403,0.9844892075765649,0.9422014752847833,0.9621913643939641,0.972933832960776,0.981606964073168,0.9681488189403212,0.9767447219568282,0.9754501218080053,0.9773762349763103,0.8634729299300349,0.9835850292754111,0.984772702619216,0.9353560674952377,0.987906786533442,0.9814064496916572,0.9834249644887922,0.9683429333631587,0.9834870140373957,0.9622836104944716,0.9827832723232187],"V4":[0.6150347744825938,0.5276887986887157,0.6372607133089836,0.6334316162254627,0.6776021441192034,0.6639108490590008,0.6634676326312152,0.6724422898455077,0.6277238905858266,0.6241019888658998,0.6359106904386349,0.569588064434014,0.5083712595132608,0.4919307734965458,0.6521840976446095,0.61117703603584,0.7191773944401467,0.6862364915229738,0.5871038950674833,0.6355327939490919,0.5645414872486336,0.5717844082794509,0.5665464757660839,0.5640996192987033],"V5":[1.0953320184089415,1.0747950819672132,1.103992571959146,1.1105866486850977,1.1246081504702194,1.109118086696562,1.1117241379310343,1.0959999999999999,1.111816019032514,1.1460602178090966,1.11199207135778,1.125879917184265,1.1397058823529411,1.042430086788814,1.0489443378119,1.0698365527488856,1.0711188204683435,1.1424657534246574,1.1002886002886003,1.0950226244343892,1.070343725019984,1.0998185117967332,1.1151279199110122,1.1039325842696628]}},"H":{"revenue":{"spread":0.31386129559769027,"lo":1112565.12,"hi":1461756.25},"customers":{"spread":0.7138535995160316,"lo":1653.0,"hi":2833.0},"aov":{"spread":0.9569816154850228,"lo":297.65000000000003,"hi":582.4955778491171}},"widest":{"revenue":{"month":"2010-12","spread":1.166766752951009},"customers":{"month":"2010-12","spread":2.0056818181818183},"aov":{"month":"2010-12","spread":1.2418770947912172}},"bridge":{"2009-12":{"gross":801102.97,"returns":-19561.28,"dup_repeat":3198.61,"dup_cross":0.0,"unidentified":119761.42,"non_product":18305.42},"2010-01":{"gross":613850.81,"returns":-7465.63,"dup_repeat":1553.39,"dup_cross":0.0,"unidentified":78441.63,"non_product":17647.712},"2010-02":{"gross":539744.68,"returns":-12584.39,"dup_repeat":1826.06,"dup_cross":0.0,"unidentified":39424.21,"non_product":5931.1359999999995},"2010-03":{"gross":764333.85,"returns":-9657.2,"dup_repeat":2574.52,"dup_cross":0.0,"unidentified":95639.11,"non_product":11172.111},"2010-04":{"gross":648993.82,"returns":-10025.26,"dup_repeat":2652.89,"dup_cross":0.0,"unidentified":61146.89,"non_product":-48388.128000000004},"2010-05":{"gross":645645.39,"returns":-37294.14,"dup_repeat":2052.11,"dup_cross":0.0,"unidentified":50550.26,"non_product":6971.58},"2010-06":{"gross":699316.02,"returns":-26344.01,"dup_repeat":2725.68,"dup_cross":0.0,"unidentified":67701.48,"non_product":6814.6},"2010-07":{"gross":634896.99,"returns":-17132.73,"dup_repeat":1902.67,"dup_cross":0.0,"unidentified":51379.0,"non_product":-42527.9},"2010-08":{"gross":676060.72,"returns":-12418.65,"dup_repeat":2001.95,"dup_cross":0.0,"unidentified":79382.24,"non_product":-6865.729999999999},"2010-09":{"gross":871878.34,"returns":-27777.97,"dup_repeat":2543.67,"dup_cross":0.0,"unidentified":63372.11,"non_product":9550.061},"2010-10":{"gross":1098002.92,"returns":-25550.02,"dup_repeat":3482.74,"dup_cross":0.0,"unidentified":82645.53,"non_product":-27284.550000000003},"2010-11":{"gross":1435680.12,"returns":-35120.88,"dup_repeat":5957.44,"dup_cross":0.0,"unidentified":273521.25,"non_product":22095.402},"2010-12":{"gross":1187158.33,"returns":-24470.91,"dup_repeat":2233.41,"dup_cross":402363.51,"unidentified":210196.58,"non_product":-36241.950000000004},"2011-01":{"gross":671933.1900000001,"returns":-91526.3,"dup_repeat":1551.7,"dup_cross":0.0,"unidentified":107424.84999999999,"non_product":-20406.63},"2011-02":{"gross":508886.2,"returns":-8375.87,"dup_repeat":1045.98,"dup_cross":0.0,"unidentified":65446.18,"non_product":-2447.6800000000003},"2011-03":{"gross":691257.61,"returns":-10675.3,"dup_repeat":1253.1,"dup_cross":0.0,"unidentified":106191.16,"non_product":2684.77},"2011-04":{"gross":516218.12,"returns":-33316.91,"dup_repeat":839.28,"dup_cross":0.0,"unidentified":60934.159999999996,"non_product":10305.911},"2011-05":{"gross":741192.41,"returns":-8948.23,"dup_repeat":1254.26,"dup_cross":0.0,"unidentified":80690.53,"non_product":-8910.67},"2011-06":{"gross":738751.87,"returns":-13760.84,"dup_repeat":1145.89,"dup_cross":0.0,"unidentified":83215.93,"non_product":-33867.91},"2011-07":{"gross":689364.41,"returns":-11409.210000000001,"dup_repeat":1143.1200000000001,"dup_cross":0.0,"unidentified":96597.34999999999,"non_product":3344.911},"2011-08":{"gross":725513.5,"returns":-22929.52,"dup_repeat":1294.05,"dup_cross":0.0,"unidentified":88684.8,"non_product":-19903.47},"2011-09":{"gross":1030475.36,"returns":-17044.68,"dup_repeat":2090.94,"dup_cross":0.0,"unidentified":89531.0,"non_product":6256.941999999999},"2011-10":{"gross":1106669.82,"returns":-43992.159999999996,"dup_repeat":976.4399999999999,"dup_cross":0.0,"unidentified":100658.73,"non_product":8027.01},"2011-11":{"gross":1457745.53,"returns":-25010.54,"dup_repeat":6147.45,"dup_cross":0.0,"unidentified":314022.42,"non_product":29021.260000000002}},"cust_extra":{"2009-12":{"guests":169},"2010-01":{"guests":90},"2010-02":{"guests":96},"2010-03":{"guests":138},"2010-04":{"guests":120},"2010-05":{"guests":119},"2010-06":{"guests":133},"2010-07":{"guests":145},"2010-08":{"guests":126},"2010-09":{"guests":130},"2010-10":{"guests":136},"2010-11":{"guests":149},"2010-12":{"guests":156},"2011-01":{"guests":98},"2011-02":{"guests":101},"2011-03":{"guests":128},"2011-04":{"guests":96},"2011-05":{"guests":124},"2011-06":{"guests":135},"2011-07":{"guests":131},"2011-08":{"guests":72},"2011-09":{"guests":79},"2011-10":{"guests":102},"2011-11":{"guests":109}},"pool":{"returns":0.028335567904458386,"dups":0.02338130321383827,"guests":0.12652475999625618,"non_product":-88715.79200000002},"hist":[{"lo":1,"hi":10,"n":443,"si":0.02336867647834573,"sv":0.00025029753010496884},{"lo":10,"hi":20,"n":392,"si":0.020678377380387192,"sv":0.0006196398050864214},{"lo":20,"hi":30,"n":230,"si":0.012132721422165954,"sv":0.0005860492663000451},{"lo":30,"hi":50,"n":429,"si":0.022630163000474757,"sv":0.0017436713200610922},{"lo":50,"hi":75,"n":481,"si":0.025373213061138367,"sv":0.0031298190853862617},{"lo":75,"hi":100,"n":585,"si":0.03085931318246558,"sv":0.005311754797517701},{"lo":100,"hi":150,"n":2096,"si":0.11056601782982539,"sv":0.026959691680485235},{"lo":150,"hi":200,"n":1800,"si":0.09495173286912487,"sv":0.032503942216466124},{"lo":200,"hi":300,"n":2825,"si":0.14902146964182097,"sv":0.07249342932776705},{"lo":300,"hi":500,"n":5155,"si":0.2719312127446326,"sv":0.1993034004344532},{"lo":500,"hi":750,"n":1950,"si":0.10286437727488526,"sv":0.12250808463430832},{"lo":750,"hi":1000,"n":897,"si":0.04731761354644722,"sv":0.07971480962939782},{"lo":1000,"hi":1500,"n":724,"si":0.03819169699847022,"sv":0.09115855855029982},{"lo":1500,"hi":2500,"n":511,"si":0.026955741942290445,"sv":0.09984031075510134},{"lo":2500,"hi":5000,"n":295,"si":0.015561533997995463,"sv":0.10605297719548132},{"lo":5000,"hi":10000,"n":95,"si":0.00501134145698159,"sv":0.06460914485625784},{"lo":10000,"hi":1000000,"n":49,"si":0.002584797172548399,"sv":0.09321441891552537}],"istats":{"mean":508.10658595769377,"median":302.31,"top10":0.4769779515721189,"n":18957},"tests":[{"id":"K5","dim":"Consistency","test":"One stock code has one description","tested":1061436,"failing":421204,"pr":0.39682467901974305,"pv":0.4179883472524663,"sev":"high","handling":"Product-name rollups must group by stock code, not by description."},{"id":"C1","dim":"Completeness","test":"Customer ID is present","tested":1067371,"failing":243007,"pr":0.22766872999172733,"pv":0.16859405656751075,"sev":"high","handling":"Kept in revenue. Excluded from customer counts, reported as guest buyers."},{"id":"K3","dim":"Consistency","test":"Every return follows an earlier purchase of that item by that customer","tested":17933,"failing":1538,"pr":0.0857636759047566,"pv":0.0013338059580979824,"sev":"high","handling":"Mostly purchases made before the file starts. Returns still count in the month they are credited."},{"id":"V1","dim":"Validity","test":"Stock code is a real product","tested":1067371,"failing":5935,"pr":0.005560390904380951,"pv":0.08041066862747094,"sev":"high","handling":"Postage, fees, manual lines, adjustments and test items are not product revenue. Excluded from R2 to R5."},{"id":"T1","dim":"Timeliness","test":"Row falls in a fully covered month","tested":1067371,"failing":25526,"pr":0.023914833736348468,"pv":0.03724555611369972,"sev":"medium","handling":"Partial months are loaded but never compared."},{"id":"U2","dim":"Uniqueness","test":"No line present on both sheets","tested":1067371,"failing":22523,"pr":0.021101378995681912,"pv":0.022076163483012196,"sev":"medium","handling":"Removed in R4. The two sheets cover an overlapping stretch of days."},{"id":"U1","dim":"Uniqueness","test":"No repeated line inside one sheet","tested":1067371,"failing":11814,"pr":0.011068316452292596,"pv":0.002704762791178215,"sev":"medium","handling":"Removed in R4 and everything built on it. Could be a genuine double scan, so it is flagged, not deleted."},{"id":"V2","dim":"Validity","test":"Price is above zero","tested":1067371,"failing":6207,"pr":0.005815222635803296,"pv":0.007002883664341438,"sev":"medium","handling":"Zero-price lines add no revenue but do add to invoice and customer counts. Purchase definitions require price > 0."},{"id":"C2","dim":"Completeness","test":"Description is present","tested":1067371,"failing":4382,"pr":0.0041054141437232225,"pv":0.0,"sev":"low","handling":"No metric depends on it. Logged only."},{"id":"K2","dim":"Consistency","test":"Non-cancellation invoices carry positive quantities","tested":1047877,"failing":3457,"pr":0.0032990513199545367,"pv":0.0,"sev":"low","handling":"Stock write-offs and adjustments hide here. Counted as credits in R3 and R4."},{"id":"V4","dim":"Validity","test":"Unit price is within 10x of the item average","tested":1055287,"failing":99,"pr":9.381334177337539e-05,"pv":0.0019608295279153532,"sev":"low","handling":"Possible keying error. Reviewed, not removed."},{"id":"K1","dim":"Consistency","test":"Cancellation invoices carry negative quantities","tested":19494,"failing":1,"pr":5.129783523135324e-05,"pv":1.648683444459911e-05,"sev":"low","handling":"Cancellation prefix and sign should agree."},{"id":"V3","dim":"Validity","test":"Quantity is not zero","tested":1067371,"failing":0,"pr":0.0,"pv":0.0,"sev":"pass","handling":"None expected. Fails the load if any appear."},{"id":"K4","dim":"Consistency","test":"One invoice belongs to one customer","tested":1067371,"failing":0,"pr":0.0,"pv":0.0,"sev":"pass","handling":"Would break order-level metrics. None expected."}],"ready":{"total":1067371,"ok":1021250,"pct":0.9567900945406986},"quality":[{"month":"2009-12","dup":0.01118775979481737,"cross":0.0,"nonprod":0.0037366233306801097,"nocust":0.2977801361988149,"cancel":0.022441850181303617},{"month":"2010-01","dup":0.010172714308350499,"cross":0.0,"nonprod":0.006750118840120425,"nocust":0.2888924100776422,"cancel":0.021739819363016954},{"month":"2010-02","dup":0.011229073091057574,"cross":0.0,"nonprod":0.0057166190281747655,"nocust":0.18653872328841703,"cancel":0.019599836668027767},{"month":"2010-03","dup":0.012671340126713402,"cross":0.0,"nonprod":0.007443810074438101,"nocust":0.2022837320228373,"cancel":0.0203319602033196},{"month":"2010-04","dup":0.012038641101682474,"cross":0.0,"nonprod":0.007369997357371465,"nocust":0.18275244443139443,"cancel":0.01838094958452007},{"month":"2010-05","dup":0.011748718964980325,"cross":0.0,"nonprod":0.005265690909605639,"nocust":0.16190584038728306,"cancel":0.027828893355603998},{"month":"2010-06","dup":0.012855463572018107,"cross":0.0,"nonprod":0.006177625490833605,"nocust":0.20091038691443863,"cancel":0.019833429207413152},{"month":"2010-07","dup":0.011712548303028487,"cross":0.0,"nonprod":0.006350537698828746,"nocust":0.16885840098253602,"cancel":0.021987239013869335},{"month":"2010-08","dup":0.011019035609199543,"cross":0.0,"nonprod":0.006034948657899478,"nocust":0.19107668287996157,"cancel":0.017204107368041795},{"month":"2010-09","dup":0.011498895250766196,"cross":0.0,"nonprod":0.006533463210662612,"nocust":0.15929771209997387,"cancel":0.019291535007483786},{"month":"2010-10","dup":0.01436596839148533,"cross":0.0,"nonprod":0.005685471589563099,"nocust":0.14445497309553623,"cancel":0.0176148092998071},{"month":"2010-11","dup":0.018342626417996537,"cross":0.0,"nonprod":0.004063321156187912,"nocust":0.2118182400820355,"cancel":0.015304749086714094},{"month":"2010-12","dup":0.35417820441818965,"cross":0.3464863700695342,"nonprod":0.004538182265706726,"nocust":0.35922404775090766,"cancel":0.016260537813057658},{"month":"2011-01","dup":0.007027626824480041,"cross":0.0,"nonprod":0.005149799413890232,"nocust":0.37656129968418356,"cancel":0.019944803254900844},{"month":"2011-02","dup":0.008228967408958026,"cross":0.0,"nonprod":0.007146208539358285,"nocust":0.2650593712780164,"cancel":0.017143682101995884},{"month":"2011-03","dup":0.008408620877326658,"cross":0.0,"nonprod":0.00691194078589311,"nocust":0.24289757265701534,"cancel":0.019021443343855447},{"month":"2011-04","dup":0.007186789677764407,"cross":0.0,"nonprod":0.005615724027276374,"nocust":0.22456210723358738,"cancel":0.018685653162187458},{"month":"2011-05","dup":0.006724277612746422,"cross":0.0,"nonprod":0.006751282743721307,"nocust":0.21933567377801783,"cancel":0.016770186335403725},{"month":"2011-06","dup":0.007186635569778163,"cross":0.0,"nonprod":0.00669848673862342,"nocust":0.24510495199869828,"cancel":0.019281878830612355},{"month":"2011-07","dup":0.006351536008907334,"cross":0.0,"nonprod":0.0061997064628776756,"nocust":0.30406397084872716,"cancel":0.017333873171719215},{"month":"2011-08","dup":0.006235120734610589,"cross":0.0,"nonprod":0.006036730529418433,"nocust":0.2160185919963723,"cancel":0.018932093866908514},{"month":"2011-09","dup":0.00726715247083184,"cross":0.0,"nonprod":0.005037231712658782,"nocust":0.18723370365945924,"cancel":0.016027555449368854},{"month":"2011-10","dup":0.012725955681406605,"cross":0.0,"nonprod":0.005120015804550394,"nocust":0.16540449771163282,"cancel":0.019755687991834317},{"month":"2011-11","dup":0.016160829172126405,"cross":0.0,"nonprod":0.004037256082445019,"nocust":0.22562595176541417,"cancel":0.01270201036465158}],"guest":[{"month":"2009-12","share":0.15089285714285713},{"month":"2010-01","share":0.11378002528445007},{"month":"2010-02","share":0.11072664359861592},{"month":"2010-03","share":0.11606391925988226},{"month":"2010-04","share":0.11331444759206799},{"month":"2010-05","share":0.10977859778597786},{"month":"2010-06","share":0.11396743787489289},{"month":"2010-07","share":0.13564078578110383},{"month":"2010-08","share":0.12162162162162163},{"month":"2010-09","share":0.10268562401263823},{"month":"2010-10","share":0.08353808353808354},{"month":"2010-11","share":0.0849002849002849},{"month":"2010-12","share":0.15},{"month":"2011-01","share":0.11708482676224612},{"month":"2011-02","share":0.11771561771561771},{"month":"2011-03","share":0.11625794732061762},{"month":"2011-04","share":0.101159114857745},{"month":"2011-05","share":0.10526315789473684},{"month":"2011-06","share":0.12},{"month":"2011-07","share":0.12163416898792943},{"month":"2011-08","share":0.07164179104477612},{"month":"2011-09","share":0.05904334828101644},{"month":"2011-10","share":0.06971975393028025},{"month":"2011-11","share":0.06161673261729791}],"nonprod":[{"code":"M","desc":"Manual","lines":1426,"net":-82781.27},{"code":"AMAZONFEE","desc":"AMAZON FEE","lines":43,"net":-260763.58},{"code":"DOT","desc":"DOTCOM POSTAGE","lines":1446,"net":322647.47},{"code":"B","desc":"Adjust bad debt","lines":6,"net":-147614.08000000002},{"code":"POST","desc":"POSTAGE","lines":2122,"net":112341.0},{"code":"BANK CHARGES","desc":"Bank Charges","lines":102,"net":-35562.629}],"cross_total":22523,"worst_dup":{"month":"2010-12","pct":0.35417820441818965,"cross":0.3464863700695342}};
+(()=>{
+"use strict";
+const D=DATA, MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const NAMES={revenue:"Revenue",customers:"Active customers",aov:"Average order value"};
+const TABS={revenue:"Revenue",customers:"Active customers",aov:"Order value"};
+const state={metric:"revenue",month:D.meta.latest};
+const $=(s,r=document)=>r.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function h(tag,p,...kids){const e=document.createElement(tag);for(const k in (p||{})){const v=p[k];if(v==null)continue;if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k==="style")e.style.cssText=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}kids.flat().forEach(c=>{if(c==null||c===false)return;e.append(c.nodeType?c:document.createTextNode(c))});return e}
+function s(tag,p,...kids){const e=document.createElementNS(NS,tag);for(const k in (p||{})){if(p[k]==null)continue;if(k==="text")e.textContent=p[k];else e.setAttribute(k,p[k])}kids.flat().forEach(c=>c&&e.append(c));return e}
+const dlab=iso=>{const [y,mo,d]=iso.split("-");return +d+" "+MON[+mo-1]+" "+y};
+const mlab=m=>MON[+m.slice(5,7)-1]+" "+m.slice(0,4);
+const mshort=m=>MON[+m.slice(5,7)-1]+" ’"+m.slice(2,4);
+function money(v){const a=Math.abs(v);const t=a>=1e6?"£"+(a/1e6).toFixed(2)+"M":a>=1e4?"£"+Math.round(a/1e3)+"K":"£"+Math.round(a).toLocaleString("en-GB");return (v<0?"−":"")+t}
+function axMoney(v){const a=Math.abs(v);return a>=1e6?"£"+(+(a/1e6).toFixed(2))+"M":a>=1e3?"£"+(+(a/1e3).toFixed(1))+"K":"£"+(+a.toFixed(2))}
+const cnt=v=>Math.round(v).toLocaleString("en-GB");
+const fmt=(metric,v)=>v==null?"–":metric==="customers"?cnt(v):money(v);
+const axfmt=(metric)=>metric==="customers"?(v=>v>=1e3?(+(v/1e3).toFixed(1))+"K":String(v)):axMoney;
+const pct=(v,d=1)=>(v<0?"−":"+")+Math.abs(v*100).toFixed(d)+"%";
+const pctp=(v,d=0)=>(v*100).toFixed(d)+"%";
+const defsOf=m=>D.defs.filter(d=>d.metric===m);
+const gov=m=>defsOf(m).find(d=>d.governed);
+const sw=d=>"var(--c"+d.slot+")";
+function niceTicks(min,max,n){const span=(max-min)||1,s0=span/n,mag=Math.pow(10,Math.floor(Math.log10(s0))),nn=s0/mag,st=(nn<1.5?1:nn<3?2:nn<7?5:10)*mag;const out=[];for(let v=Math.floor(min/st)*st;;v+=st){out.push(+v.toFixed(10));if(v>=max-st*1e-6)break}return out}
+const mi=()=>D.months.indexOf(state.month);
+
+/* ---------- tooltip */
+const tipEl=$("#tip");
+const tip={show(node,x,y){tipEl.replaceChildren(node);tipEl.classList.add("on");const r=tipEl.getBoundingClientRect();let L=x+16,T=y+16;if(L+r.width>innerWidth-8)L=x-r.width-16;if(L<8)L=8;if(T+r.height>innerHeight-8)T=Math.max(8,y-r.height-16);tipEl.style.left=L+"px";tipEl.style.top=T+"px"},hide(){tipEl.classList.remove("on")}};
+const say=t=>{$("#live").textContent=t};
+function anchorOf(el,fx=.5,fy=.5){const r=el.getBoundingClientRect();return [r.left+r.width*fx,r.top+r.height*fy]}
+function tipRows(head,rows,foot){const w=h("div",null,h("div",{class:"th",text:head}));rows.forEach(r=>w.append(h("div",{class:"tr",style:"--sw:"+(r.color||"transparent")},h("span",{class:r.color?"k":""}),h("span",{text:r.label}),h("b",{text:r.value}))));if(foot)w.append(h("p",{text:foot}));return w}
+
+/* ---------- line chart */
+function lineChart(root,cfg){
+  root.replaceChildren();
+  const W=Math.max(280,root.clientWidth),H=W<560?270:340,m={l:W<560?46:58,r:16,t:30,b:30},pw=W-m.l-m.r,ph=H-m.t-m.b,n=cfg.keys.length;
+  const all=cfg.series.flatMap(x=>x.values).filter(v=>v!=null);
+  let lo=cfg.zero?0:Math.min(...all,cfg.ref?cfg.ref.value:Infinity),hi=Math.max(...all,cfg.ref?cfg.ref.value:-Infinity);
+  if(!cfg.zero){const p=(hi-lo)*.08;lo-=p;hi+=p}
+  const ticks=niceTicks(lo,hi,5);lo=cfg.zero?0:ticks[0];hi=ticks[ticks.length-1];
+  const X=i=>m.l+(n===1?pw/2:i*pw/(n-1)),Y=v=>m.t+ph-(v-lo)/(hi-lo)*ph;
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,tabindex:0,role:"group","aria-label":cfg.aria+" Use the left and right arrow keys to move between months."});
+  ticks.forEach(t=>{svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===lo&&cfg.zero?"var(--axis)":"var(--grid)","stroke-width":1}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:cfg.axfmt(t)}))});
+  const every=Math.max(1,Math.ceil(n/Math.floor(pw/64)));
+  cfg.keys.forEach((k,i)=>{if((n-1-i)%every===0)svg.append(s("text",{x:X(i),y:H-8,"text-anchor":i===n-1?"end":"middle",class:"tick",text:mshort(k)}))});
+  if(cfg.ref){svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(cfg.ref.value),y2:Y(cfg.ref.value),stroke:"var(--ink2)","stroke-width":1}),s("text",{x:m.l+6,y:Y(cfg.ref.value)-7,"text-anchor":"start",class:"tick",style:"fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round",text:cfg.ref.label}))}
+  const si=cfg.keys.indexOf(state.month);
+  if(si>=0){svg.append(s("line",{x1:X(si),x2:X(si),y1:m.t,y2:m.t+ph,stroke:"var(--ink2)","stroke-width":1,opacity:.45}),s("path",{d:`M${X(si)-5} ${m.t+ph+9}L${X(si)+5} ${m.t+ph+9}L${X(si)} ${m.t+ph+2}Z`,fill:"var(--ink2)",opacity:.7}))}
+  if(cfg.note){const x=X(cfg.note.index),right=x>W*.7;svg.append(s("line",{x1:x,x2:x,y1:m.t-8,y2:m.t,stroke:"var(--ink2)","stroke-width":1}),s("text",{x:x+(right?-5:5),y:m.t-12,"text-anchor":right?"end":"start",class:"tick",style:"fill:var(--ink2)",text:cfg.note.label}))}
+  const order=[...cfg.series].sort((a,b)=>(a.governed?1:0)-(b.governed?1:0)),paths={};
+  order.forEach(x=>{let d="",pen=false;x.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);pen=true});
+    const g=s("g",{class:"ln","data-id":x.id});g.append(s("path",{d,fill:"none",stroke:"var(--c"+x.slot+")","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    let last=-1;x.values.forEach((v,i)=>{if(v!=null)last=i});if(last>=0)g.append(s("circle",{cx:X(last),cy:Y(x.values[last]),r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2}));
+    svg.append(g);paths[x.id]=g});
+  const cross=s("g",{class:"cross",style:"display:none"});const cl=s("line",{y1:m.t,y2:m.t+ph,stroke:"var(--ink2)","stroke-width":1});cross.append(cl);
+  const cd={};cfg.series.forEach(x=>{cd[x.id]=s("circle",{r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2});cross.append(cd[x.id])});svg.append(cross);
+  const ov=s("rect",{x:m.l-6,y:m.t-4,width:pw+12,height:ph+8,fill:"transparent"});svg.append(ov);
+  root.append(svg);
+  let cur=null;
+  function at(i,cx,cy){cur=i;cross.style.display="";cl.setAttribute("x1",X(i));cl.setAttribute("x2",X(i));
+    const rows=[];cfg.series.forEach(x=>{const v=x.values[i];if(v==null){cd[x.id].style.display="none";return}cd[x.id].style.display="";cd[x.id].setAttribute("cx",X(i));cd[x.id].setAttribute("cy",Y(v));rows.push({label:x.name+(x.governed?" (governed)":""),value:cfg.vfmt(v),color:"var(--c"+x.slot+")",v})});
+    rows.sort((a,b)=>b.v-a.v);tip.show(tipRows(mlab(cfg.keys[i]),rows),cx,cy);say(mlab(cfg.keys[i])+": "+rows.map(r=>r.label+" "+r.value).join(", "))}
+  const idxOf=e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)*(W/r.width);return Math.max(0,Math.min(n-1,Math.round((x-m.l)/(pw/(n-1)))))};
+  ov.addEventListener("pointermove",e=>at(idxOf(e),e.clientX,e.clientY));
+  ov.addEventListener("pointerleave",()=>{cross.style.display="none";tip.hide()});
+  ov.addEventListener("click",e=>{const k=cfg.keys[idxOf(e)];if(cfg.pick)cfg.pick(k)});
+  svg.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home","End","Enter"].includes(e.key))return;e.preventDefault();
+    if(e.key==="Enter"){if(cur!=null&&cfg.pick)cfg.pick(cfg.keys[cur]);return}
+    let i=cur==null?(e.key==="ArrowLeft"?n-1:0):cur+(e.key==="ArrowRight"?1:e.key==="ArrowLeft"?-1:0);if(e.key==="Home")i=0;if(e.key==="End")i=n-1;i=Math.max(0,Math.min(n-1,i));
+    const r=svg.getBoundingClientRect();at(i,r.left+X(i)*(r.width/W),r.top+m.t+ph*.3)});
+  svg.addEventListener("blur",()=>{cross.style.display="none";tip.hide();cur=null});
+  return {focus(id){Object.entries(paths).forEach(([k,g])=>g.classList.toggle("dim",id!=null&&k!==id))}};
+}
+function legend(root,series,chartRef){root.replaceChildren();series.forEach(x=>{const b=h("button",{type:"button"},h("span",{class:"sw ln",style:"--sw:var(--c"+x.slot+")"}),x.name,x.governed?h("em",{text:"governed"}):null);
+  const on=()=>chartRef.c&&chartRef.c.focus(x.id),off=()=>chartRef.c&&chartRef.c.focus(null);
+  b.addEventListener("pointerenter",on);b.addEventListener("pointerleave",off);b.addEventListener("focus",on);b.addEventListener("blur",off);root.append(b)})}
+function tableTwin(keys,series,vfmt){const t=h("table",{class:"tbl"},h("thead",null,h("tr",null,h("th",{text:"Month"}),series.map(x=>h("th",{class:"num",text:x.name})))),h("tbody",null,keys.map((k,i)=>h("tr",null,h("td",{text:mlab(k)}),series.map(x=>h("td",{class:"num",text:x.values[i]==null?"–":vfmt(x.values[i])}))))));return t}
+function toggle(btn,chartEl,tableEl,build){btn.onclick=()=>{const on=tableEl.hidden;tableEl.hidden=!on;chartEl.hidden=on;btn.setAttribute("aria-pressed",on);btn.textContent=on?"Show as chart":"Show as table";if(on)tableEl.replaceChildren(build())}}
+
+/* ---------- hero */
+function renderHero(){
+  const mt=state.metric,i=mi(),ds=defsOf(mt),g=gov(mt);
+  const rows=ds.map(d=>({d,v:D.series[mt][d.id][i]}));const have=rows.filter(r=>r.v!=null).sort((a,b)=>b.v-a.v);
+  const lo=have[have.length-1].v,hi=have[0].v,gv=rows.find(r=>r.d.id===g.id).v,spread=hi/lo-1;
+  const lead={revenue:"What was revenue in ",customers:"How many customers were active in ",aov:"What was the average order value in "}[mt];
+  $("#h-hero").textContent=lead+mlab(state.month)+"? Anywhere from "+fmt(mt,lo)+" to "+fmt(mt,hi)+", depending on who is counting";
+  $("#fig").textContent=(spread*100>=10?Math.round(spread*100):(spread*100).toFixed(1))+"%";
+  $("#figcap").textContent="between the lowest and highest answer to one question, for one month";
+  const dots=$("#dots");dots.replaceChildren();
+  const pad=(hi-lo)*.14||hi*.05,a=lo-pad,b=hi+pad,pos=v=>((v-a)/(b-a)*100);
+  const wrap=h("div",{style:"position:relative"});
+  const lane0=[];
+  have.concat(rows.filter(r=>r.v==null)).forEach(r=>{
+    const na=r.v==null,row=h("div",{class:"dotrow"+(na?" na":""),tabindex:0,"aria-label":r.d.name+": "+(na?"not enough history":fmt(mt,r.v))+(r.d.governed?", the governed definition":"")});
+    const lane=h("div",{class:"lane"});if(!na)lane.append(h("span",{class:"dot",style:"--sw:"+sw(r.d)+";left:"+pos(r.v)+"%"}));
+    const dlt=na?"":r.d.governed?"the governed answer":pct(r.v/gv-1)+" vs governed";
+    row.append(h("div",{class:"nm",style:"--sw:"+sw(r.d)},h("span",{class:"sw"}),h("span",null,r.d.name)),lane,h("div",{class:"val"},h("b",{text:na?"–":fmt(mt,r.v)}),h("span",{text:dlt})));
+    const show=e=>{const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(row,.5,.5);tip.show(h("div",null,h("div",{class:"th",text:r.d.name+(r.d.governed?" (governed)":"")}),h("p",{style:"margin:0;color:var(--ink)",text:r.d.rule}),h("p",{text:"Watch for: "+r.d.pitfall})),x,y)};
+    row.addEventListener("pointermove",show);row.addEventListener("focus",show);row.addEventListener("pointerleave",tip.hide);row.addEventListener("blur",tip.hide);
+    wrap.append(row);lane0.push(row)});
+  const gx=pos(gv);
+  const lanes=h("div",{style:"position:absolute;top:0;bottom:0;left:216px;right:166px;pointer-events:none"},h("div",{class:"guide-l",style:"left:"+gx+"%;top:-22px;color:var(--ink)",text:"governed"}),h("div",{class:"guide",style:"left:"+gx+"%;top:0;bottom:0"}));
+  lanes.dataset.lanes="1";wrap.append(lanes);
+  const ticks=niceTicks(a,b,3).filter(t=>t>=a&&t<=b);
+  const ax=h("div",{class:"axisrow"},h("div",{class:"l"}),h("div",{class:"ax"},ticks.map(t=>h("span",{style:"left:"+pos(t)+"%",text:(mt==="customers"?cnt(t):axMoney(t))}))),h("div",{class:"r"}));
+  dots.append(h("div",{style:"padding-top:24px;position:relative"},wrap,ax));
+  const small=matchMedia("(max-width:720px)").matches;if(small){lanes.style.left="0";lanes.style.right="0";lanes.style.display="none"}
+  const w=D.widest[mt];
+  $("#hero-note").textContent="The axis is zoomed to the range of the five answers so the gap is visible. Each dot is the same calendar month counted a different way. "+(spread<.02?"This month they sit close together; the widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".":"The widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".");
+}
+
+/* ---------- definitions table */
+function renderDefs(){
+  const mt=state.metric,i=mi();
+  $("#h-defs").textContent="Five defensible ways to count "+NAMES[mt].toLowerCase();
+  $("#defs-intro").textContent="Each row is a rule someone would write in good faith. The one marked governed is the definition this audit recommends, and why is in the last section. Colors stay fixed to a definition for the whole page, and blue always marks the governed one.";
+  const t=$("#deftbl");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),h("th",{text:"Who usually uses it"}),h("th",{text:"How it is counted"}),h("th",{text:"Where it goes wrong"}),h("th",{class:"num",text:mlab(state.month)}))),
+    h("tbody",null,defsOf(mt).map(d=>h("tr",{class:d.governed?"gov":""},
+      h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name,d.governed?h("span",{class:"tag"},tick(),"Governed"):null)),
+      h("td",{"data-l":"Used by",text:d.owner}),h("td",{"data-l":"Counted as",text:d.rule}),h("td",{"data-l":"Goes wrong",text:d.pitfall}),
+      h("td",{class:"num","data-l":mlab(state.month),text:fmt(mt,D.series[mt][d.id][i])})))));
+}
+function tick(){return s("svg",{viewBox:"0 0 12 12","aria-hidden":"true"},s("path",{d:"M2 6.5l2.6 2.6L10 3.2",fill:"none",stroke:"currentColor","stroke-width":1.8,"stroke-linecap":"round","stroke-linejoin":"round"}))}
+
+/* ---------- trend */
+const trendRef={},driftRef={};
+function renderTrend(){
+  const mt=state.metric,ds=defsOf(mt),keys=D.months;
+  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,governed:d.governed,values:D.series[mt][d.id]}));
+  const wd=D.widest[mt];
+  $("#h-trend").textContent="The gap is not a fixed offset: "+NAMES[mt].toLowerCase()+" under five definitions tells five different stories over time";
+  $("#trend-intro").textContent="The widest gap is "+pctp(wd.spread)+" in "+mlab(wd.month)+". Hover or use the arrow keys to read every definition for a month, and click a month to make it the one shown in the rest of the page. The latest month in the file is partial and left out.";
+  legend($("#trend-leg"),series,trendRef);
+  const cfg={keys,series,zero:true,axfmt:axfmt(mt),vfmt:v=>fmt(mt,v),aria:NAMES[mt]+" by month under five definitions.",note:{index:keys.indexOf(wd.month),label:"Widest gap"},pick:k=>setMonth(k)};
+  const draw=()=>{if($("#trend").hidden)return;trendRef.c=lineChart($("#trend"),cfg)};draw();trendRef.draw=draw;
+  toggle($("#trend-tb"),$("#trend"),$("#trend-table"),()=>tableTwin(keys,series,v=>fmt(mt,v)));
+  $("#trend-table").hidden=true;$("#trend").hidden=false;$("#trend-tb").textContent="Show as table";$("#trend-tb").setAttribute("aria-pressed","false");
+}
+
+/* ---------- decisions */
+function renderDecide(){
+  const mt=state.metric,E=D.dec[mt],ds=defsOf(mt),g=gov(mt);
+  $("#h-decide").textContent=E.n_flip===0?"For "+NAMES[mt].toLowerCase()+", the five definitions never pulled in opposite directions by a full percent":"In "+E.n_flip+" of "+E.n_cmp+" months, one definition of "+NAMES[mt].toLowerCase()+" said up while another said down";
+  $("#decide-intro").textContent="A gap in level can be shrugged off with a scaling factor. A gap in direction cannot. Here a flip means one definition moved up by 1% or more month on month while another moved down by 1% or more. "+(E.n_disagree>E.n_flip?E.n_disagree+" months have at least a small disagreement in sign.":"");
+  const st=$("#strip");st.replaceChildren();const fl=Object.fromEntries(E.flips.map(f=>[f.month,f]));
+  D.months.forEach(k=>{const f=fl[k];const cls=!f?"nocmp":f.flip?"flip":f.disagree?"mixed":"";const glyph=!f?"–":f.flip?"≠":f.disagree?"~":"=";
+    const b=h("button",{type:"button",class:"cell "+cls+(k===state.month?" sel":""),"aria-label":mlab(k)+": "+(!f?"not comparable":f.flip?"definitions disagree on direction":f.disagree?"signs differ by less than one percent":"all agree on direction")},h("small",{text:MON[+k.slice(5,7)-1]+(k.slice(5,7)==="01"||k===D.months[0]?" ’"+k.slice(2,4):"")}),h("b",{text:glyph}));
+    const show=e=>{if(!f)return;const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(b);const mm=E.mom[k]||{};tip.show(tipRows(mlab(k)+", change on the month before",ds.map(d=>({label:d.name+(d.governed?" (governed)":""),value:mm[d.id]==null?"–":pct(mm[d.id]),color:"var(--c"+d.slot+")"}))),x,y)};
+    b.addEventListener("pointermove",show);b.addEventListener("focus",show);b.addEventListener("pointerleave",tip.hide);b.addEventListener("blur",tip.hide);b.addEventListener("click",()=>{if(f)setMonth(k)});st.append(b)});
+  $("#strip-key").replaceChildren(
+    h("span",null,h("i",{style:"background:var(--ink);color:var(--surface)",text:"≠"}),"opposite moves of 1% or more"),
+    h("span",null,h("i",{style:"border:1.5px solid var(--ink2)",text:"~"}),"signs differ, all moves under 1%"),
+    h("span",null,h("i",{style:"background:var(--wash);color:var(--muted)",text:"="}),"all five move the same way"));
+  /* matrix */
+  const cols=[["Best month on record",d=>mlab(E.best[d.id]),(d,gd)=>E.best[d.id]!==E.best[gd.id]],
+    ["Latest month vs the one before ("+mshort(D.months[D.months.length-1])+" vs "+mshort(D.months[D.months.length-2])+")",d=>E.latest_mom[d.id]==null?"–":pct(E.latest_mom[d.id]),(d,gd)=>E.latest_mom[d.id]!=null&&Math.sign(E.latest_mom[d.id])!==Math.sign(E.latest_mom[gd.id])],
+    ["Last 12 months vs the 12 before",d=>E.yoy[d.id]==null?"–":pct(E.yoy[d.id]),(d,gd)=>E.yoy[d.id]!=null&&Math.sign(E.yoy[d.id])!==Math.sign(E.yoy[gd.id])]];
+  if(mt==="revenue")cols.splice(3,0,["Second-largest market",d=>E.second_country[d.id]||"–",(d,gd)=>E.second_country[d.id]!==E.second_country[gd.id]]);
+  cols.push([mt==="revenue"?"Total, last 12 months":"Monthly average, last 12 months",d=>fmt(mt,E.ttm[d.id]),()=>false,(d)=>d.governed?"":pct(E.ttm[d.id]/E.ttm[g.id]-1)+" vs governed"]);
+  $("#matrix-h").textContent="The same questions, asked of each definition";
+  const t=$("#matrix");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),cols.map((c,j)=>h("th",{class:j===cols.length-1?"num":"",text:c[0]})))),
+    h("tbody",null,ds.map(d=>h("tr",{class:d.governed?"gov":""},h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name)),
+      cols.map((c,j)=>{const differs=!d.governed&&c[2](d,g);return h("td",{class:j===cols.length-1?"num":"","data-l":c[0]},differs?h("span",{class:"diff",title:"Gives a different answer from the governed definition","aria-label":"differs from governed"},"≠"):null,c[1](d),c[3]?h("span",{class:"cellsub",text:c[3](d)}):null)})))));
+  const nd=ds.filter(d=>!d.governed&&cols.slice(0,-1).some(c=>c[2](d,g))).length;
+}
+
+/* ---------- why they differ */
+function renderWhy(){
+  const mt=state.metric,root=$("#why");root.replaceChildren();
+  if(mt==="revenue")whyRevenue(root);else if(mt==="customers")whyCustomers(root);else whyAov(root);
+}
+function hb(label,sub,startPct,widthPct,color,valTxt,valSub,cls){
+  return h("div",{class:"hb "+(cls||""),tabindex:0,"aria-label":label+": "+valTxt+(valSub?", "+valSub:"")},
+    h("div",{class:"nm"},h("b",{text:label}),sub?h("span",{text:sub}):null),
+    h("div",{class:"track"},h("div",{class:"bar-m"+(color?"":" d"),style:"left:"+startPct+"%;width:"+widthPct+"%;"+(color?"--sw:"+color:"")})),
+    h("div",{class:"val"},valTxt,valSub?h("span",{text:valSub}):null));
+}
+function whyRevenue(root){
+  const B=D.bridge[state.month],ds=defsOf("revenue"),by=Object.fromEntries(ds.map(d=>[d.id,d])),S=D.series.revenue,i=mi();
+  const R2=S.R2[i],R3=S.R3[i],R4=S.R4[i],R5=S.R5[i],R1=S.R1[i];
+  $("#h-why").textContent="Where the money goes between the biggest and smallest revenue number in "+mlab(state.month);
+  const dupT=-(B.dup_repeat+B.dup_cross);
+  $("#why-intro").textContent="Reading down: start from gross sales and take away, one named cause at a time, what each stricter definition removes. The steps add up exactly to the next number. "+(B.dup_cross>0?"In this month "+money(B.dup_cross)+" of sales appears on both sheets of the source file, which only the cleaned definition removes.":"");
+  const max=Math.max(R1,R2,R3,R4,R5);
+  const pc=v=>v/max*100;
+  const rows=[
+    ["Gross sales","Product lines on non-cancelled invoices",0,pc(R2),sw(by.R2),money(R2),"",""],
+    ["Returns and credits","Cancellation invoices and negative lines",pc(R2+B.returns),pc(-B.returns),null,money(B.returns),pctp(B.returns/R2,1)+" of gross",""],
+    ["Net sales","What most quick finance totals show",0,pc(R3),sw(by.R3),money(R3),"",""],
+    ["Repeated lines","Identical line twice on one sheet",pc(R3-B.dup_repeat),pc(B.dup_repeat),null,money(-B.dup_repeat),pctp(B.dup_repeat/R3,1)+" of net",""],
+    ["Lines on both sheets","The same line loaded from two sheets",pc(R3-B.dup_repeat-B.dup_cross),pc(B.dup_cross),null,money(-B.dup_cross),pctp(B.dup_cross/R3,1)+" of net",""],
+    ["Net clean revenue","The governed number",0,pc(R4),sw(by.R4),money(R4),"",""],
+    ["Guest orders","Rows with no Customer ID",pc(R4-B.unidentified),pc(B.unidentified),null,money(-B.unidentified),pctp(B.unidentified/R4,1)+" of clean",""],
+    ["Identified-customer revenue","What a CRM would report",0,pc(R5),sw(by.R5),money(R5),"",""],
+    ["Raw ledger total","Net sales plus postage, fees, manual lines and adjustments",0,pc(R1),sw(by.R1),money(R1),(B.non_product>=0?"+":"−")+money(Math.abs(B.non_product)).replace("−","")+" vs net sales","gap"]];
+  const box=h("div",{class:"hbars",role:"list"},rows.map(r=>hb(...r)));root.append(box);
+  const P=D.pool;
+  root.append(h("p",{class:"note",text:"Across all "+D.meta.n_months+" full months, returns take "+pctp(P.returns,1)+" of gross sales, repeated or doubled lines take a further "+pctp(P.dups,1)+", and guest orders are "+pctp(P.guests,1)+" of gross. The raw ledger total moves by "+money(P.non_product)+" because it also sums postage, fees and adjustments."}));
+  if(D.nonprod.length)root.append(h("p",{class:"note small",text:"Largest non-product lines by value: "+D.nonprod.slice(0,4).map(x=>x.code+(x.desc?" ("+x.desc.toLowerCase()+")":"")+" "+money(x.net)).join(", ")+"."}));
+}
+function whyCustomers(root){
+  const S=D.series.customers,i=mi(),by=Object.fromEntries(defsOf("customers").map(d=>[d.id,d]));
+  $("#h-why").textContent="Which customers each definition adds or drops relative to the governed count in "+mlab(state.month);
+  $("#why-intro").textContent="Every bar is a distance from the governed number, so you can see what kind of customer is being included or left out. The trailing 90-day count answers a different question, who has bought lately, which is why it is so much larger.";
+  const g=S.A2[i],rows=[["A1","Records but no purchase","Customers whose only rows this month are returns or fees"],["A3","Bought and returned","Customers who returned at least as much as they bought"],["A4","Guest checkouts","One buyer for every guest invoice, since guests have no ID"],["A5","Bought earlier in the window","Customers who bought in the last 90 days but not this month"]]
+    .map(([id,nm,sub])=>({id,nm,sub,v:S[id][i]==null?null:S[id][i]-g}));
+  const mx=Math.max(...rows.map(r=>Math.abs(r.v||0)),1);
+  const box=h("div",{class:"hbars"});
+  rows.forEach(r=>{const d=by[r.id];const na=r.v==null;const w=na?0:Math.abs(r.v)/mx*48;
+    const track=h("div",{class:"track"},h("div",{class:"zero",style:"left:50%"}),na?null:h("div",{class:"bar-m",style:"--sw:"+sw(d)+";width:"+w+"%;left:"+(r.v>=0?50:50-w)+"%"}));
+    box.append(h("div",{class:"hb",tabindex:0,"aria-label":d.name+": "+(na?"not enough history":(r.v>=0?"plus ":"minus ")+cnt(Math.abs(r.v)))},h("div",{class:"nm"},h("b",{text:d.name}),h("span",{text:r.sub})),track,h("div",{class:"val"},na?"–":(r.v>=0?"+":"−")+cnt(Math.abs(r.v)),h("span",{text:na?"needs 90 days of history":cnt(S[r.id][i])+" in total"}))))});
+  root.append(box,h("p",{class:"note",text:"The governed count is "+cnt(g)+" purchasing customers. Guest buyers are reported next to it, never inside it: "+cnt(D.cust_extra[state.month].guests)+" guest invoices this month."}));
+}
+function whyAov(root){
+  const hi=D.hist,st=D.istats;
+  $("#h-why").textContent="Most orders are small, most of the money is in large ones, so the mean and the median tell different stories";
+  $("#why-intro").textContent="Last 12 full months, invoices grouped by value. The mean order is "+money(st.mean)+" and the median is "+money(st.median)+". The largest tenth of invoices carries "+pctp(st.top10)+" of all order value, which is why a handful of wholesale orders can move the average.";
+  const box=h("div",{class:"chart",id:"hist"});root.append(box,h("p",{class:"note small",text:"Bins are uneven on purpose, so each bar is a count of invoices in a value band, not an area."}));
+  histChart(box);
+}
+function histChart(root){
+  root.replaceChildren();const hi=D.hist,st=D.istats;
+  const W=Math.max(300,root.clientWidth),H=W<560?270:320,m={l:W<560?42:52,r:12,t:34,b:42},pw=W-m.l-m.r,ph=H-m.t-m.b,nb=hi.length,bw=pw/nb;
+  const mx=Math.max(...hi.flatMap(b=>[b.si,b.sv])),ticks=niceTicks(0,mx*1.05,4),top=ticks[ticks.length-1],Y=v=>m.t+ph-v/top*ph;
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"Share of invoices and share of order value by invoice value band"});
+  ticks.forEach(t=>svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)"}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:pctp(t)})));
+  const lab=v=>v>=1e3?"£"+(+(v/1e3).toFixed(1))+"K":"£"+v;
+  const bar=(x,w,v,c)=>s("path",{d:`M${x} ${Y(0)}V${Y(v)+4}Q${x} ${Y(v)} ${x+4} ${Y(v)}H${x+w-4}Q${x+w} ${Y(v)} ${x+w} ${Y(v)+4}V${Y(0)}Z`,fill:c});
+  hi.forEach((b,i)=>{const x0=m.l+i*bw,w=Math.min(22,(bw-8)/2),gx=x0+(bw-2*w-2)/2;
+    if(b.si>0)svg.append(bar(gx,w,Math.max(b.si,.0015),"var(--mark-mute)"));if(b.sv>0)svg.append(bar(gx+w+2,w,Math.max(b.sv,.0015),"var(--ink)"));
+    if(i%2===0||nb<10)svg.append(s("text",{x:x0,y:H-22,"text-anchor":"middle",class:"tick",text:lab(b.lo)}));
+    const hit=s("rect",{x:x0,y:m.t,width:bw,height:ph,fill:"transparent",tabindex:0,"aria-label":lab(b.lo)+" to "+lab(b.hi)+": "+pctp(b.si,1)+" of invoices, "+pctp(b.sv,1)+" of order value"});
+    const show=e=>{const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(hit,.5,.3);tip.show(tipRows(lab(b.lo)+" to "+lab(b.hi)+" per invoice",[{label:"Share of invoices",value:pctp(b.si,1),color:"var(--mark-mute)"},{label:"Share of order value",value:pctp(b.sv,1),color:"var(--ink)"},{label:"Invoices",value:cnt(b.n)}]),x,y)};
+    hit.addEventListener("pointermove",show);hit.addEventListener("focus",show);hit.addEventListener("pointerleave",tip.hide);hit.addEventListener("blur",tip.hide);svg.append(hit)});
+  svg.append(s("text",{x:m.l+pw/2,y:H-4,"text-anchor":"middle",class:"tick",text:"Invoice value (lower edge of each band)"}));
+  const xAt=v=>{for(let i=0;i<nb;i++){const b=hi[i];if(v>=b.lo&&v<b.hi)return m.l+i*bw+bw*(Math.log(v)-Math.log(b.lo))/(Math.log(b.hi)-Math.log(b.lo))}return v<hi[0].lo?m.l:m.l+pw};
+  [["Median",st.median,0],["Mean",st.mean,1]].forEach(([n,v,k])=>{const x=xAt(v);svg.append(s("line",{x1:x,x2:x,y1:m.t-6,y2:m.t+ph,stroke:"var(--ink)","stroke-width":1.5}),s("text",{x:x+(k?6:-6),y:m.t-12+(k?0:0),"text-anchor":k?"start":"end",style:"font-size:12.5px;font-weight:600;fill:var(--ink)",text:n+" "+money(v)}))});
+  root.append(h("div",{class:"legend",style:"margin:0 0 6px"},h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--mark-mute);border-radius:3px"}),"Share of invoices"),h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--ink);border-radius:3px"}),"Share of order value")),svg);
+}
+
+/* ---------- drift */
+function renderDrift(){
+  const mt=state.metric,ds=defsOf(mt).filter(d=>!d.governed),g=gov(mt),keys=D.months;
+  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,values:D.drift[mt][d.id]}));
+  let best=null;series.forEach(x=>{const v=x.values.filter(z=>z!=null);const r=Math.max(...v)-Math.min(...v);if(!best||r>best.r)best={r,x,lo:Math.min(...v),hi:Math.max(...v)}});
+  $("#h-drift").textContent=best.x.name+" runs from "+best.lo.toFixed(2)+"× to "+best.hi.toFixed(2)+"× the governed number, so no single scaling factor reconciles them";
+  $("#drift-intro").textContent="Each line is a definition divided by the governed one, month by month. If the lines were flat you could translate one number into another and move on. Where they move, the definitions are measuring different things.";
+  legend($("#drift-leg"),series,driftRef);
+  const cfg={keys,series,zero:false,ref:{value:1,label:"Same as governed ("+g.name+")"},axfmt:v=>(Number.isInteger(v)?v.toFixed(1):+v.toFixed(2))+"×",vfmt:v=>v.toFixed(2)+"×",aria:"Each definition divided by the governed definition, by month.",pick:k=>setMonth(k)};
+  const draw=()=>{if($("#drift").hidden)return;driftRef.c=lineChart($("#drift"),cfg)};draw();driftRef.draw=draw;
+  toggle($("#drift-tb"),$("#drift"),$("#drift-table"),()=>tableTwin(keys,series,v=>v.toFixed(2)+"×"));
+  $("#drift-table").hidden=true;$("#drift").hidden=false;$("#drift-tb").textContent="Show as table";$("#drift-tb").setAttribute("aria-pressed","false");
+}
+
+/* ---------- trust */
+const SEV={high:["High","var(--sev-high)","M7 1.5L13 12.5H1Z"],medium:["Medium","var(--sev-med)","M7 1L13 7L7 13L1 7Z"],low:["Low","var(--sev-low)","M7 1.5a5.5 5.5 0 1 0 .01 0Z"],pass:["Pass","var(--sev-pass)","M2 7.5l3.2 3.2L12 3.5"]};
+function sevCell(k){const [t,c,p]=SEV[k];return h("span",{class:"sev"},s("svg",{viewBox:"0 0 14 14","aria-hidden":"true"},k==="pass"?s("path",{d:p,fill:"none",stroke:c,"stroke-width":2.2,"stroke-linecap":"round","stroke-linejoin":"round"}):s("path",{d:p,fill:c})),t)}
+function renderTrust(){
+  const R=D.ready,nh=D.tests.filter(t=>t.sev==="high").length;
+  $("#h-trust").textContent=pctp(R.pct,1)+" of the "+R.total.toLocaleString("en-GB")+" rows in the file pass every row-level rule, and "+nh+" of "+D.tests.length+" automated tests fail at high severity";
+  $("#trust-intro").textContent="These are the checks a data-quality job would run on every load. Severity is a rule, not an opinion: high when a test touches 5% or more of rows or of the money, medium from 0.5%, low for anything else that fails. A fail does not mean the number is wrong; it means a definition has to decide what to do, and the last column says what the governed layer does.";
+  const t=$("#tests");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Severity"}),h("th",{text:"Test"}),h("th",{class:"num",text:"Rows failing"}),h("th",{class:"num",text:"Share of money"}),h("th",{text:"What the governed layer does"}))),
+    h("tbody",null,D.tests.map(x=>h("tr",null,h("td",{class:"first"},sevCell(x.sev)),h("td",{"data-l":x.dim,text:x.test}),
+      h("td",{class:"num","data-l":"Rows failing"},x.failing.toLocaleString("en-GB"),h("span",{class:"cellsub",text:pctp(x.pr,x.pr<.01&&x.pr>0?2:1)+" of rows"})),
+      h("td",{class:"num","data-l":"Share of money",text:x.failing?pctp(x.pv,x.pv<.01&&x.pv>0?2:1):"0%"}),h("td",{"data-l":"Handling",text:x.handling})))));
+  const W=D.worst_dup;
+  $("#q-h").textContent=W.pct<.01?"Duplicate lines arrive as a steady trickle: no month has more than "+pctp(W.pct,1)+" of its rows duplicated":"Duplicate lines cluster in "+mlab(W.month)+": "+pctp(W.pct,1)+" of that month’s rows"+(W.cross>.5*W.pct?", most of them present on both sheets":"");
+  qChart($("#qchart"));
+  $("#q-note").textContent=D.cross_total>0?D.cross_total.toLocaleString("en-GB")+" lines appear on both sheets of the source workbook. They are exact copies, so the cleaned definition drops them; every other definition counts them twice.":"No line appears on both sheets of the source workbook.";
+}
+function qChart(root){
+  root.replaceChildren();const Q=D.quality,W=Math.max(300,root.clientWidth),H=W<560?220:260,m={l:W<560?40:50,r:8,t:12,b:32},pw=W-m.l-m.r,ph=H-m.t-m.b,n=Q.length,bw=pw/n;
+  const mx=Math.max(...Q.map(q=>q.dup)),ticks=niceTicks(0,mx*1.1||.01,4),top=ticks[ticks.length-1],Y=v=>m.t+ph-v/top*ph,hiI=Q.reduce((a,q,i)=>q.dup>Q[a].dup?i:a,0);
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"Share of rows that are duplicates, by month"});
+  ticks.forEach(t=>svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)"}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:pctp(t,t<.01&&t>0?1:0)})));
+  const every=Math.max(1,Math.ceil(n/Math.floor(pw/56)));
+  Q.forEach((q,i)=>{const x0=m.l+i*bw,w=Math.min(24,bw-6),x=x0+(bw-w)/2,v=Math.max(q.dup,.0004);
+    svg.append(s("path",{d:`M${x} ${Y(0)}V${Y(v)+(v>.002?4:0)}${v>.002?`Q${x} ${Y(v)} ${x+4} ${Y(v)}H${x+w-4}Q${x+w} ${Y(v)} ${x+w} ${Y(v)+4}`:`H${x+w}`}V${Y(0)}Z`,fill:i===hiI?"var(--ink)":"var(--mark-mute)"}));
+    if((n-1-i)%every===0)svg.append(s("text",{x:x0+bw/2,y:H-10,"text-anchor":"middle",class:"tick",text:mshort(q.month)}));
+    const hit=s("rect",{x:x0,y:m.t,width:bw,height:ph,fill:"transparent",tabindex:0,"aria-label":mlab(q.month)+": "+pctp(q.dup,2)+" duplicate rows"});
+    const show=e=>{const [px,py]=e.clientX?[e.clientX,e.clientY]:anchorOf(hit,.5,.3);tip.show(tipRows(mlab(q.month),[{label:"Duplicate rows",value:pctp(q.dup,2)},{label:"Present on both sheets",value:pctp(q.cross,2)},{label:"Not a product",value:pctp(q.nonprod,1)},{label:"No customer ID",value:pctp(q.nocust,1)},{label:"Cancellation lines",value:pctp(q.cancel,1)}]),px,py)};
+    hit.addEventListener("pointermove",show);hit.addEventListener("focus",show);hit.addEventListener("pointerleave",tip.hide);hit.addEventListener("blur",tip.hide);svg.append(hit)});
+  root.append(svg);
+}
+
+/* ---------- governed section + footer (static text, filled once) */
+function renderStatic(){
+  const g=m=>gov(m);
+  const items=[["Pick one definition per metric and write it down","Revenue is "+g("revenue").name.toLowerCase()+", active customers is "+g("customers").name.toLowerCase()+", average order value is "+g("aov").name.toLowerCase()+". Each choice is a row in the metric dictionary with its rule, its usual owner and where it goes wrong."],
+    ["Keep the other numbers, and label them","Finance may still want net sales and CRM may still want identified customers. They live in the same table under their definition ids, so nobody has to guess which one a chart used."],
+    ["Test the data before the number is built","Duplicate lines, rows from the wrong sheet, non-product codes and partial months are caught by the tests above and handled in the layer, not patched in each dashboard."],
+    ["Report what the definition leaves out","Guest buyers sit next to active customers, not inside them. Partial months are loaded but never compared."]];
+  $("#steps").replaceChildren(...items.map(([a,b])=>h("li",null,h("b",{text:a}),b)));
+  $("#limits").replaceChildren(...[
+    "One retailer and one two-year file. The pattern is general, the sizes are not.",
+    "There is no ground truth. I cannot prove a repeated line is a mistake rather than two real scans, so the cleaned definition may undercount slightly.",
+    "Definitions were chosen by judgment. Five is a sample of what a real team would argue about, not the full set.",
+    "Revenue is in pounds, unadjusted for inflation or VAT treatment, which the file does not state.",
+    "The trailing 90-day customer count needs 90 days of history, so its first months are blank rather than guessed.",
+    "The last month of the file is partial and is excluded from every comparison."].map(t=>h("li",{text:t,style:"margin:4px 0"})));
+  $("#src").textContent=D.meta.demo?"Synthetic sales for a fictional gift-ware retailer, "+dlab(D.meta.first)+" to "+dlab(D.meta.last)+", "+D.meta.rows.toLocaleString("en-GB")+" invoice lines. Built to mirror the structure of the UCI Online Retail II file.":"Source: UCI Online Retail II, transactions of a UK online gift-ware retailer, "+dlab(D.meta.first)+" to "+dlab(D.meta.last)+", "+D.meta.rows.toLocaleString("en-GB")+" invoice lines.";
+  if(D.meta.demo)$("#demo").hidden=false;
+  $("#foot").replaceChildren(
+    h("p",null,h("b",{text:"Method. "}),"Every number on this page comes from SQL run on one table of invoice lines. The gaps between definitions reconcile to the penny, and the main figures were recomputed independently in pandas. The code, the metric dictionary and the tests are in the repository."),
+    h("p",null,h("b",{text:"Data. "}),D.meta.demo?"Synthetic. Generated by 01_get_data.py with the demo flag. Replace by running it without the flag.":"Chen, D. (2012). Online Retail II. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D. Licensed CC BY 4.0."),
+    h("p",{text:"Independent portfolio project. It has no connection to the retailer, to the data publisher or to any employer, and every definition is an example, not a claim about how any real company counts."}));
+}
+
+/* ---------- wiring */
+function setMonth(k){if(!D.months.includes(k))return;state.month=k;$("#month").value=k;renderAll()}
+function setMetric(m){state.metric=m;[...$("#tabs").children].forEach(b=>b.setAttribute("aria-selected",b.dataset.m===m));renderAll()}
+function renderAll(){renderHero();renderDefs();renderTrend();renderDecide();renderWhy();renderDrift()}
+function init(){
+  const tabs=$("#tabs");Object.keys(TABS).forEach(m=>tabs.append(h("button",{type:"button",role:"tab","data-m":m,"aria-selected":m===state.metric,onclick:()=>setMetric(m)},TABS[m])));
+  tabs.addEventListener("keydown",e=>{const ks=Object.keys(TABS),i=ks.indexOf(state.metric);if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const j=(i+(e.key==="ArrowRight"?1:ks.length-1))%ks.length;setMetric(ks[j]);tabs.children[j].focus()}});
+  const sel=$("#month");[...D.months].reverse().forEach(k=>sel.append(h("option",{value:k,text:mlab(k)})));sel.value=state.month;sel.onchange=()=>setMonth(sel.value);
+  const root=document.documentElement,btn=$("#theme");
+  const apply=t=>{root.dataset.theme=t;btn.textContent=t==="dark"?"Light mode":"Dark mode";rerender()};
+  let saved=null;try{saved=localStorage.getItem("mta-theme")}catch(e){}
+  btn.onclick=()=>{const t=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("mta-theme",t)}catch(e){}apply(t)};
+  renderStatic();renderTrust();
+  const t0=saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");root.dataset.theme=t0;btn.textContent=t0==="dark"?"Light mode":"Dark mode";
+  setMetric("revenue");
+  let raf=0;new ResizeObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(rerender)}).observe(document.body);
+}
+let lastW=0;
+function rerender(){const w=document.body.clientWidth;trendRef.draw&&trendRef.draw();driftRef.draw&&driftRef.draw();if(w!==lastW){lastW=w;renderHero();renderWhy();qChart($("#qchart"))}}
+init();
+})();
+</script>
+</body>
+</html>

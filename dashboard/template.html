@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One metric, five answers: a metric trust audit</title>
+<meta name="description" content="The same sales question answered five reasonable ways from one public retail file. How far apart the answers land, whether they change decisions, and what a governed metric layer fixes.">
+<style>
+:root{
+  color-scheme:light;
+  --surface:#fcfcfb; --wash:#f3f3f0; --ink:#0b0b0b; --ink2:#52514e; --muted:#6b6a65;
+  --grid:#e1e0d9; --axis:#c3c2b7; --mark-mute:#898781; --ring:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
+  --sev-high:#d03b3b; --sev-med:#ec835a; --sev-low:#fab219; --sev-pass:#0ca30c; --pos:#006300;
+  --shadow:0 6px 24px rgba(11,11,11,.14);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --surface:#1a1a19; --wash:#242423; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a3a299;
+  --grid:#2c2c2a; --axis:#383835; --mark-mute:#898781; --ring:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181;
+  --pos:#0ca30c; --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(34px,6vw,56px);line-height:1.04;letter-spacing:-.03em}
+h2{font-size:clamp(22px,3vw,28px);line-height:1.22;max-width:30em}
+h3{font-size:16px;line-height:1.35}
+p{margin:0}
+a{color:var(--c1)}
+:focus-visible{outline:2px solid var(--c1);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:8px;z-index:20}
+.skip:focus{top:12px}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;line-height:1.5}
+
+/* ---- masthead */
+header.top{padding:56px 0 36px}
+header.top .lede{margin-top:20px;font-size:19px;line-height:1.5;color:var(--ink2);max-width:36em}
+header.top .src{margin-top:16px;font-size:14px;color:var(--muted);max-width:52em}
+.demo{margin-top:24px;padding:12px 16px;border-left:4px solid var(--sev-low);background:var(--wash);border-radius:0 8px 8px 0;font-size:14.5px;max-width:52em}
+.demo b{font-weight:650}
+
+/* ---- sticky filter row */
+.bar{position:sticky;top:0;z-index:10;background:var(--surface);border-top:1px solid var(--grid);border-bottom:1px solid var(--grid)}
+.bar .wrap{display:flex;gap:16px 24px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.tabs{display:flex;gap:4px;background:var(--wash);padding:4px;border-radius:10px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--ink2);font:inherit;font-weight:550;font-size:15px;min-height:44px;padding:0 16px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.tabs button:hover:not([aria-selected="true"]){color:var(--ink)}
+.field{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
+select,.btn{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--axis);border-radius:8px;min-height:44px;padding:0 12px;cursor:pointer}
+select:hover,.btn:hover{border-color:var(--ink2)}
+.bar .push{margin-left:auto}
+
+/* ---- sections */
+section{padding:56px 0;border-top:1px solid var(--grid)}
+section>.wrap>.intro{margin-top:14px;color:var(--ink2);max-width:42em}
+.block{margin-top:32px}
+.row-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.row-head .btn{min-height:44px;font-size:14px;padding:0 14px}
+
+/* ---- hero */
+.hero{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:40px;margin-top:32px;align-items:start}
+.fig{font-size:clamp(64px,9vw,104px);line-height:.95;font-weight:700;letter-spacing:-.04em}
+.fig-cap{margin-top:12px;color:var(--ink2);font-size:15px;max-width:15em}
+.dots{position:relative}
+.dotrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;align-items:center;min-height:52px;border-top:1px solid var(--grid);padding:4px 0;border-radius:6px}
+.dotrow:last-of-type{border-bottom:1px solid var(--grid)}
+.dotrow:hover,.dotrow:focus-visible{background:var(--wash)}
+.dotrow .nm{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:550;line-height:1.25}
+.sw{flex:none;width:12px;height:12px;border-radius:50%;background:var(--sw)}
+.sw.ln{width:18px;height:3px;border-radius:2px}
+.dotrow .lane{position:relative;height:28px}
+.dotrow .dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--sw);box-shadow:0 0 0 2px var(--surface)}
+.dotrow .val{text-align:right;font-variant-numeric:tabular-nums;line-height:1.25}
+.dotrow .val b{font-size:17px;font-weight:650}
+.dotrow .val span{display:block;font-size:12.5px;color:var(--muted)}
+.guide{position:absolute;top:22px;bottom:30px;width:0;border-left:1.5px solid var(--c1);pointer-events:none}
+.guide-l{position:absolute;top:0;font-size:12.5px;font-weight:600;white-space:nowrap;transform:translateX(-50%)}
+.axisrow{display:grid;grid-template-columns:200px minmax(0,1fr) 150px;gap:16px;height:26px}
+.axisrow .ax{position:relative;font-size:12px;color:var(--muted)}
+.axisrow .ax span{position:absolute;top:6px;transform:translateX(-50%);white-space:nowrap}
+.dotrow.na .lane::after{content:"needs 90 days of history";position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+
+/* ---- tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl th{text-align:left;font-weight:600;color:var(--ink2);font-size:13px;padding:10px 12px 10px 0;border-bottom:1px solid var(--axis);vertical-align:bottom}
+.tbl td{padding:14px 12px 14px 0;border-bottom:1px solid var(--grid);vertical-align:top}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl td.num{white-space:nowrap}
+.tbl tr.gov td{background:var(--wash)}
+.tbl tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--c1);padding-left:12px}
+.tbl .nm{display:flex;gap:10px;align-items:center;font-weight:600;white-space:nowrap}
+.tag{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:600;color:var(--ink);padding:2px 8px 2px 6px;border-radius:99px;border:1px solid var(--axis);margin-left:2px}
+.tag svg{width:12px;height:12px}
+.diff{display:inline-block;font-weight:700;margin-right:5px;color:var(--ink)}
+.cellsub{display:block;font-size:12.5px;color:var(--muted)}
+.scroll{max-height:380px;overflow:auto;border:1px solid var(--grid);border-radius:8px}
+.scroll .tbl th{position:sticky;top:0;background:var(--surface);padding-left:12px}
+.scroll .tbl td{padding-left:12px;padding-top:8px;padding-bottom:8px}
+
+/* ---- charts */
+.chart{position:relative;margin-top:8px}
+.chart svg{display:block;max-width:100%;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:4px;font-size:14px}
+.legend button{display:inline-flex;gap:8px;align-items:center;appearance:none;background:none;border:0;font:inherit;color:var(--ink);padding:6px 4px;min-height:44px;cursor:pointer;border-radius:6px}
+.legend button:hover{background:var(--wash)}
+.legend em{font-style:normal;color:var(--muted);font-size:12.5px}
+.ln{transition:opacity .15s}
+.dim{opacity:.18}
+.tick{font-size:12px;fill:var(--muted)}
+.cross{pointer-events:none}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);color:var(--ink);border-radius:10px;box-shadow:var(--shadow),0 0 0 1px var(--ring);padding:10px 12px;font-size:13.5px;line-height:1.4;max-width:300px;opacity:0;transition:opacity .08s}
+#tip.on{opacity:1}
+#tip .th{color:var(--ink2);font-size:12.5px;margin-bottom:6px}
+#tip .tr{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;margin-top:3px}
+#tip .tr b{font-weight:650;font-variant-numeric:tabular-nums}
+#tip .tr .k{height:3px;border-radius:2px;background:var(--sw)}
+#tip p{margin-top:6px;color:var(--ink2);font-size:12.5px}
+
+/* ---- flip strip */
+.strip{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.cell{appearance:none;font:inherit;width:42px;height:48px;border:1.5px solid transparent;border-radius:8px;background:var(--wash);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;line-height:1.1;padding:0}
+.cell small{font-size:11px}
+.cell b{font-size:18px;font-weight:650}
+.cell.flip{background:var(--ink);color:var(--surface)}
+.cell.mixed{background:var(--surface);border-color:var(--ink2);color:var(--ink)}
+.cell.nocmp{opacity:.45;cursor:default}
+.cell.sel{outline:2px solid var(--c1);outline-offset:2px}
+.key{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:14px;font-size:13.5px;color:var(--ink2)}
+.key span{display:inline-flex;gap:8px;align-items:center}
+.key i{width:22px;height:22px;border-radius:6px;display:inline-grid;place-items:center;font-style:normal;font-weight:700;font-size:13px}
+
+/* ---- why section bars */
+.hbars{display:grid;gap:0}
+.hb{display:grid;grid-template-columns:260px minmax(0,1fr) 120px;gap:16px;align-items:center;min-height:48px;border-top:1px solid var(--grid);padding:6px 0}
+.hb:last-child{border-bottom:1px solid var(--grid)}
+.hb.gap{margin-top:14px}
+.hb .nm{font-size:14.5px;line-height:1.3}
+.hb .nm b{display:block;font-weight:600}
+.hb .nm span{color:var(--muted);font-size:12.5px}
+.hb .track{position:relative;height:24px}
+.hb .bar-m{position:absolute;top:2px;height:20px;background:var(--sw);border-radius:4px;min-width:3px}
+.hb .bar-m.d{background:var(--mark-mute)}
+.hb .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:15px;line-height:1.2}
+.hb .val span{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.hb .zero{position:absolute;top:-6px;bottom:-6px;border-left:1px solid var(--axis)}
+.note{margin-top:16px;max-width:46em;color:var(--ink2);font-size:14.5px}
+
+/* ---- trust */
+.sev{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:13.5px;white-space:nowrap}
+.sev svg{width:14px;height:14px;flex:none}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px}
+.cols>*{min-width:0}
+.steps{display:grid;gap:20px;margin:0;padding:0;list-style:none}
+.steps li{max-width:34em}
+.steps b{display:block;margin-bottom:2px}
+pre{margin:0;padding:16px;background:var(--wash);border-radius:10px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:auto;color:var(--ink)}
+footer{border-top:1px solid var(--grid);padding:40px 0 72px;color:var(--ink2);font-size:14px}
+footer p+p{margin-top:10px}
+footer p{max-width:60em}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:24px}
+  .cols{grid-template-columns:1fr;gap:32px}
+}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  header.top{padding:36px 0 28px}
+  section{padding:40px 0}
+  .tabs button{padding:0 11px;font-size:14px}
+  .dotrow,.axisrow{grid-template-columns:minmax(0,1fr) auto}
+  .dotrow .nm{grid-column:1}.dotrow .val{grid-column:2;grid-row:1}
+  .dotrow .lane{grid-column:1/-1;grid-row:2;height:20px}
+  .dotrow{padding:8px 0 4px}
+  .axisrow .l,.axisrow .r{display:none}.axisrow{grid-template-columns:1fr}
+  .guide{top:22px}
+  .hb{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}
+  .hb .nm{grid-column:1}.hb .val{grid-column:2;grid-row:1}.hb .track{grid-column:1/-1;grid-row:2}
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
+  table.stack thead{position:absolute;left:-9999px}
+  table.stack tr{padding:14px 0;border-bottom:1px solid var(--grid)}
+  table.stack td{border:0;padding:3px 0;text-align:left!important}
+  table.stack td[data-l]::before{content:attr(data-l) ": ";color:var(--muted);font-size:12.5px}
+  table.stack td.first::before{content:none}
+  table.stack tr.gov{padding-left:12px;box-shadow:inset 3px 0 0 var(--c1)}
+  table.stack tr.gov td{background:none}table.stack tr.gov td:first-child{box-shadow:none;padding-left:0}
+  .cell{width:44px;height:48px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.bar,.btn{display:none}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the audit</a>
+<header class="top">
+  <div class="wrap">
+    <h1>One metric, five answers</h1>
+    <p class="lede">Ask five analysts for monthly revenue, active customers or average order value and you will get five different numbers, all defensible. This audit puts a size on that gap, checks whether it changes decisions, and shows what a governed metric layer fixes.</p>
+    <p class="src" id="src"></p>
+    <div class="demo" id="demo" hidden><b>Demo data.</b> This page was built from synthetic sales generated to have the same columns and the same kinds of mess as the real file, with four traps planted on purpose. None of these numbers describe a real company. Running the pipeline on the real file replaces every figure and sentence.</div>
+  </div>
+</header>
+
+<div class="bar" role="region" aria-label="Filters">
+  <div class="wrap">
+    <div class="tabs" role="tablist" aria-label="Metric" id="tabs"></div>
+    <label class="field">Month <select id="month" aria-label="Month shown in the charts below"></select></label>
+    <button class="btn push" id="theme" type="button">Dark mode</button>
+  </div>
+</div>
+
+<main id="main">
+<section id="s-hero" aria-labelledby="h-hero"><div class="wrap">
+  <h2 id="h-hero"></h2>
+  <div class="hero">
+    <div><div class="fig" id="fig"></div><p class="fig-cap" id="figcap"></p></div>
+    <div><div class="dots" id="dots"></div></div>
+  </div>
+  <p class="note" id="hero-note"></p>
+</div></section>
+
+<section id="s-defs" aria-labelledby="h-defs"><div class="wrap">
+  <h2 id="h-defs"></h2>
+  <p class="intro" id="defs-intro"></p>
+  <div class="block"><table class="tbl stack" id="deftbl"></table></div>
+</div></section>
+
+<section id="s-trend" aria-labelledby="h-trend"><div class="wrap">
+  <h2 id="h-trend"></h2>
+  <p class="intro" id="trend-intro"></p>
+  <div class="block">
+    <div class="row-head"><div class="legend" id="trend-leg"></div><button class="btn" id="trend-tb" type="button" aria-pressed="false">Show as table</button></div>
+    <div class="chart" id="trend"></div>
+    <div class="scroll" id="trend-table" hidden></div>
+  </div>
+</div></section>
+
+<section id="s-decide" aria-labelledby="h-decide"><div class="wrap">
+  <h2 id="h-decide"></h2>
+  <p class="intro" id="decide-intro"></p>
+  <div class="block">
+    <h3>Month by month: do the five answers move the same way?</h3>
+    <div class="strip" id="strip" role="group" aria-label="Months where the five definitions disagree on direction"></div>
+    <div class="key" id="strip-key"></div>
+  </div>
+  <div class="block">
+    <h3 id="matrix-h">The same questions, asked of each definition</h3>
+    <div style="margin-top:12px"><table class="tbl stack" id="matrix"></table></div>
+  </div>
+</div></section>
+
+<section id="s-why" aria-labelledby="h-why"><div class="wrap">
+  <h2 id="h-why"></h2>
+  <p class="intro" id="why-intro"></p>
+  <div class="block" id="why"></div>
+</div></section>
+
+<section id="s-drift" aria-labelledby="h-drift"><div class="wrap">
+  <h2 id="h-drift"></h2>
+  <p class="intro" id="drift-intro"></p>
+  <div class="block">
+    <div class="row-head"><div class="legend" id="drift-leg"></div><button class="btn" id="drift-tb" type="button" aria-pressed="false">Show as table</button></div>
+    <div class="chart" id="drift"></div>
+    <div class="scroll" id="drift-table" hidden></div>
+  </div>
+</div></section>
+
+<section id="s-trust" aria-labelledby="h-trust"><div class="wrap">
+  <h2 id="h-trust"></h2>
+  <p class="intro" id="trust-intro"></p>
+  <div class="block"><table class="tbl stack" id="tests"></table></div>
+  <div class="block">
+    <h3 id="q-h"></h3>
+    <div class="chart" id="qchart"></div>
+    <p class="note" id="q-note"></p>
+  </div>
+</div></section>
+
+<section id="s-gov" aria-labelledby="h-gov"><div class="wrap">
+  <h2 id="h-gov">What a team does about it</h2>
+  <div class="cols block">
+    <ol class="steps" id="steps"></ol>
+    <div>
+      <h3 style="margin-bottom:10px">One table feeds every dashboard</h3>
+<pre>-- sql/06_governed_layer.sql
+CREATE TABLE gov_monthly AS
+SELECT m.month,
+  (SELECT value FROM metric_long
+    WHERE metric = 'revenue' AND governed = 1
+      AND month = m.month) AS revenue_net_clean,
+  (SELECT value FROM metric_long
+    WHERE metric = 'customers' AND governed = 1
+      AND month = m.month) AS active_customers,
+  (SELECT value FROM metric_long
+    WHERE metric = 'aov' AND governed = 1
+      AND month = m.month) AS aov,
+  c.guest_invoices AS guest_buyers
+FROM months m JOIN m_customers c USING (month);</pre>
+      <p class="note small">The definition lives in one place. A chart that needs a different number has to say which definition id it uses.</p>
+    </div>
+  </div>
+  <div class="block">
+    <h3>What this audit cannot tell you</h3>
+    <ul class="small" style="margin:10px 0 0;padding-left:20px;max-width:52em;color:var(--ink2)" id="limits"></ul>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap" id="foot"></div></footer>
+<div id="tip" role="tooltip"></div>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script>
+const DATA=/*DATA*/null;
+(()=>{
+"use strict";
+const D=DATA, MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const NAMES={revenue:"Revenue",customers:"Active customers",aov:"Average order value"};
+const TABS={revenue:"Revenue",customers:"Active customers",aov:"Order value"};
+const state={metric:"revenue",month:D.meta.latest};
+const $=(s,r=document)=>r.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function h(tag,p,...kids){const e=document.createElement(tag);for(const k in (p||{})){const v=p[k];if(v==null)continue;if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k==="style")e.style.cssText=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}kids.flat().forEach(c=>{if(c==null||c===false)return;e.append(c.nodeType?c:document.createTextNode(c))});return e}
+function s(tag,p,...kids){const e=document.createElementNS(NS,tag);for(const k in (p||{})){if(p[k]==null)continue;if(k==="text")e.textContent=p[k];else e.setAttribute(k,p[k])}kids.flat().forEach(c=>c&&e.append(c));return e}
+const dlab=iso=>{const [y,mo,d]=iso.split("-");return +d+" "+MON[+mo-1]+" "+y};
+const mlab=m=>MON[+m.slice(5,7)-1]+" "+m.slice(0,4);
+const mshort=m=>MON[+m.slice(5,7)-1]+" ’"+m.slice(2,4);
+function money(v){const a=Math.abs(v);const t=a>=1e6?"£"+(a/1e6).toFixed(2)+"M":a>=1e4?"£"+Math.round(a/1e3)+"K":"£"+Math.round(a).toLocaleString("en-GB");return (v<0?"−":"")+t}
+function axMoney(v){const a=Math.abs(v);return a>=1e6?"£"+(+(a/1e6).toFixed(2))+"M":a>=1e3?"£"+(+(a/1e3).toFixed(1))+"K":"£"+(+a.toFixed(2))}
+const cnt=v=>Math.round(v).toLocaleString("en-GB");
+const fmt=(metric,v)=>v==null?"–":metric==="customers"?cnt(v):money(v);
+const axfmt=(metric)=>metric==="customers"?(v=>v>=1e3?(+(v/1e3).toFixed(1))+"K":String(v)):axMoney;
+const pct=(v,d=1)=>(v<0?"−":"+")+Math.abs(v*100).toFixed(d)+"%";
+const pctp=(v,d=0)=>(v*100).toFixed(d)+"%";
+const defsOf=m=>D.defs.filter(d=>d.metric===m);
+const gov=m=>defsOf(m).find(d=>d.governed);
+const sw=d=>"var(--c"+d.slot+")";
+function niceTicks(min,max,n){const span=(max-min)||1,s0=span/n,mag=Math.pow(10,Math.floor(Math.log10(s0))),nn=s0/mag,st=(nn<1.5?1:nn<3?2:nn<7?5:10)*mag;const out=[];for(let v=Math.floor(min/st)*st;;v+=st){out.push(+v.toFixed(10));if(v>=max-st*1e-6)break}return out}
+const mi=()=>D.months.indexOf(state.month);
+
+/* ---------- tooltip */
+const tipEl=$("#tip");
+const tip={show(node,x,y){tipEl.replaceChildren(node);tipEl.classList.add("on");const r=tipEl.getBoundingClientRect();let L=x+16,T=y+16;if(L+r.width>innerWidth-8)L=x-r.width-16;if(L<8)L=8;if(T+r.height>innerHeight-8)T=Math.max(8,y-r.height-16);tipEl.style.left=L+"px";tipEl.style.top=T+"px"},hide(){tipEl.classList.remove("on")}};
+const say=t=>{$("#live").textContent=t};
+function anchorOf(el,fx=.5,fy=.5){const r=el.getBoundingClientRect();return [r.left+r.width*fx,r.top+r.height*fy]}
+function tipRows(head,rows,foot){const w=h("div",null,h("div",{class:"th",text:head}));rows.forEach(r=>w.append(h("div",{class:"tr",style:"--sw:"+(r.color||"transparent")},h("span",{class:r.color?"k":""}),h("span",{text:r.label}),h("b",{text:r.value}))));if(foot)w.append(h("p",{text:foot}));return w}
+
+/* ---------- line chart */
+function lineChart(root,cfg){
+  root.replaceChildren();
+  const W=Math.max(280,root.clientWidth),H=W<560?270:340,m={l:W<560?46:58,r:16,t:30,b:30},pw=W-m.l-m.r,ph=H-m.t-m.b,n=cfg.keys.length;
+  const all=cfg.series.flatMap(x=>x.values).filter(v=>v!=null);
+  let lo=cfg.zero?0:Math.min(...all,cfg.ref?cfg.ref.value:Infinity),hi=Math.max(...all,cfg.ref?cfg.ref.value:-Infinity);
+  if(!cfg.zero){const p=(hi-lo)*.08;lo-=p;hi+=p}
+  const ticks=niceTicks(lo,hi,5);lo=cfg.zero?0:ticks[0];hi=ticks[ticks.length-1];
+  const X=i=>m.l+(n===1?pw/2:i*pw/(n-1)),Y=v=>m.t+ph-(v-lo)/(hi-lo)*ph;
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,tabindex:0,role:"group","aria-label":cfg.aria+" Use the left and right arrow keys to move between months."});
+  ticks.forEach(t=>{svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===lo&&cfg.zero?"var(--axis)":"var(--grid)","stroke-width":1}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:cfg.axfmt(t)}))});
+  const every=Math.max(1,Math.ceil(n/Math.floor(pw/64)));
+  cfg.keys.forEach((k,i)=>{if((n-1-i)%every===0)svg.append(s("text",{x:X(i),y:H-8,"text-anchor":i===n-1?"end":"middle",class:"tick",text:mshort(k)}))});
+  if(cfg.ref){svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(cfg.ref.value),y2:Y(cfg.ref.value),stroke:"var(--ink2)","stroke-width":1}),s("text",{x:m.l+6,y:Y(cfg.ref.value)-7,"text-anchor":"start",class:"tick",style:"fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round",text:cfg.ref.label}))}
+  const si=cfg.keys.indexOf(state.month);
+  if(si>=0){svg.append(s("line",{x1:X(si),x2:X(si),y1:m.t,y2:m.t+ph,stroke:"var(--ink2)","stroke-width":1,opacity:.45}),s("path",{d:`M${X(si)-5} ${m.t+ph+9}L${X(si)+5} ${m.t+ph+9}L${X(si)} ${m.t+ph+2}Z`,fill:"var(--ink2)",opacity:.7}))}
+  if(cfg.note){const x=X(cfg.note.index),right=x>W*.7;svg.append(s("line",{x1:x,x2:x,y1:m.t-8,y2:m.t,stroke:"var(--ink2)","stroke-width":1}),s("text",{x:x+(right?-5:5),y:m.t-12,"text-anchor":right?"end":"start",class:"tick",style:"fill:var(--ink2)",text:cfg.note.label}))}
+  const order=[...cfg.series].sort((a,b)=>(a.governed?1:0)-(b.governed?1:0)),paths={};
+  order.forEach(x=>{let d="",pen=false;x.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);pen=true});
+    const g=s("g",{class:"ln","data-id":x.id});g.append(s("path",{d,fill:"none",stroke:"var(--c"+x.slot+")","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    let last=-1;x.values.forEach((v,i)=>{if(v!=null)last=i});if(last>=0)g.append(s("circle",{cx:X(last),cy:Y(x.values[last]),r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2}));
+    svg.append(g);paths[x.id]=g});
+  const cross=s("g",{class:"cross",style:"display:none"});const cl=s("line",{y1:m.t,y2:m.t+ph,stroke:"var(--ink2)","stroke-width":1});cross.append(cl);
+  const cd={};cfg.series.forEach(x=>{cd[x.id]=s("circle",{r:5,fill:"var(--c"+x.slot+")",stroke:"var(--surface)","stroke-width":2});cross.append(cd[x.id])});svg.append(cross);
+  const ov=s("rect",{x:m.l-6,y:m.t-4,width:pw+12,height:ph+8,fill:"transparent"});svg.append(ov);
+  root.append(svg);
+  let cur=null;
+  function at(i,cx,cy){cur=i;cross.style.display="";cl.setAttribute("x1",X(i));cl.setAttribute("x2",X(i));
+    const rows=[];cfg.series.forEach(x=>{const v=x.values[i];if(v==null){cd[x.id].style.display="none";return}cd[x.id].style.display="";cd[x.id].setAttribute("cx",X(i));cd[x.id].setAttribute("cy",Y(v));rows.push({label:x.name+(x.governed?" (governed)":""),value:cfg.vfmt(v),color:"var(--c"+x.slot+")",v})});
+    rows.sort((a,b)=>b.v-a.v);tip.show(tipRows(mlab(cfg.keys[i]),rows),cx,cy);say(mlab(cfg.keys[i])+": "+rows.map(r=>r.label+" "+r.value).join(", "))}
+  const idxOf=e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)*(W/r.width);return Math.max(0,Math.min(n-1,Math.round((x-m.l)/(pw/(n-1)))))};
+  ov.addEventListener("pointermove",e=>at(idxOf(e),e.clientX,e.clientY));
+  ov.addEventListener("pointerleave",()=>{cross.style.display="none";tip.hide()});
+  ov.addEventListener("click",e=>{const k=cfg.keys[idxOf(e)];if(cfg.pick)cfg.pick(k)});
+  svg.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home","End","Enter"].includes(e.key))return;e.preventDefault();
+    if(e.key==="Enter"){if(cur!=null&&cfg.pick)cfg.pick(cfg.keys[cur]);return}
+    let i=cur==null?(e.key==="ArrowLeft"?n-1:0):cur+(e.key==="ArrowRight"?1:e.key==="ArrowLeft"?-1:0);if(e.key==="Home")i=0;if(e.key==="End")i=n-1;i=Math.max(0,Math.min(n-1,i));
+    const r=svg.getBoundingClientRect();at(i,r.left+X(i)*(r.width/W),r.top+m.t+ph*.3)});
+  svg.addEventListener("blur",()=>{cross.style.display="none";tip.hide();cur=null});
+  return {focus(id){Object.entries(paths).forEach(([k,g])=>g.classList.toggle("dim",id!=null&&k!==id))}};
+}
+function legend(root,series,chartRef){root.replaceChildren();series.forEach(x=>{const b=h("button",{type:"button"},h("span",{class:"sw ln",style:"--sw:var(--c"+x.slot+")"}),x.name,x.governed?h("em",{text:"governed"}):null);
+  const on=()=>chartRef.c&&chartRef.c.focus(x.id),off=()=>chartRef.c&&chartRef.c.focus(null);
+  b.addEventListener("pointerenter",on);b.addEventListener("pointerleave",off);b.addEventListener("focus",on);b.addEventListener("blur",off);root.append(b)})}
+function tableTwin(keys,series,vfmt){const t=h("table",{class:"tbl"},h("thead",null,h("tr",null,h("th",{text:"Month"}),series.map(x=>h("th",{class:"num",text:x.name})))),h("tbody",null,keys.map((k,i)=>h("tr",null,h("td",{text:mlab(k)}),series.map(x=>h("td",{class:"num",text:x.values[i]==null?"–":vfmt(x.values[i])}))))));return t}
+function toggle(btn,chartEl,tableEl,build){btn.onclick=()=>{const on=tableEl.hidden;tableEl.hidden=!on;chartEl.hidden=on;btn.setAttribute("aria-pressed",on);btn.textContent=on?"Show as chart":"Show as table";if(on)tableEl.replaceChildren(build())}}
+
+/* ---------- hero */
+function renderHero(){
+  const mt=state.metric,i=mi(),ds=defsOf(mt),g=gov(mt);
+  const rows=ds.map(d=>({d,v:D.series[mt][d.id][i]}));const have=rows.filter(r=>r.v!=null).sort((a,b)=>b.v-a.v);
+  const lo=have[have.length-1].v,hi=have[0].v,gv=rows.find(r=>r.d.id===g.id).v,spread=hi/lo-1;
+  const lead={revenue:"What was revenue in ",customers:"How many customers were active in ",aov:"What was the average order value in "}[mt];
+  $("#h-hero").textContent=lead+mlab(state.month)+"? Anywhere from "+fmt(mt,lo)+" to "+fmt(mt,hi)+", depending on who is counting";
+  $("#fig").textContent=(spread*100>=10?Math.round(spread*100):(spread*100).toFixed(1))+"%";
+  $("#figcap").textContent="between the lowest and highest answer to one question, for one month";
+  const dots=$("#dots");dots.replaceChildren();
+  const pad=(hi-lo)*.14||hi*.05,a=lo-pad,b=hi+pad,pos=v=>((v-a)/(b-a)*100);
+  const wrap=h("div",{style:"position:relative"});
+  const lane0=[];
+  have.concat(rows.filter(r=>r.v==null)).forEach(r=>{
+    const na=r.v==null,row=h("div",{class:"dotrow"+(na?" na":""),tabindex:0,"aria-label":r.d.name+": "+(na?"not enough history":fmt(mt,r.v))+(r.d.governed?", the governed definition":"")});
+    const lane=h("div",{class:"lane"});if(!na)lane.append(h("span",{class:"dot",style:"--sw:"+sw(r.d)+";left:"+pos(r.v)+"%"}));
+    const dlt=na?"":r.d.governed?"the governed answer":pct(r.v/gv-1)+" vs governed";
+    row.append(h("div",{class:"nm",style:"--sw:"+sw(r.d)},h("span",{class:"sw"}),h("span",null,r.d.name)),lane,h("div",{class:"val"},h("b",{text:na?"–":fmt(mt,r.v)}),h("span",{text:dlt})));
+    const show=e=>{const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(row,.5,.5);tip.show(h("div",null,h("div",{class:"th",text:r.d.name+(r.d.governed?" (governed)":"")}),h("p",{style:"margin:0;color:var(--ink)",text:r.d.rule}),h("p",{text:"Watch for: "+r.d.pitfall})),x,y)};
+    row.addEventListener("pointermove",show);row.addEventListener("focus",show);row.addEventListener("pointerleave",tip.hide);row.addEventListener("blur",tip.hide);
+    wrap.append(row);lane0.push(row)});
+  const gx=pos(gv);
+  const lanes=h("div",{style:"position:absolute;top:0;bottom:0;left:216px;right:166px;pointer-events:none"},h("div",{class:"guide-l",style:"left:"+gx+"%;top:-22px;color:var(--ink)",text:"governed"}),h("div",{class:"guide",style:"left:"+gx+"%;top:0;bottom:0"}));
+  lanes.dataset.lanes="1";wrap.append(lanes);
+  const ticks=niceTicks(a,b,3).filter(t=>t>=a&&t<=b);
+  const ax=h("div",{class:"axisrow"},h("div",{class:"l"}),h("div",{class:"ax"},ticks.map(t=>h("span",{style:"left:"+pos(t)+"%",text:(mt==="customers"?cnt(t):axMoney(t))}))),h("div",{class:"r"}));
+  dots.append(h("div",{style:"padding-top:24px;position:relative"},wrap,ax));
+  const small=matchMedia("(max-width:720px)").matches;if(small){lanes.style.left="0";lanes.style.right="0";lanes.style.display="none"}
+  const w=D.widest[mt];
+  $("#hero-note").textContent="The axis is zoomed to the range of the five answers so the gap is visible. Each dot is the same calendar month counted a different way. "+(spread<.02?"This month they sit close together; the widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".":"The widest gap in the file is "+pctp(w.spread)+" in "+mlab(w.month)+".");
+}
+
+/* ---------- definitions table */
+function renderDefs(){
+  const mt=state.metric,i=mi();
+  $("#h-defs").textContent="Five defensible ways to count "+NAMES[mt].toLowerCase();
+  $("#defs-intro").textContent="Each row is a rule someone would write in good faith. The one marked governed is the definition this audit recommends, and why is in the last section. Colors stay fixed to a definition for the whole page, and blue always marks the governed one.";
+  const t=$("#deftbl");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),h("th",{text:"Who usually uses it"}),h("th",{text:"How it is counted"}),h("th",{text:"Where it goes wrong"}),h("th",{class:"num",text:mlab(state.month)}))),
+    h("tbody",null,defsOf(mt).map(d=>h("tr",{class:d.governed?"gov":""},
+      h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name,d.governed?h("span",{class:"tag"},tick(),"Governed"):null)),
+      h("td",{"data-l":"Used by",text:d.owner}),h("td",{"data-l":"Counted as",text:d.rule}),h("td",{"data-l":"Goes wrong",text:d.pitfall}),
+      h("td",{class:"num","data-l":mlab(state.month),text:fmt(mt,D.series[mt][d.id][i])})))));
+}
+function tick(){return s("svg",{viewBox:"0 0 12 12","aria-hidden":"true"},s("path",{d:"M2 6.5l2.6 2.6L10 3.2",fill:"none",stroke:"currentColor","stroke-width":1.8,"stroke-linecap":"round","stroke-linejoin":"round"}))}
+
+/* ---------- trend */
+const trendRef={},driftRef={};
+function renderTrend(){
+  const mt=state.metric,ds=defsOf(mt),keys=D.months;
+  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,governed:d.governed,values:D.series[mt][d.id]}));
+  const wd=D.widest[mt];
+  $("#h-trend").textContent="The gap is not a fixed offset: "+NAMES[mt].toLowerCase()+" under five definitions tells five different stories over time";
+  $("#trend-intro").textContent="The widest gap is "+pctp(wd.spread)+" in "+mlab(wd.month)+". Hover or use the arrow keys to read every definition for a month, and click a month to make it the one shown in the rest of the page. The latest month in the file is partial and left out.";
+  legend($("#trend-leg"),series,trendRef);
+  const cfg={keys,series,zero:true,axfmt:axfmt(mt),vfmt:v=>fmt(mt,v),aria:NAMES[mt]+" by month under five definitions.",note:{index:keys.indexOf(wd.month),label:"Widest gap"},pick:k=>setMonth(k)};
+  const draw=()=>{if($("#trend").hidden)return;trendRef.c=lineChart($("#trend"),cfg)};draw();trendRef.draw=draw;
+  toggle($("#trend-tb"),$("#trend"),$("#trend-table"),()=>tableTwin(keys,series,v=>fmt(mt,v)));
+  $("#trend-table").hidden=true;$("#trend").hidden=false;$("#trend-tb").textContent="Show as table";$("#trend-tb").setAttribute("aria-pressed","false");
+}
+
+/* ---------- decisions */
+function renderDecide(){
+  const mt=state.metric,E=D.dec[mt],ds=defsOf(mt),g=gov(mt);
+  $("#h-decide").textContent=E.n_flip===0?"For "+NAMES[mt].toLowerCase()+", the five definitions never pulled in opposite directions by a full percent":"In "+E.n_flip+" of "+E.n_cmp+" months, one definition of "+NAMES[mt].toLowerCase()+" said up while another said down";
+  $("#decide-intro").textContent="A gap in level can be shrugged off with a scaling factor. A gap in direction cannot. Here a flip means one definition moved up by 1% or more month on month while another moved down by 1% or more. "+(E.n_disagree>E.n_flip?E.n_disagree+" months have at least a small disagreement in sign.":"");
+  const st=$("#strip");st.replaceChildren();const fl=Object.fromEntries(E.flips.map(f=>[f.month,f]));
+  D.months.forEach(k=>{const f=fl[k];const cls=!f?"nocmp":f.flip?"flip":f.disagree?"mixed":"";const glyph=!f?"–":f.flip?"≠":f.disagree?"~":"=";
+    const b=h("button",{type:"button",class:"cell "+cls+(k===state.month?" sel":""),"aria-label":mlab(k)+": "+(!f?"not comparable":f.flip?"definitions disagree on direction":f.disagree?"signs differ by less than one percent":"all agree on direction")},h("small",{text:MON[+k.slice(5,7)-1]+(k.slice(5,7)==="01"||k===D.months[0]?" ’"+k.slice(2,4):"")}),h("b",{text:glyph}));
+    const show=e=>{if(!f)return;const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(b);const mm=E.mom[k]||{};tip.show(tipRows(mlab(k)+", change on the month before",ds.map(d=>({label:d.name+(d.governed?" (governed)":""),value:mm[d.id]==null?"–":pct(mm[d.id]),color:"var(--c"+d.slot+")"}))),x,y)};
+    b.addEventListener("pointermove",show);b.addEventListener("focus",show);b.addEventListener("pointerleave",tip.hide);b.addEventListener("blur",tip.hide);b.addEventListener("click",()=>{if(f)setMonth(k)});st.append(b)});
+  $("#strip-key").replaceChildren(
+    h("span",null,h("i",{style:"background:var(--ink);color:var(--surface)",text:"≠"}),"opposite moves of 1% or more"),
+    h("span",null,h("i",{style:"border:1.5px solid var(--ink2)",text:"~"}),"signs differ, all moves under 1%"),
+    h("span",null,h("i",{style:"background:var(--wash);color:var(--muted)",text:"="}),"all five move the same way"));
+  /* matrix */
+  const cols=[["Best month on record",d=>mlab(E.best[d.id]),(d,gd)=>E.best[d.id]!==E.best[gd.id]],
+    ["Latest month vs the one before ("+mshort(D.months[D.months.length-1])+" vs "+mshort(D.months[D.months.length-2])+")",d=>E.latest_mom[d.id]==null?"–":pct(E.latest_mom[d.id]),(d,gd)=>E.latest_mom[d.id]!=null&&Math.sign(E.latest_mom[d.id])!==Math.sign(E.latest_mom[gd.id])],
+    ["Last 12 months vs the 12 before",d=>E.yoy[d.id]==null?"–":pct(E.yoy[d.id]),(d,gd)=>E.yoy[d.id]!=null&&Math.sign(E.yoy[d.id])!==Math.sign(E.yoy[gd.id])]];
+  if(mt==="revenue")cols.splice(3,0,["Second-largest market",d=>E.second_country[d.id]||"–",(d,gd)=>E.second_country[d.id]!==E.second_country[gd.id]]);
+  cols.push([mt==="revenue"?"Total, last 12 months":"Monthly average, last 12 months",d=>fmt(mt,E.ttm[d.id]),()=>false,(d)=>d.governed?"":pct(E.ttm[d.id]/E.ttm[g.id]-1)+" vs governed"]);
+  $("#matrix-h").textContent="The same questions, asked of each definition";
+  const t=$("#matrix");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Definition"}),cols.map((c,j)=>h("th",{class:j===cols.length-1?"num":"",text:c[0]})))),
+    h("tbody",null,ds.map(d=>h("tr",{class:d.governed?"gov":""},h("td",{class:"first"},h("div",{class:"nm",style:"--sw:"+sw(d)},h("span",{class:"sw"}),d.name)),
+      cols.map((c,j)=>{const differs=!d.governed&&c[2](d,g);return h("td",{class:j===cols.length-1?"num":"","data-l":c[0]},differs?h("span",{class:"diff",title:"Gives a different answer from the governed definition","aria-label":"differs from governed"},"≠"):null,c[1](d),c[3]?h("span",{class:"cellsub",text:c[3](d)}):null)})))));
+  const nd=ds.filter(d=>!d.governed&&cols.slice(0,-1).some(c=>c[2](d,g))).length;
+}
+
+/* ---------- why they differ */
+function renderWhy(){
+  const mt=state.metric,root=$("#why");root.replaceChildren();
+  if(mt==="revenue")whyRevenue(root);else if(mt==="customers")whyCustomers(root);else whyAov(root);
+}
+function hb(label,sub,startPct,widthPct,color,valTxt,valSub,cls){
+  return h("div",{class:"hb "+(cls||""),tabindex:0,"aria-label":label+": "+valTxt+(valSub?", "+valSub:"")},
+    h("div",{class:"nm"},h("b",{text:label}),sub?h("span",{text:sub}):null),
+    h("div",{class:"track"},h("div",{class:"bar-m"+(color?"":" d"),style:"left:"+startPct+"%;width:"+widthPct+"%;"+(color?"--sw:"+color:"")})),
+    h("div",{class:"val"},valTxt,valSub?h("span",{text:valSub}):null));
+}
+function whyRevenue(root){
+  const B=D.bridge[state.month],ds=defsOf("revenue"),by=Object.fromEntries(ds.map(d=>[d.id,d])),S=D.series.revenue,i=mi();
+  const R2=S.R2[i],R3=S.R3[i],R4=S.R4[i],R5=S.R5[i],R1=S.R1[i];
+  $("#h-why").textContent="Where the money goes between the biggest and smallest revenue number in "+mlab(state.month);
+  const dupT=-(B.dup_repeat+B.dup_cross);
+  $("#why-intro").textContent="Reading down: start from gross sales and take away, one named cause at a time, what each stricter definition removes. The steps add up exactly to the next number. "+(B.dup_cross>0?"In this month "+money(B.dup_cross)+" of sales appears on both sheets of the source file, which only the cleaned definition removes.":"");
+  const max=Math.max(R1,R2,R3,R4,R5);
+  const pc=v=>v/max*100;
+  const rows=[
+    ["Gross sales","Product lines on non-cancelled invoices",0,pc(R2),sw(by.R2),money(R2),"",""],
+    ["Returns and credits","Cancellation invoices and negative lines",pc(R2+B.returns),pc(-B.returns),null,money(B.returns),pctp(B.returns/R2,1)+" of gross",""],
+    ["Net sales","What most quick finance totals show",0,pc(R3),sw(by.R3),money(R3),"",""],
+    ["Repeated lines","Identical line twice on one sheet",pc(R3-B.dup_repeat),pc(B.dup_repeat),null,money(-B.dup_repeat),pctp(B.dup_repeat/R3,1)+" of net",""],
+    ["Lines on both sheets","The same line loaded from two sheets",pc(R3-B.dup_repeat-B.dup_cross),pc(B.dup_cross),null,money(-B.dup_cross),pctp(B.dup_cross/R3,1)+" of net",""],
+    ["Net clean revenue","The governed number",0,pc(R4),sw(by.R4),money(R4),"",""],
+    ["Guest orders","Rows with no Customer ID",pc(R4-B.unidentified),pc(B.unidentified),null,money(-B.unidentified),pctp(B.unidentified/R4,1)+" of clean",""],
+    ["Identified-customer revenue","What a CRM would report",0,pc(R5),sw(by.R5),money(R5),"",""],
+    ["Raw ledger total","Net sales plus postage, fees, manual lines and adjustments",0,pc(R1),sw(by.R1),money(R1),(B.non_product>=0?"+":"−")+money(Math.abs(B.non_product)).replace("−","")+" vs net sales","gap"]];
+  const box=h("div",{class:"hbars",role:"list"},rows.map(r=>hb(...r)));root.append(box);
+  const P=D.pool;
+  root.append(h("p",{class:"note",text:"Across all "+D.meta.n_months+" full months, returns take "+pctp(P.returns,1)+" of gross sales, repeated or doubled lines take a further "+pctp(P.dups,1)+", and guest orders are "+pctp(P.guests,1)+" of gross. The raw ledger total moves by "+money(P.non_product)+" because it also sums postage, fees and adjustments."}));
+  if(D.nonprod.length)root.append(h("p",{class:"note small",text:"Largest non-product lines by value: "+D.nonprod.slice(0,4).map(x=>x.code+(x.desc?" ("+x.desc.toLowerCase()+")":"")+" "+money(x.net)).join(", ")+"."}));
+}
+function whyCustomers(root){
+  const S=D.series.customers,i=mi(),by=Object.fromEntries(defsOf("customers").map(d=>[d.id,d]));
+  $("#h-why").textContent="Which customers each definition adds or drops relative to the governed count in "+mlab(state.month);
+  $("#why-intro").textContent="Every bar is a distance from the governed number, so you can see what kind of customer is being included or left out. The trailing 90-day count answers a different question, who has bought lately, which is why it is so much larger.";
+  const g=S.A2[i],rows=[["A1","Records but no purchase","Customers whose only rows this month are returns or fees"],["A3","Bought and returned","Customers who returned at least as much as they bought"],["A4","Guest checkouts","One buyer for every guest invoice, since guests have no ID"],["A5","Bought earlier in the window","Customers who bought in the last 90 days but not this month"]]
+    .map(([id,nm,sub])=>({id,nm,sub,v:S[id][i]==null?null:S[id][i]-g}));
+  const mx=Math.max(...rows.map(r=>Math.abs(r.v||0)),1);
+  const box=h("div",{class:"hbars"});
+  rows.forEach(r=>{const d=by[r.id];const na=r.v==null;const w=na?0:Math.abs(r.v)/mx*48;
+    const track=h("div",{class:"track"},h("div",{class:"zero",style:"left:50%"}),na?null:h("div",{class:"bar-m",style:"--sw:"+sw(d)+";width:"+w+"%;left:"+(r.v>=0?50:50-w)+"%"}));
+    box.append(h("div",{class:"hb",tabindex:0,"aria-label":d.name+": "+(na?"not enough history":(r.v>=0?"plus ":"minus ")+cnt(Math.abs(r.v)))},h("div",{class:"nm"},h("b",{text:d.name}),h("span",{text:r.sub})),track,h("div",{class:"val"},na?"–":(r.v>=0?"+":"−")+cnt(Math.abs(r.v)),h("span",{text:na?"needs 90 days of history":cnt(S[r.id][i])+" in total"}))))});
+  root.append(box,h("p",{class:"note",text:"The governed count is "+cnt(g)+" purchasing customers. Guest buyers are reported next to it, never inside it: "+cnt(D.cust_extra[state.month].guests)+" guest invoices this month."}));
+}
+function whyAov(root){
+  const hi=D.hist,st=D.istats;
+  $("#h-why").textContent="Most orders are small, most of the money is in large ones, so the mean and the median tell different stories";
+  $("#why-intro").textContent="Last 12 full months, invoices grouped by value. The mean order is "+money(st.mean)+" and the median is "+money(st.median)+". The largest tenth of invoices carries "+pctp(st.top10)+" of all order value, which is why a handful of wholesale orders can move the average.";
+  const box=h("div",{class:"chart",id:"hist"});root.append(box,h("p",{class:"note small",text:"Bins are uneven on purpose, so each bar is a count of invoices in a value band, not an area."}));
+  histChart(box);
+}
+function histChart(root){
+  root.replaceChildren();const hi=D.hist,st=D.istats;
+  const W=Math.max(300,root.clientWidth),H=W<560?270:320,m={l:W<560?42:52,r:12,t:34,b:42},pw=W-m.l-m.r,ph=H-m.t-m.b,nb=hi.length,bw=pw/nb;
+  const mx=Math.max(...hi.flatMap(b=>[b.si,b.sv])),ticks=niceTicks(0,mx*1.05,4),top=ticks[ticks.length-1],Y=v=>m.t+ph-v/top*ph;
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"Share of invoices and share of order value by invoice value band"});
+  ticks.forEach(t=>svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)"}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:pctp(t)})));
+  const lab=v=>v>=1e3?"£"+(+(v/1e3).toFixed(1))+"K":"£"+v;
+  const bar=(x,w,v,c)=>s("path",{d:`M${x} ${Y(0)}V${Y(v)+4}Q${x} ${Y(v)} ${x+4} ${Y(v)}H${x+w-4}Q${x+w} ${Y(v)} ${x+w} ${Y(v)+4}V${Y(0)}Z`,fill:c});
+  hi.forEach((b,i)=>{const x0=m.l+i*bw,w=Math.min(22,(bw-8)/2),gx=x0+(bw-2*w-2)/2;
+    if(b.si>0)svg.append(bar(gx,w,Math.max(b.si,.0015),"var(--mark-mute)"));if(b.sv>0)svg.append(bar(gx+w+2,w,Math.max(b.sv,.0015),"var(--ink)"));
+    if(i%2===0||nb<10)svg.append(s("text",{x:x0,y:H-22,"text-anchor":"middle",class:"tick",text:lab(b.lo)}));
+    const hit=s("rect",{x:x0,y:m.t,width:bw,height:ph,fill:"transparent",tabindex:0,"aria-label":lab(b.lo)+" to "+lab(b.hi)+": "+pctp(b.si,1)+" of invoices, "+pctp(b.sv,1)+" of order value"});
+    const show=e=>{const [x,y]=e.clientX?[e.clientX,e.clientY]:anchorOf(hit,.5,.3);tip.show(tipRows(lab(b.lo)+" to "+lab(b.hi)+" per invoice",[{label:"Share of invoices",value:pctp(b.si,1),color:"var(--mark-mute)"},{label:"Share of order value",value:pctp(b.sv,1),color:"var(--ink)"},{label:"Invoices",value:cnt(b.n)}]),x,y)};
+    hit.addEventListener("pointermove",show);hit.addEventListener("focus",show);hit.addEventListener("pointerleave",tip.hide);hit.addEventListener("blur",tip.hide);svg.append(hit)});
+  svg.append(s("text",{x:m.l+pw/2,y:H-4,"text-anchor":"middle",class:"tick",text:"Invoice value (lower edge of each band)"}));
+  const xAt=v=>{for(let i=0;i<nb;i++){const b=hi[i];if(v>=b.lo&&v<b.hi)return m.l+i*bw+bw*(Math.log(v)-Math.log(b.lo))/(Math.log(b.hi)-Math.log(b.lo))}return v<hi[0].lo?m.l:m.l+pw};
+  [["Median",st.median,0],["Mean",st.mean,1]].forEach(([n,v,k])=>{const x=xAt(v);svg.append(s("line",{x1:x,x2:x,y1:m.t-6,y2:m.t+ph,stroke:"var(--ink)","stroke-width":1.5}),s("text",{x:x+(k?6:-6),y:m.t-12+(k?0:0),"text-anchor":k?"start":"end",style:"font-size:12.5px;font-weight:600;fill:var(--ink)",text:n+" "+money(v)}))});
+  root.append(h("div",{class:"legend",style:"margin:0 0 6px"},h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--mark-mute);border-radius:3px"}),"Share of invoices"),h("span",{style:"display:inline-flex;gap:8px;align-items:center;padding:6px 4px"},h("span",{class:"sw",style:"--sw:var(--ink);border-radius:3px"}),"Share of order value")),svg);
+}
+
+/* ---------- drift */
+function renderDrift(){
+  const mt=state.metric,ds=defsOf(mt).filter(d=>!d.governed),g=gov(mt),keys=D.months;
+  const series=ds.map(d=>({id:d.id,name:d.name,slot:d.slot,values:D.drift[mt][d.id]}));
+  let best=null;series.forEach(x=>{const v=x.values.filter(z=>z!=null);const r=Math.max(...v)-Math.min(...v);if(!best||r>best.r)best={r,x,lo:Math.min(...v),hi:Math.max(...v)}});
+  $("#h-drift").textContent=best.x.name+" runs from "+best.lo.toFixed(2)+"× to "+best.hi.toFixed(2)+"× the governed number, so no single scaling factor reconciles them";
+  $("#drift-intro").textContent="Each line is a definition divided by the governed one, month by month. If the lines were flat you could translate one number into another and move on. Where they move, the definitions are measuring different things.";
+  legend($("#drift-leg"),series,driftRef);
+  const cfg={keys,series,zero:false,ref:{value:1,label:"Same as governed ("+g.name+")"},axfmt:v=>(Number.isInteger(v)?v.toFixed(1):+v.toFixed(2))+"×",vfmt:v=>v.toFixed(2)+"×",aria:"Each definition divided by the governed definition, by month.",pick:k=>setMonth(k)};
+  const draw=()=>{if($("#drift").hidden)return;driftRef.c=lineChart($("#drift"),cfg)};draw();driftRef.draw=draw;
+  toggle($("#drift-tb"),$("#drift"),$("#drift-table"),()=>tableTwin(keys,series,v=>v.toFixed(2)+"×"));
+  $("#drift-table").hidden=true;$("#drift").hidden=false;$("#drift-tb").textContent="Show as table";$("#drift-tb").setAttribute("aria-pressed","false");
+}
+
+/* ---------- trust */
+const SEV={high:["High","var(--sev-high)","M7 1.5L13 12.5H1Z"],medium:["Medium","var(--sev-med)","M7 1L13 7L7 13L1 7Z"],low:["Low","var(--sev-low)","M7 1.5a5.5 5.5 0 1 0 .01 0Z"],pass:["Pass","var(--sev-pass)","M2 7.5l3.2 3.2L12 3.5"]};
+function sevCell(k){const [t,c,p]=SEV[k];return h("span",{class:"sev"},s("svg",{viewBox:"0 0 14 14","aria-hidden":"true"},k==="pass"?s("path",{d:p,fill:"none",stroke:c,"stroke-width":2.2,"stroke-linecap":"round","stroke-linejoin":"round"}):s("path",{d:p,fill:c})),t)}
+function renderTrust(){
+  const R=D.ready,nh=D.tests.filter(t=>t.sev==="high").length;
+  $("#h-trust").textContent=pctp(R.pct,1)+" of the "+R.total.toLocaleString("en-GB")+" rows in the file pass every row-level rule, and "+nh+" of "+D.tests.length+" automated tests fail at high severity";
+  $("#trust-intro").textContent="These are the checks a data-quality job would run on every load. Severity is a rule, not an opinion: high when a test touches 5% or more of rows or of the money, medium from 0.5%, low for anything else that fails. A fail does not mean the number is wrong; it means a definition has to decide what to do, and the last column says what the governed layer does.";
+  const t=$("#tests");t.replaceChildren(h("thead",null,h("tr",null,h("th",{text:"Severity"}),h("th",{text:"Test"}),h("th",{class:"num",text:"Rows failing"}),h("th",{class:"num",text:"Share of money"}),h("th",{text:"What the governed layer does"}))),
+    h("tbody",null,D.tests.map(x=>h("tr",null,h("td",{class:"first"},sevCell(x.sev)),h("td",{"data-l":x.dim,text:x.test}),
+      h("td",{class:"num","data-l":"Rows failing"},x.failing.toLocaleString("en-GB"),h("span",{class:"cellsub",text:pctp(x.pr,x.pr<.01&&x.pr>0?2:1)+" of rows"})),
+      h("td",{class:"num","data-l":"Share of money",text:x.failing?pctp(x.pv,x.pv<.01&&x.pv>0?2:1):"0%"}),h("td",{"data-l":"Handling",text:x.handling})))));
+  const W=D.worst_dup;
+  $("#q-h").textContent=W.pct<.01?"Duplicate lines arrive as a steady trickle: no month has more than "+pctp(W.pct,1)+" of its rows duplicated":"Duplicate lines cluster in "+mlab(W.month)+": "+pctp(W.pct,1)+" of that month’s rows"+(W.cross>.5*W.pct?", most of them present on both sheets":"");
+  qChart($("#qchart"));
+  $("#q-note").textContent=D.cross_total>0?D.cross_total.toLocaleString("en-GB")+" lines appear on both sheets of the source workbook. They are exact copies, so the cleaned definition drops them; every other definition counts them twice.":"No line appears on both sheets of the source workbook.";
+}
+function qChart(root){
+  root.replaceChildren();const Q=D.quality,W=Math.max(300,root.clientWidth),H=W<560?220:260,m={l:W<560?40:50,r:8,t:12,b:32},pw=W-m.l-m.r,ph=H-m.t-m.b,n=Q.length,bw=pw/n;
+  const mx=Math.max(...Q.map(q=>q.dup)),ticks=niceTicks(0,mx*1.1||.01,4),top=ticks[ticks.length-1],Y=v=>m.t+ph-v/top*ph,hiI=Q.reduce((a,q,i)=>q.dup>Q[a].dup?i:a,0);
+  const svg=s("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"group","aria-label":"Share of rows that are duplicates, by month"});
+  ticks.forEach(t=>svg.append(s("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)"}),s("text",{x:m.l-8,y:Y(t)+4,"text-anchor":"end",class:"tick",text:pctp(t,t<.01&&t>0?1:0)})));
+  const every=Math.max(1,Math.ceil(n/Math.floor(pw/56)));
+  Q.forEach((q,i)=>{const x0=m.l+i*bw,w=Math.min(24,bw-6),x=x0+(bw-w)/2,v=Math.max(q.dup,.0004);
+    svg.append(s("path",{d:`M${x} ${Y(0)}V${Y(v)+(v>.002?4:0)}${v>.002?`Q${x} ${Y(v)} ${x+4} ${Y(v)}H${x+w-4}Q${x+w} ${Y(v)} ${x+w} ${Y(v)+4}`:`H${x+w}`}V${Y(0)}Z`,fill:i===hiI?"var(--ink)":"var(--mark-mute)"}));
+    if((n-1-i)%every===0)svg.append(s("text",{x:x0+bw/2,y:H-10,"text-anchor":"middle",class:"tick",text:mshort(q.month)}));
+    const hit=s("rect",{x:x0,y:m.t,width:bw,height:ph,fill:"transparent",tabindex:0,"aria-label":mlab(q.month)+": "+pctp(q.dup,2)+" duplicate rows"});
+    const show=e=>{const [px,py]=e.clientX?[e.clientX,e.clientY]:anchorOf(hit,.5,.3);tip.show(tipRows(mlab(q.month),[{label:"Duplicate rows",value:pctp(q.dup,2)},{label:"Present on both sheets",value:pctp(q.cross,2)},{label:"Not a product",value:pctp(q.nonprod,1)},{label:"No customer ID",value:pctp(q.nocust,1)},{label:"Cancellation lines",value:pctp(q.cancel,1)}]),px,py)};
+    hit.addEventListener("pointermove",show);hit.addEventListener("focus",show);hit.addEventListener("pointerleave",tip.hide);hit.addEventListener("blur",tip.hide);svg.append(hit)});
+  root.append(svg);
+}
+
+/* ---------- governed section + footer (static text, filled once) */
+function renderStatic(){
+  const g=m=>gov(m);
+  const items=[["Pick one definition per metric and write it down","Revenue is "+g("revenue").name.toLowerCase()+", active customers is "+g("customers").name.toLowerCase()+", average order value is "+g("aov").name.toLowerCase()+". Each choice is a row in the metric dictionary with its rule, its usual owner and where it goes wrong."],
+    ["Keep the other numbers, and label them","Finance may still want net sales and CRM may still want identified customers. They live in the same table under their definition ids, so nobody has to guess which one a chart used."],
+    ["Test the data before the number is built","Duplicate lines, rows from the wrong sheet, non-product codes and partial months are caught by the tests above and handled in the layer, not patched in each dashboard."],
+    ["Report what the definition leaves out","Guest buyers sit next to active customers, not inside them. Partial months are loaded but never compared."]];
+  $("#steps").replaceChildren(...items.map(([a,b])=>h("li",null,h("b",{text:a}),b)));
+  $("#limits").replaceChildren(...[
+    "One retailer and one two-year file. The pattern is general, the sizes are not.",
+    "There is no ground truth. I cannot prove a repeated line is a mistake rather than two real scans, so the cleaned definition may undercount slightly.",
+    "Definitions were chosen by judgment. Five is a sample of what a real team would argue about, not the full set.",
+    "Revenue is in pounds, unadjusted for inflation or VAT treatment, which the file does not state.",
+    "The trailing 90-day customer count needs 90 days of history, so its first months are blank rather than guessed.",
+    "The last month of the file is partial and is excluded from every comparison."].map(t=>h("li",{text:t,style:"margin:4px 0"})));
+  $("#src").textContent=D.meta.demo?"Synthetic sales for a fictional gift-ware retailer, "+dlab(D.meta.first)+" to "+dlab(D.meta.last)+", "+D.meta.rows.toLocaleString("en-GB")+" invoice lines. Built to mirror the structure of the UCI Online Retail II file.":"Source: UCI Online Retail II, transactions of a UK online gift-ware retailer, "+dlab(D.meta.first)+" to "+dlab(D.meta.last)+", "+D.meta.rows.toLocaleString("en-GB")+" invoice lines.";
+  if(D.meta.demo)$("#demo").hidden=false;
+  $("#foot").replaceChildren(
+    h("p",null,h("b",{text:"Method. "}),"Every number on this page comes from SQL run on one table of invoice lines. The gaps between definitions reconcile to the penny, and the main figures were recomputed independently in pandas. The code, the metric dictionary and the tests are in the repository."),
+    h("p",null,h("b",{text:"Data. "}),D.meta.demo?"Synthetic. Generated by 01_get_data.py with the demo flag. Replace by running it without the flag.":"Chen, D. (2012). Online Retail II. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D. Licensed CC BY 4.0."),
+    h("p",{text:"Independent portfolio project. It has no connection to the retailer, to the data publisher or to any employer, and every definition is an example, not a claim about how any real company counts."}));
+}
+
+/* ---------- wiring */
+function setMonth(k){if(!D.months.includes(k))return;state.month=k;$("#month").value=k;renderAll()}
+function setMetric(m){state.metric=m;[...$("#tabs").children].forEach(b=>b.setAttribute("aria-selected",b.dataset.m===m));renderAll()}
+function renderAll(){renderHero();renderDefs();renderTrend();renderDecide();renderWhy();renderDrift()}
+function init(){
+  const tabs=$("#tabs");Object.keys(TABS).forEach(m=>tabs.append(h("button",{type:"button",role:"tab","data-m":m,"aria-selected":m===state.metric,onclick:()=>setMetric(m)},TABS[m])));
+  tabs.addEventListener("keydown",e=>{const ks=Object.keys(TABS),i=ks.indexOf(state.metric);if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const j=(i+(e.key==="ArrowRight"?1:ks.length-1))%ks.length;setMetric(ks[j]);tabs.children[j].focus()}});
+  const sel=$("#month");[...D.months].reverse().forEach(k=>sel.append(h("option",{value:k,text:mlab(k)})));sel.value=state.month;sel.onchange=()=>setMonth(sel.value);
+  const root=document.documentElement,btn=$("#theme");
+  const apply=t=>{root.dataset.theme=t;btn.textContent=t==="dark"?"Light mode":"Dark mode";rerender()};
+  let saved=null;try{saved=localStorage.getItem("mta-theme")}catch(e){}
+  btn.onclick=()=>{const t=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("mta-theme",t)}catch(e){}apply(t)};
+  renderStatic();renderTrust();
+  const t0=saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");root.dataset.theme=t0;btn.textContent=t0==="dark"?"Light mode":"Dark mode";
+  setMetric("revenue");
+  let raf=0;new ResizeObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(rerender)}).observe(document.body);
+}
+let lastW=0;
+function rerender(){const w=document.body.clientWidth;trendRef.draw&&trendRef.draw();driftRef.draw&&driftRef.draw();if(w!==lastW){lastW=w;renderHero();renderWhy();qChart($("#qchart"))}}
+init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+metric,def_id,name,governed,month,is_full,value
+revenue,R1,Ledger total,0,2009-12,1,799847.11
+revenue,R1,Ledger total,0,2010-01,1,624032.892
+revenue,R1,Ledger total,0,2010-02,1,533091.426
+revenue,R1,Ledger total,0,2010-03,1,765848.761
+revenue,R1,Ledger total,0,2010-04,1,590580.432
+revenue,R1,Ledger total,0,2010-05,1,615322.83
+revenue,R1,Ledger total,0,2010-06,1,679786.61
+revenue,R1,Ledger total,0,2010-07,1,575236.36
+revenue,R1,Ledger total,0,2010-08,1,656776.34
+revenue,R1,Ledger total,0,2010-09,1,853650.431
+revenue,R1,Ledger total,0,2010-10,1,1045168.35
+revenue,R1,Ledger total,0,2010-11,1,1422654.642
+revenue,R1,Ledger total,0,2010-12,1,1126445.47
+revenue,R1,Ledger total,0,2011-01,1,560000.26
+revenue,R1,Ledger total,0,2011-02,1,498062.65
+revenue,R1,Ledger total,0,2011-03,1,683267.08
+revenue,R1,Ledger total,0,2011-04,1,493207.121
+revenue,R1,Ledger total,0,2011-05,1,723333.51
+revenue,R1,Ledger total,0,2011-06,1,691123.12
+revenue,R1,Ledger total,0,2011-07,1,681300.111
+revenue,R1,Ledger total,0,2011-08,1,682680.51
+revenue,R1,Ledger total,0,2011-09,1,1019687.622
+revenue,R1,Ledger total,0,2011-10,1,1070704.67
+revenue,R1,Ledger total,0,2011-11,1,1461756.25
+revenue,R1,Ledger total,0,2011-12,0,433686.01
+revenue,R2,Gross sales,0,2009-12,1,801102.97
+revenue,R2,Gross sales,0,2010-01,1,613850.81
+revenue,R2,Gross sales,0,2010-02,1,539744.68
+revenue,R2,Gross sales,0,2010-03,1,764333.85
+revenue,R2,Gross sales,0,2010-04,1,648993.82
+revenue,R2,Gross sales,0,2010-05,1,645645.39
+revenue,R2,Gross sales,0,2010-06,1,699316.02
+revenue,R2,Gross sales,0,2010-07,1,634896.99
+revenue,R2,Gross sales,0,2010-08,1,676060.72
+revenue,R2,Gross sales,0,2010-09,1,871878.34
+revenue,R2,Gross sales,0,2010-10,1,1098002.92
+revenue,R2,Gross sales,0,2010-11,1,1435680.12
+revenue,R2,Gross sales,0,2010-12,1,1187158.33
+revenue,R2,Gross sales,0,2011-01,1,671933.1900000001
+revenue,R2,Gross sales,0,2011-02,1,508886.2
+revenue,R2,Gross sales,0,2011-03,1,691257.61
+revenue,R2,Gross sales,0,2011-04,1,516218.12
+revenue,R2,Gross sales,0,2011-05,1,741192.41
+revenue,R2,Gross sales,0,2011-06,1,738751.87
+revenue,R2,Gross sales,0,2011-07,1,689364.41
+revenue,R2,Gross sales,0,2011-08,1,725513.5
+revenue,R2,Gross sales,0,2011-09,1,1030475.36
+revenue,R2,Gross sales,0,2011-10,1,1106669.82
+revenue,R2,Gross sales,0,2011-11,1,1457745.53
+revenue,R2,Gross sales,0,2011-12,0,615493.27
+revenue,R3,Net sales,0,2009-12,1,781541.6900000001
+revenue,R3,Net sales,0,2010-01,1,606385.18
+revenue,R3,Net sales,0,2010-02,1,527160.29
+revenue,R3,Net sales,0,2010-03,1,754676.65
+revenue,R3,Net sales,0,2010-04,1,638968.56
+revenue,R3,Net sales,0,2010-05,1,608351.25
+revenue,R3,Net sales,0,2010-06,1,672972.01
+revenue,R3,Net sales,0,2010-07,1,617764.26
+revenue,R3,Net sales,0,2010-08,1,663642.07
+revenue,R3,Net sales,0,2010-09,1,844100.37
+revenue,R3,Net sales,0,2010-10,1,1072452.9
+revenue,R3,Net sales,0,2010-11,1,1400559.24
+revenue,R3,Net sales,0,2010-12,1,1162687.42
+revenue,R3,Net sales,0,2011-01,1,580406.89
+revenue,R3,Net sales,0,2011-02,1,500510.33
+revenue,R3,Net sales,0,2011-03,1,680582.31
+revenue,R3,Net sales,0,2011-04,1,482901.21
+revenue,R3,Net sales,0,2011-05,1,732244.18
+revenue,R3,Net sales,0,2011-06,1,724991.03
+revenue,R3,Net sales,0,2011-07,1,677955.2
+revenue,R3,Net sales,0,2011-08,1,702583.98
+revenue,R3,Net sales,0,2011-09,1,1013430.68
+revenue,R3,Net sales,0,2011-10,1,1062677.66
+revenue,R3,Net sales,0,2011-11,1,1432734.99
+revenue,R3,Net sales,0,2011-12,0,441366.51
+revenue,R4,Net clean revenue,1,2009-12,1,778343.08
+revenue,R4,Net clean revenue,1,2010-01,1,604831.79
+revenue,R4,Net clean revenue,1,2010-02,1,525334.23
+revenue,R4,Net clean revenue,1,2010-03,1,752102.13
+revenue,R4,Net clean revenue,1,2010-04,1,636315.67
+revenue,R4,Net clean revenue,1,2010-05,1,606299.14
+revenue,R4,Net clean revenue,1,2010-06,1,670246.33
+revenue,R4,Net clean revenue,1,2010-07,1,615861.59
+revenue,R4,Net clean revenue,1,2010-08,1,661640.12
+revenue,R4,Net clean revenue,1,2010-09,1,841556.7
+revenue,R4,Net clean revenue,1,2010-10,1,1068970.16
+revenue,R4,Net clean revenue,1,2010-11,1,1394601.8
+revenue,R4,Net clean revenue,1,2010-12,1,758090.5
+revenue,R4,Net clean revenue,1,2011-01,1,578855.19
+revenue,R4,Net clean revenue,1,2011-02,1,499464.35
+revenue,R4,Net clean revenue,1,2011-03,1,679329.21
+revenue,R4,Net clean revenue,1,2011-04,1,482061.93
+revenue,R4,Net clean revenue,1,2011-05,1,730989.92
+revenue,R4,Net clean revenue,1,2011-06,1,723845.14
+revenue,R4,Net clean revenue,1,2011-07,1,676812.08
+revenue,R4,Net clean revenue,1,2011-08,1,701289.93
+revenue,R4,Net clean revenue,1,2011-09,1,1011339.74
+revenue,R4,Net clean revenue,1,2011-10,1,1061701.22
+revenue,R4,Net clean revenue,1,2011-11,1,1426587.54
+revenue,R4,Net clean revenue,1,2011-12,0,440399.56
+revenue,R5,Identified-customer revenue,0,2009-12,1,658581.66
+revenue,R5,Identified-customer revenue,0,2010-01,1,526390.16
+revenue,R5,Identified-customer revenue,0,2010-02,1,485910.02
+revenue,R5,Identified-customer revenue,0,2010-03,1,656463.02
+revenue,R5,Identified-customer revenue,0,2010-04,1,575168.78
+revenue,R5,Identified-customer revenue,0,2010-05,1,555748.88
+revenue,R5,Identified-customer revenue,0,2010-06,1,602544.85
+revenue,R5,Identified-customer revenue,0,2010-07,1,564482.59
+revenue,R5,Identified-customer revenue,0,2010-08,1,582257.88
+revenue,R5,Identified-customer revenue,0,2010-09,1,778184.59
+revenue,R5,Identified-customer revenue,0,2010-10,1,986324.63
+revenue,R5,Identified-customer revenue,0,2010-11,1,1121080.55
+revenue,R5,Identified-customer revenue,0,2010-12,1,547893.92
+revenue,R5,Identified-customer revenue,0,2011-01,1,471430.34
+revenue,R5,Identified-customer revenue,0,2011-02,1,434018.17
+revenue,R5,Identified-customer revenue,0,2011-03,1,573138.05
+revenue,R5,Identified-customer revenue,0,2011-04,1,421127.77
+revenue,R5,Identified-customer revenue,0,2011-05,1,650299.39
+revenue,R5,Identified-customer revenue,0,2011-06,1,640629.21
+revenue,R5,Identified-customer revenue,0,2011-07,1,580214.73
+revenue,R5,Identified-customer revenue,0,2011-08,1,612605.13
+revenue,R5,Identified-customer revenue,0,2011-09,1,921808.74
+revenue,R5,Identified-customer revenue,0,2011-10,1,961042.49
+revenue,R5,Identified-customer revenue,0,2011-11,1,1112565.12
+revenue,R5,Identified-customer revenue,0,2011-12,0,338152.02
+customers,A1,Any record,0,2009-12,1,1045.0
+customers,A1,Any record,0,2010-01,1,786.0
+customers,A1,Any record,0,2010-02,1,807.0
+customers,A1,Any record,0,2010-03,1,1111.0
+customers,A1,Any record,0,2010-04,1,998.0
+customers,A1,Any record,0,2010-05,1,1062.0
+customers,A1,Any record,0,2010-06,1,1095.0
+customers,A1,Any record,0,2010-07,1,988.0
+customers,A1,Any record,0,2010-08,1,964.0
+customers,A1,Any record,0,2010-09,1,1202.0
+customers,A1,Any record,0,2010-10,1,1577.0
+customers,A1,Any record,0,2010-11,1,1683.0
+customers,A1,Any record,0,2010-12,1,948.0
+customers,A1,Any record,0,2011-01,1,783.0
+customers,A1,Any record,0,2011-02,1,798.0
+customers,A1,Any record,0,2011-03,1,1020.0
+customers,A1,Any record,0,2011-04,1,899.0
+customers,A1,Any record,0,2011-05,1,1079.0
+customers,A1,Any record,0,2011-06,1,1051.0
+customers,A1,Any record,0,2011-07,1,993.0
+customers,A1,Any record,0,2011-08,1,980.0
+customers,A1,Any record,0,2011-09,1,1302.0
+customers,A1,Any record,0,2011-10,1,1425.0
+customers,A1,Any record,0,2011-11,1,1711.0
+customers,A1,Any record,0,2011-12,0,686.0
+customers,A2,Purchasing customers,1,2009-12,1,951.0
+customers,A2,Purchasing customers,1,2010-01,1,701.0
+customers,A2,Purchasing customers,1,2010-02,1,771.0
+customers,A2,Purchasing customers,1,2010-03,1,1051.0
+customers,A2,Purchasing customers,1,2010-04,1,939.0
+customers,A2,Purchasing customers,1,2010-05,1,965.0
+customers,A2,Purchasing customers,1,2010-06,1,1034.0
+customers,A2,Purchasing customers,1,2010-07,1,924.0
+customers,A2,Purchasing customers,1,2010-08,1,910.0
+customers,A2,Purchasing customers,1,2010-09,1,1136.0
+customers,A2,Purchasing customers,1,2010-10,1,1492.0
+customers,A2,Purchasing customers,1,2010-11,1,1606.0
+customers,A2,Purchasing customers,1,2010-12,1,884.0
+customers,A2,Purchasing customers,1,2011-01,1,739.0
+customers,A2,Purchasing customers,1,2011-02,1,757.0
+customers,A2,Purchasing customers,1,2011-03,1,973.0
+customers,A2,Purchasing customers,1,2011-04,1,853.0
+customers,A2,Purchasing customers,1,2011-05,1,1054.0
+customers,A2,Purchasing customers,1,2011-06,1,990.0
+customers,A2,Purchasing customers,1,2011-07,1,946.0
+customers,A2,Purchasing customers,1,2011-08,1,933.0
+customers,A2,Purchasing customers,1,2011-09,1,1259.0
+customers,A2,Purchasing customers,1,2011-10,1,1361.0
+customers,A2,Purchasing customers,1,2011-11,1,1660.0
+customers,A2,Purchasing customers,1,2011-12,0,614.0
+customers,A3,Net-positive customers,0,2009-12,1,942.0
+customers,A3,Net-positive customers,0,2010-01,1,699.0
+customers,A3,Net-positive customers,0,2010-02,1,764.0
+customers,A3,Net-positive customers,0,2010-03,1,1047.0
+customers,A3,Net-positive customers,0,2010-04,1,935.0
+customers,A3,Net-positive customers,0,2010-05,1,957.0
+customers,A3,Net-positive customers,0,2010-06,1,1029.0
+customers,A3,Net-positive customers,0,2010-07,1,917.0
+customers,A3,Net-positive customers,0,2010-08,1,907.0
+customers,A3,Net-positive customers,0,2010-09,1,1128.0
+customers,A3,Net-positive customers,0,2010-10,1,1489.0
+customers,A3,Net-positive customers,0,2010-11,1,1599.0
+customers,A3,Net-positive customers,0,2010-12,1,880.0
+customers,A3,Net-positive customers,0,2011-01,1,734.0
+customers,A3,Net-positive customers,0,2011-02,1,752.0
+customers,A3,Net-positive customers,0,2011-03,1,968.0
+customers,A3,Net-positive customers,0,2011-04,1,849.0
+customers,A3,Net-positive customers,0,2011-05,1,1052.0
+customers,A3,Net-positive customers,0,2011-06,1,986.0
+customers,A3,Net-positive customers,0,2011-07,1,941.0
+customers,A3,Net-positive customers,0,2011-08,1,928.0
+customers,A3,Net-positive customers,0,2011-09,1,1253.0
+customers,A3,Net-positive customers,0,2011-10,1,1352.0
+customers,A3,Net-positive customers,0,2011-11,1,1653.0
+customers,A3,Net-positive customers,0,2011-12,0,609.0
+customers,A4,Buyers incl. guests,0,2009-12,1,1120.0
+customers,A4,Buyers incl. guests,0,2010-01,1,791.0
+customers,A4,Buyers incl. guests,0,2010-02,1,867.0
+customers,A4,Buyers incl. guests,0,2010-03,1,1189.0
+customers,A4,Buyers incl. guests,0,2010-04,1,1059.0
+customers,A4,Buyers incl. guests,0,2010-05,1,1084.0
+customers,A4,Buyers incl. guests,0,2010-06,1,1167.0
+customers,A4,Buyers incl. guests,0,2010-07,1,1069.0
+customers,A4,Buyers incl. guests,0,2010-08,1,1036.0
+customers,A4,Buyers incl. guests,0,2010-09,1,1266.0
+customers,A4,Buyers incl. guests,0,2010-10,1,1628.0
+customers,A4,Buyers incl. guests,0,2010-11,1,1755.0
+customers,A4,Buyers incl. guests,0,2010-12,1,1040.0
+customers,A4,Buyers incl. guests,0,2011-01,1,837.0
+customers,A4,Buyers incl. guests,0,2011-02,1,858.0
+customers,A4,Buyers incl. guests,0,2011-03,1,1101.0
+customers,A4,Buyers incl. guests,0,2011-04,1,949.0
+customers,A4,Buyers incl. guests,0,2011-05,1,1178.0
+customers,A4,Buyers incl. guests,0,2011-06,1,1125.0
+customers,A4,Buyers incl. guests,0,2011-07,1,1077.0
+customers,A4,Buyers incl. guests,0,2011-08,1,1005.0
+customers,A4,Buyers incl. guests,0,2011-09,1,1338.0
+customers,A4,Buyers incl. guests,0,2011-10,1,1463.0
+customers,A4,Buyers incl. guests,0,2011-11,1,1769.0
+customers,A4,Buyers incl. guests,0,2011-12,0,654.0
+customers,A5,Trailing 90-day active,0,2009-12,1,
+customers,A5,Trailing 90-day active,0,2010-01,1,
+customers,A5,Trailing 90-day active,0,2010-02,1,1694.0
+customers,A5,Trailing 90-day active,0,2010-03,1,1783.0
+customers,A5,Trailing 90-day active,0,2010-04,1,1954.0
+customers,A5,Trailing 90-day active,0,2010-05,1,2017.0
+customers,A5,Trailing 90-day active,0,2010-06,1,2016.0
+customers,A5,Trailing 90-day active,0,2010-07,1,1996.0
+customers,A5,Trailing 90-day active,0,2010-08,1,1928.0
+customers,A5,Trailing 90-day active,0,2010-09,1,2026.0
+customers,A5,Trailing 90-day active,0,2010-10,1,2486.0
+customers,A5,Trailing 90-day active,0,2010-11,1,2866.0
+customers,A5,Trailing 90-day active,0,2010-12,1,2645.0
+customers,A5,Trailing 90-day active,0,2011-01,1,2181.0
+customers,A5,Trailing 90-day active,0,2011-02,1,1680.0
+customers,A5,Trailing 90-day active,0,2011-03,1,1774.0
+customers,A5,Trailing 90-day active,0,2011-04,1,1889.0
+customers,A5,Trailing 90-day active,0,2011-05,1,1957.0
+customers,A5,Trailing 90-day active,0,2011-06,1,1966.0
+customers,A5,Trailing 90-day active,0,2011-07,1,2019.0
+customers,A5,Trailing 90-day active,0,2011-08,1,1919.0
+customers,A5,Trailing 90-day active,0,2011-09,1,2145.0
+customers,A5,Trailing 90-day active,0,2011-10,1,2454.0
+customers,A5,Trailing 90-day active,0,2011-11,1,2833.0
+customers,A5,Trailing 90-day active,0,2011-12,0,2552.0
+aov,V1,Ledger per invoice,0,2009-12,1,343.28202145922745
+aov,V1,Ledger per invoice,0,2010-01,1,382.13894182486223
+aov,V1,Ledger per invoice,0,2010-02,1,270.74221736922294
+aov,V1,Ledger per invoice,0,2010-03,1,323.5524972539079
+aov,V1,Ledger per invoice,0,2010-04,1,312.1461057082453
+aov,V1,Ledger per invoice,0,2010-05,1,254.47594292803967
+aov,V1,Ledger per invoice,0,2010-06,1,306.7629106498195
+aov,V1,Ledger per invoice,0,2010-07,1,285.19403073872087
+aov,V1,Ledger per invoice,0,2010-08,1,349.90748002131056
+aov,V1,Ledger per invoice,0,2010-09,1,359.4317604210526
+aov,V1,Ledger per invoice,0,2010-10,1,352.50197301854973
+aov,V1,Ledger per invoice,0,2010-11,1,387.7499705641864
+aov,V1,Ledger per invoice,0,2010-12,1,556.2693679012345
+aov,V1,Ledger per invoice,0,2011-01,1,379.4039701897019
+aov,V1,Ledger per invoice,0,2011-02,1,357.5467695620962
+aov,V1,Ledger per invoice,0,2011-03,1,344.56231971759956
+aov,V1,Ledger per invoice,0,2011-04,1,282.8022482798165
+aov,V1,Ledger per invoice,0,2011-05,1,334.5668408880666
+aov,V1,Ledger per invoice,0,2011-06,1,343.50055666003976
+aov,V1,Ledger per invoice,0,2011-07,1,353.5548059159315
+aov,V1,Ledger per invoice,0,2011-08,1,393.0227461139896
+aov,V1,Ledger per invoice,0,2011-09,1,438.1983764503653
+aov,V1,Ledger per invoice,0,2011-10,1,406.0313500189609
+aov,V1,Ledger per invoice,0,2011-11,1,422.22884170999424
+aov,V1,Ledger per invoice,0,2011-12,0,427.2768571428571
+aov,V2,Clean gross per invoice,1,2009-12,1,478.93226890756307
+aov,V2,Clean gross per invoice,1,2010-01,1,583.6963012392755
+aov,V2,Clean gross per invoice,1,2010-02,1,452.4051051303617
+aov,V2,Clean gross per invoice,1,2010-03,1,462.48086217364903
+aov,V2,Clean gross per invoice,1,2010-04,1,450.4117979094077
+aov,V2,Clean gross per invoice,1,2010-05,1,433.61996630727765
+aov,V2,Clean gross per invoice,1,2010-06,1,432.1235669975186
+aov,V2,Clean gross per invoice,1,2010-07,1,420.0360451227604
+aov,V2,Clean gross per invoice,1,2010-08,1,480.76870185449354
+aov,V2,Clean gross per invoice,1,2010-09,1,485.8821240916713
+aov,V2,Clean gross per invoice,1,2010-10,1,487.709995543672
+aov,V2,Clean gross per invoice,1,2010-11,1,525.818602427363
+aov,V2,Clean gross per invoice,1,2010-12,1,500.41184516129033
+aov,V2,Clean gross per invoice,1,2011-01,1,620.1482331174838
+aov,V2,Clean gross per invoice,1,2011-02,1,464.5927447392498
+aov,V2,Clean gross per invoice,1,2011-03,1,479.0510486111111
+aov,V2,Clean gross per invoice,1,2011-04,1,417.3101133603239
+aov,V2,Clean gross per invoice,1,2011-05,1,443.6080035971223
+aov,V2,Clean gross per invoice,1,2011-06,1,483.64523278688523
+aov,V2,Clean gross per invoice,1,2011-07,1,473.980261707989
+aov,V2,Clean gross per invoice,1,2011-08,1,540.8637042569081
+aov,V2,Clean gross per invoice,1,2011-09,1,565.6327722772277
+aov,V2,Clean gross per invoice,1,2011-10,1,550.281421446384
+aov,V2,Clean gross per invoice,1,2011-11,1,527.6550272628135
+aov,V2,Clean gross per invoice,1,2011-12,0,753.0525980392157
+aov,V3,Net per invoice,0,2009-12,1,467.192725090036
+aov,V3,Net per invoice,0,2010-01,1,576.5793994280267
+aov,V3,Net per invoice,0,2010-02,1,441.82862068965517
+aov,V3,Net per invoice,0,2010-03,1,456.64974499089254
+aov,V3,Net per invoice,0,2010-04,1,443.4255540069687
+aov,V3,Net per invoice,0,2010-05,1,408.557371967655
+aov,V3,Net per invoice,0,2010-06,1,415.785564516129
+aov,V3,Net per invoice,0,2010-07,1,408.66727936297275
+aov,V3,Net per invoice,0,2010-08,1,471.92590584878747
+aov,V3,Net per invoice,0,2010-09,1,470.4062045835662
+aov,V3,Net per invoice,0,2010-10,1,476.3681639928698
+aov,V3,Net per invoice,0,2010-11,1,512.9098197866863
+aov,V3,Net per invoice,0,2010-12,1,489.0906451612903
+aov,V3,Net per invoice,0,2011-01,1,535.481211840888
+aov,V3,Net per invoice,0,2011-02,1,456.9664684354986
+aov,V3,Net per invoice,0,2011-03,1,471.75639583333333
+aov,V3,Net per invoice,0,2011-04,1,390.3335465587044
+aov,V3,Net per invoice,0,2011-05,1,438.2433573141487
+aov,V3,Net per invoice,0,2011-06,1,474.6525508196721
+aov,V3,Net per invoice,0,2011-07,1,466.1240220385675
+aov,V3,Net per invoice,0,2011-08,1,523.7415459297983
+aov,V3,Net per invoice,0,2011-09,1,556.2924862486249
+aov,V3,Net per invoice,0,2011-10,1,529.5267930174564
+aov,V3,Net per invoice,0,2011-11,1,518.570534351145
+aov,V3,Net per invoice,0,2011-12,0,539.7053431372549
+aov,V4,Median invoice value,0,2009-12,1,294.56
+aov,V4,Median invoice value,0,2010-01,1,308.01
+aov,V4,Median invoice value,0,2010-02,1,288.3
+aov,V4,Median invoice value,0,2010-03,1,292.95
+aov,V4,Median invoice value,0,2010-04,1,305.2
+aov,V4,Median invoice value,0,2010-05,1,287.885
+aov,V4,Median invoice value,0,2010-06,1,286.7
+aov,V4,Median invoice value,0,2010-07,1,282.45
+aov,V4,Median invoice value,0,2010-08,1,301.78999999999996
+aov,V4,Median invoice value,0,2010-09,1,303.24
+aov,V4,Median invoice value,0,2010-10,1,310.14
+aov,V4,Median invoice value,0,2010-11,1,299.5
+aov,V4,Median invoice value,0,2010-12,1,254.395
+aov,V4,Median invoice value,0,2011-01,1,305.07
+aov,V4,Median invoice value,0,2011-02,1,303.0
+aov,V4,Median invoice value,0,2011-03,1,292.78499999999997
+aov,V4,Median invoice value,0,2011-04,1,300.12
+aov,V4,Median invoice value,0,2011-05,1,304.41999999999996
+aov,V4,Median invoice value,0,2011-06,1,283.95
+aov,V4,Median invoice value,0,2011-07,1,301.23
+aov,V4,Median invoice value,0,2011-08,1,305.34000000000003
+aov,V4,Median invoice value,0,2011-09,1,323.42
+aov,V4,Median invoice value,0,2011-10,1,311.76
+aov,V4,Median invoice value,0,2011-11,1,297.65000000000003
+aov,V4,Median invoice value,0,2011-12,0,295.46000000000004
+aov,V5,Value per consolidated order,0,2009-12,1,524.589848783695
+aov,V5,Value per consolidated order,0,2010-01,1,627.3539139344263
+aov,V5,Value per consolidated order,0,2010-02,1,499.45187558031574
+aov,V5,Value per consolidated order,0,2010-03,1,513.6250708024274
+aov,V5,Value per consolidated order,0,2010-04,1,506.5367789968652
+aov,V5,Value per consolidated order,0,2010-05,1,480.9357473841555
+aov,V5,Value per consolidated order,0,2010-06,1,480.40219999999994
+aov,V5,Value per consolidated order,0,2010-07,1,460.3595054545454
+aov,V5,Value per consolidated order,0,2010-08,1,534.5263441712926
+aov,V5,Value per consolidated order,0,2010-09,1,556.8501729660474
+aov,V5,Value per consolidated order,0,2010-10,1,542.3296481665014
+aov,V5,Value per consolidated order,0,2010-11,1,592.0086045548654
+aov,V5,Value per consolidated order,0,2010-12,1,570.3223235294117
+aov,V5,Value per consolidated order,0,2011-01,1,646.4611764705883
+aov,V5,Value per consolidated order,0,2011-02,1,487.3319289827255
+aov,V5,Value per consolidated order,0,2011-03,1,512.5063224368499
+aov,V5,Value per consolidated order,0,2011-04,1,446.9887163920208
+aov,V5,Value per consolidated order,0,2011-05,1,506.8069520547945
+aov,V5,Value per consolidated order,0,2011-06,1,532.1493362193362
+aov,V5,Value per consolidated order,0,2011-07,1,519.0191101055807
+aov,V5,Value per consolidated order,0,2011-08,1,578.910071942446
+aov,V5,Value per consolidated order,0,2011-09,1,622.0933938294011
+aov,V5,Value per consolidated order,0,2011-10,1,613.6341768631813
+aov,V5,Value per consolidated order,0,2011-11,1,582.4955778491171
+aov,V5,Value per consolidated order,0,2011-12,0,824.8200268456376

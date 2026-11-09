@@ -1,0 +1,15 @@
+test_id,dimension,test,rows_tested,rows_failing,abs_value_failing,handling,pct_rows,pct_value,severity
+C1,Completeness,Customer ID is present,1067371,243007,3820119.7399999998,"Kept in revenue. Excluded from customer counts, reported as guest buyers.",0.22766872999172733,0.16859405656751075,high
+C2,Completeness,Description is present,1067371,4382,0.0,No metric depends on it. Logged only.,0.0041054141437232225,0.0,low
+U1,Uniqueness,No repeated line inside one sheet,1067371,11814,61286.37,"Removed in R4 and everything built on it. Could be a genuine double scan, so it is flagged, not deleted.",0.011068316452292596,0.002704762791178215,medium
+U2,Uniqueness,No line present on both sheets,1067371,22523,500216.85,Removed in R4. The two sheets cover an overlapping stretch of days.,0.021101378995681912,0.022076163483012196,medium
+V1,Validity,Stock code is a real product,1067371,5935,1822000.068,"Postage, fees, manual lines, adjustments and test items are not product revenue. Excluded from R2 to R5.",0.005560390904380951,0.08041066862747094,high
+V2,Validity,Price is above zero,1067371,6207,158676.14,Zero-price lines add no revenue but do add to invoice and customer counts. Purchase definitions require price > 0.,0.005815222635803296,0.007002883664341438,medium
+V3,Validity,Quantity is not zero,1067371,0,0.0,None expected. Fails the load if any appear.,0.0,0.0,pass
+V4,Validity,Unit price is within 10x of the item average,1055287,99,44429.82,"Possible keying error. Reviewed, not removed.",9.381334177337539e-05,0.0019608295279153532,low
+K1,Consistency,Cancellation invoices carry negative quantities,19494,1,373.57,Cancellation prefix and sign should agree.,5.129783523135324e-05,1.648683444459911e-05,low
+K2,Consistency,Non-cancellation invoices carry positive quantities,1047877,3457,0.0,Stock write-offs and adjustments hide here. Counted as credits in R3 and R4.,0.0032990513199545367,0.0,low
+K3,Consistency,Every return follows an earlier purchase of that item by that customer,17933,1538,30222.29,Mostly purchases made before the file starts. Returns still count in the month they are credited.,0.0857636759047566,0.0013338059580979824,high
+K4,Consistency,One invoice belongs to one customer,1067371,0,0.0,Would break order-level metrics. None expected.,0.0,0.0,pass
+K5,Consistency,One stock code has one description,1061436,421204,9471066.59,"Product-name rollups must group by stock code, not by description.",0.39682467901974305,0.4179883472524663,high
+T1,Timeliness,Row falls in a fully covered month,1067371,25526,843935.35,Partial months are loaded but never compared.,0.023914833736348468,0.03724555611369972,medium
